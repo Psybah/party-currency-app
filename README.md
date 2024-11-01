@@ -9,8 +9,6 @@
 - [Getting Started](#getting-started)
 - [Directory Structure](#directory-structure)
 - [Technologies Used](#technologies-used)
-- [Contributing](#contributing)
-- [License](#license)
 
 
 ## Overview
@@ -80,7 +78,6 @@ The **Party Currency** app allows event planners and celebrants to enhance their
        ├── app/              # Python server application files
        ├── requirements.txt  # Python dependencies
        └── README.md
-
 
 ## Technologies Used
 - Flutter: Cross-platform UI toolkit
