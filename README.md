@@ -82,4 +82,4 @@ The **Party Currency** app allows event planners and celebrants to enhance their
 ## Technologies Used
 - Flutter: Cross-platform UI toolkit
 - Dart: Primary language for Flutter
-- Python (Flask): Backend server framework
+- Python (Django): Backend server framework
