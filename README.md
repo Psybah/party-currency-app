@@ -43,10 +43,50 @@ The **Party Currency** app allows event planners and celebrants to enhance their
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/your-username/party-currency-app.git
+   git clone https://github.com/Psybah/party-currency-app.git
    cd party-currency-app
    
 2. **Set Up Flutter Client**
-```bash
-cd client
-flutter pub get
+   ```bash
+   cd client
+   flutter pub get
+
+3. **Set Up Python Server**
+   - Navigate to the server folder.
+   - Create a virtual environment and install dependencies:
+     ```bash
+     python3 -m venv venv
+     source venv/bin/activate  # On Windows, use venv\Scripts\activate
+     pip install -r requirements.txt
+
+4. **Run the Flutter App**
+   - Ensure you have the emulator or physical device connected.
+   - Run the app:
+     ```bash
+     flutter run
+
+5. **Start the Python Server**
+   - Run the server:
+     ```bash
+     python server/app.py
+
+---
+
+## Directory Structure
+   ```bash
+   party-currency-app/
+   ├── client/               # Flutter application
+   │   ├── lib/              # Main application code
+   │   ├── pubspec.yaml      # Flutter dependencies
+   │   └── README.md
+   └── server/               # Python backend server
+       ├── app/              # Python server application files
+       ├── requirements.txt  # Python dependencies
+       └── README.md
+
+
+## Technologies Used
+- Flutter: Cross-platform UI toolkit
+- Dart: Primary language for Flutter
+- Python (Flask): Backend server framework
+
