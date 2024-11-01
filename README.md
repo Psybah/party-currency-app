@@ -12,7 +12,6 @@
 - [Contributing](#contributing)
 - [License](#license)
 
----
 
 ## Overview
 The **Party Currency** app allows event planners and celebrants to enhance their parties by offering digital and physical "party currency." This alternative lets guests spray custom-designed currency at events while staying within legal bounds. Guests can make exchanges at onsite kiosks and with POS agents using secure digital wallets, ensuring a seamless and culturally authentic experience.
@@ -30,7 +29,6 @@ The **Party Currency** app allows event planners and celebrants to enhance their
 - **Foot Soldiers**: POS agents facilitate currency exchange at the party.
 - **Reconciliation**: Redeem party currency for real funds for vendors and performers.
 
----
 
 ## Getting Started
 
@@ -70,7 +68,6 @@ The **Party Currency** app allows event planners and celebrants to enhance their
      ```bash
      python server/app.py
 
----
 
 ## Directory Structure
    ```bash
@@ -89,4 +86,3 @@ The **Party Currency** app allows event planners and celebrants to enhance their
 - Flutter: Cross-platform UI toolkit
 - Dart: Primary language for Flutter
 - Python (Flask): Backend server framework
-
