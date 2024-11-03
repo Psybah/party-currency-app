@@ -148,3 +148,33 @@ def test_token(request):
             {"error": "An error occurred"}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+    
+
+@api_view(['PUT'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def update(request):
+    try:
+        user = request.user
+        data = request.data
+
+        if 'first_name' in data:
+            user.first_name = data['first_name']
+
+        if 'last_name' in data:
+            user.last_name = data['last_name']
+
+        user.save()
+
+        # Serialize and return the updated user data
+        serializer = UserSerializer(user)
+        return Response({
+            "message": "Profile updated successfully",
+            "user": serializer.data
+        })
+
+    except Exception as e:
+        return Response(
+            {"error": "An error occurred while updating profile"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
