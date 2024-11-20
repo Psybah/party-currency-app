@@ -17,13 +17,18 @@ const HeroSection = () => {
 
       {/* Content */}
       <div className="relative z-10 px-6">
-        <h1 className="text-xl font-montserrat tracking-wide mb-4">
+        {/* Title */}
+        <h1 className="text-lg sm:text-xl md:text-2xl font-montserrat tracking-wide mb-4">
           MAKE IT RAIN WITH PARTY CURRENCY!
         </h1>
-        <h2 className="font-bold text-5xl md:text-7xl font-playfair bg-clip-text text-transparent bg-gradient-to-r from-gold via-gradientWhite2 to-gradientWhite3">
-          What’s the Generous Sum <br /> Coming Your Way?
+
+        {/* Main Heading */}
+        <h2 className="font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-playfair bg-clip-text text-transparent bg-gradient-to-r from-gold via-gradientWhite2 to-gradientWhite3">
+          What’s the Generous Sum <br className="hidden sm:block" /> Coming Your Way?
         </h2>
-        <button className="mt-10 px-6 py-3 bg-gold text-white text-lg rounded-xl shadow-md hover:bg-yellow-500 transition-all">
+
+        {/* Button */}
+        <button className="mt-8 sm:mt-10 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-lg bg-gold text-white rounded-lg sm:rounded-xl shadow-md hover:bg-yellow-500 transition-all">
           Get Party Currency
         </button>
       </div>
