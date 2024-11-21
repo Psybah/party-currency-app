@@ -18,12 +18,16 @@ const HeroSection = () => {
       {/* Content */}
       <div className="relative z-10 px-6">
         {/* Title */}
-        <h1 className="text-lg sm:text-xl md:text-2xl font-montserrat tracking-wide mb-4">
+        <h1 className="text-sm sm:text-sm md:text-2xl font-montserrat tracking-wide mb-4">
           MAKE IT RAIN WITH PARTY CURRENCY!
         </h1>
 
         {/* Main Heading */}
-        <h2 className="font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-playfair bg-clip-text text-transparent bg-gradient-to-r from-gold via-gradientWhite2 to-gradientWhite3">
+        <h2 className="font-bold text-4xl sm:text-5xl 
+        md:text-6xl lg:text-7xl font-playfair 
+        bg-clip-text text-transparent 
+        bg-gradient-to-r from-gold
+        via-gradientWhite2 to-gradientWhite3">
           What’s the Generous Sum <br className="hidden sm:block" /> Coming Your Way?
         </h2>
 

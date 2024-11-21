@@ -1,12 +1,53 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/main_logo.svg";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
+
+  const handleScroll = () => {
+    setIsScrolled(window.scrollY > 50);
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  // Smooth scroll to sections
+  const scrollToSection = (sectionId) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+    setIsMenuOpen(false);
+  };
+
+  // Prevent body scrolling when menu is open
+  useEffect(() => {
+    const body = document.body;
+    if (isMenuOpen) {
+      body.classList.add("overflow-hidden");
+    } else {
+      body.classList.remove("overflow-hidden");
+    }
+    return () => {
+      body.classList.remove("overflow-hidden");
+    };
+  }, [isMenuOpen]);
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 text-white">
+    <header
+      className={`fixed top-0 left-0 w-full z-50 py-2 md:px-5 text-white transition-all duration-300 ${
+        isScrolled
+          ? "bg-bluePrimary bg-opacity-30 backdrop-blur-sm shadow-md"
+          : "bg-transparent"
+      }`}
+    >
       <div className="flex justify-between px-7 py-4 items-center w-full">
         {/* Logo */}
         <Link to="/" className="w-28">
@@ -34,21 +75,30 @@ const Header = () => {
           </svg>
         </div>
 
-        {/* Navigation for Desktop and Medium Screens */}
+        {/* Navigation */}
         <nav className="hidden md:flex gap-8 items-center font-montserrat text-lg">
           <Link to="/" className="hover:text-gold">
             Home
           </Link>
-          <Link to="/about" className="hover:text-gold">
-            About Us
-          </Link>
+          {location.pathname === "/" ? (
+            <button
+              className="hover:text-gold"
+              onClick={() => scrollToSection("about")}
+            >
+              About Us
+            </button>
+          ) : (
+            <Link to="/#about" className="hover:text-gold">
+              About Us
+            </Link>
+          )}
           <div className="flex items-center gap-1 hover:text-gold cursor-pointer">
             <Link to="/features">Features</Link>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
-              strokeWidth={1.5}
+              strokeWidth={2}
               stroke="currentColor"
               className="w-5 h-5"
             >
@@ -64,14 +114,14 @@ const Header = () => {
           </Link>
         </nav>
 
-        {/* Login and Signup Buttons */}
+        {/* Login and Signup */}
         <div className="hidden md:flex gap-6 items-center font-montserrat text-lg">
           <Link to="/login" className="hover:text-gold">
             Login
           </Link>
           <Link
             to="/signup"
-            className="px-4 py-2 bg-gold text-white rounded-md"
+            className="px-4 py-2 bg-gold text-white rounded-xl hover:bg-yellow-500"
           >
             Sign Up
           </Link>
@@ -80,7 +130,7 @@ const Header = () => {
 
       {/* Mobile Menu Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-64 bg-bluePrimary bg-opacity-90 z-40 transform ${
+        className={`fixed top-0 right-0 h-full w-60 bg-bluePrimary bg-opacity-90 z-40 transform ${
           isMenuOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300`}
       >
@@ -90,7 +140,7 @@ const Header = () => {
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            strokeWidth={1.5}
+            strokeWidth={2}
             stroke="currentColor"
             className="w-6 h-6 text-white cursor-pointer"
             onClick={() => setIsMenuOpen(false)}
@@ -105,18 +155,30 @@ const Header = () => {
         <div className="flex flex-col gap-6 mt-10 px-6">
           <Link
             to="/"
-            className="text-white text-lg"
+            className="text-white text-lg block"
             onClick={() => setIsMenuOpen(false)}
           >
             Home
           </Link>
-          <Link
-            to="/about"
-            className="text-white text-lg"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            About Us
-          </Link>
+          {location.pathname === "/" ? (
+            <button
+              className="text-white text-lg block text-left"
+              onClick={() => {
+                scrollToSection("about");
+                setIsMenuOpen(false);
+              }}
+            >
+              About Us
+            </button>
+          ) : (
+            <Link
+              to="/#about"
+              className="text-white text-lg block"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              About Us
+            </Link>
+          )}
           <Link
               to="/features"
               className="text-white text-lg flex items-center gap-2"
@@ -127,7 +189,7 @@ const Header = () => {
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                strokeWidth={1.5}
+                strokeWidth={2}
                 stroke="currentColor"
                 className="w-5 h-5"
               >
@@ -138,29 +200,30 @@ const Header = () => {
                 />
               </svg>
             </Link>
-
           <Link
             to="/contact"
-            className="text-white text-lg"
+            className="text-white text-lg block"
             onClick={() => setIsMenuOpen(false)}
           >
             Contact Us
           </Link>
         </div>
+
+        {/* Mobile Menu Footer for Login and Signup */}
         <div className="absolute bottom-6 left-6 right-6">
           <Link
-            to="/login"
-            className="block text-center text-white mb-4 py-2 border border-white rounded-md"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Login
-          </Link>
-          <Link
             to="/signup"
-            className="block text-center py-2 bg-gold text-white rounded-md"
+            className="block text-xl text-center text-gold mb-8"
             onClick={() => setIsMenuOpen(false)}
           >
             Sign Up
+          </Link>
+          <Link
+            to="/login"
+            className="block text-lg text-center text-white mb-12"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Login
           </Link>
         </div>
       </div>
