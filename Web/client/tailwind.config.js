@@ -10,6 +10,10 @@ export default {
         gradientWhite1: "#F3F7FF",
         gradientWhite2: "#CED6E8",
         gradientWhite3: "#FFFFFF",
+        softbg: "#FAF3E0",
+        paragraph: "#2D2D2D",
+        lightgray: "#E3E3E3",
+        secbutton: "#6A7BA2",
       },
       fontFamily: {
         playfair: ["Playfair Display", "serif"],
