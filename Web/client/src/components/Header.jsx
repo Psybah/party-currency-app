@@ -5,6 +5,7 @@ import logo from "../assets/main_logo.svg";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const location = useLocation();
 
   const handleScroll = () => {
@@ -92,8 +93,17 @@ const Header = () => {
               About Us
             </Link>
           )}
-          <div className="flex items-center gap-1 hover:text-gold cursor-pointer">
-            <Link to="/features">Features</Link>
+          <div
+            className="relative flex items-center gap-1 hover:text-gold cursor-pointer"
+            onMouseEnter={() => setIsDropdownOpen(true)}
+            onMouseLeave={() => setIsDropdownOpen(false)}
+          >
+            <button
+              className="hover:text-gold"
+              onClick={() => scrollToSection("features")}
+            >
+              Features
+            </button>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -108,6 +118,35 @@ const Header = () => {
                 d="m19.5 8.25-7.5 7.5-7.5-7.5"
               />
             </svg>
+            {/* Dropdown Menu */}
+            {isDropdownOpen && (
+              <div className="absolute top-full left-0 mt-2 bg-white shadow-md rounded-lg w-52">
+                <button
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  onClick={() => scrollToSection("custom-currency")}
+                >
+                  Custom Currency
+                </button>
+                <button
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  onClick={() => scrollToSection("reconciliation-service")}
+                >
+                  Reconciliation Service
+                </button>
+                <button
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  onClick={() => scrollToSection("vendor-kiosk-system")}
+                >
+                  Vendor Kiosk System
+                </button>
+                <button
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  onClick={() => scrollToSection("foot-soldiers")}
+                >
+                  Foot Soldiers
+                </button>
+              </div>
+            )}
           </div>
           <Link to="/contact" className="hover:text-gold">
             Contact Us
@@ -180,26 +219,26 @@ const Header = () => {
             </Link>
           )}
           <Link
-              to="/features"
-              className="text-white text-lg flex items-center gap-2"
-              onClick={() => setIsMenuOpen(false)}
+            to="/features"
+            className="text-white text-lg flex items-center gap-2"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Features
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-5 h-5"
             >
-              Features
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="w-5 h-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                />
-              </svg>
-            </Link>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m19.5 8.25-7.5 7.5-7.5-7.5"
+              />
+            </svg>
+          </Link>
           <Link
             to="/contact"
             className="text-white text-lg block"

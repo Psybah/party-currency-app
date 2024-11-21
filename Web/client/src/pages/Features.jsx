@@ -53,7 +53,7 @@ const Features = () => {
             <h3 className="text-paragraph font-playfair text-2xl font-bold mb-4">
               {feature.title}
             </h3>
-            <button className="bg-secbutton text-white py-2 px-4 mb-6 rounded-lg">
+            <button className="bg-secbutton text-lg text-white py-3 px-20 mb-6 rounded-xl">
               See More
             </button>
           </div>
