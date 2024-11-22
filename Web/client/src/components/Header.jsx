@@ -4,16 +4,42 @@ import logo from "../assets/main_logo.svg";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [isBlurred, setIsBlurred] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const location = useLocation();
 
-  const handleScroll = () => {
-    setIsScrolled(window.scrollY > 50);
-  };
-
+  // Track header visibility and blur when scrolling past the hero section
   useEffect(() => {
+    const heroSection = document.getElementById("hero-section");
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Apply blur and shadow when scrolling starts
+      if (currentScrollY > 0) {
+        setIsBlurred(true);
+      } else {
+        setIsBlurred(false);
+      }
+
+      // Hide the header when scrolling past hero section
+      if (heroSection) {
+        const heroSectionBottom = heroSection.getBoundingClientRect().bottom;
+        if (heroSectionBottom <= 0) {
+          setIsHeaderVisible(false);
+        } else {
+          setIsHeaderVisible(true);
+        }
+      }
+
+      // Save last scroll position
+      lastScrollY = currentScrollY;
+    };
+
     window.addEventListener("scroll", handleScroll);
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
@@ -44,10 +70,8 @@ const Header = () => {
   return (
     <header
       className={`fixed top-0 left-0 w-full z-50 py-2 md:px-5 text-white transition-all duration-300 ${
-        isScrolled
-          ? "bg-bluePrimary bg-opacity-30 backdrop-blur-sm shadow-md"
-          : "bg-transparent"
-      }`}
+        isHeaderVisible ? "translate-y-0" : "-translate-y-full"
+      } ${isBlurred ? "bg-bluePrimary bg-opacity-30 backdrop-blur-sm shadow-md" : ""}`}
     >
       <div className="flex justify-between px-7 py-4 items-center w-full">
         {/* Logo */}
@@ -78,9 +102,12 @@ const Header = () => {
 
         {/* Navigation */}
         <nav className="hidden md:flex gap-8 items-center font-montserrat text-lg">
-          <Link to="/" className="hover:text-gold">
+          <button
+            className="hover:text-gold"
+            onClick={() => scrollToSection("hero-section")}
+          >
             Home
-          </Link>
+          </button>
           {location.pathname === "/" ? (
             <button
               className="hover:text-gold"
@@ -169,12 +196,12 @@ const Header = () => {
 
       {/* Mobile Menu Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-60 bg-bluePrimary bg-opacity-90 z-40 transform ${
+        className={`fixed top-0 right-0 w-1/2 h-screen bg-bluePrimary bg-opacity-90 z-40 transform ${
           isMenuOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300`}
       >
+        {/* Close Button */}
         <div className="flex justify-end p-4">
-          {/* Close Button */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -191,21 +218,29 @@ const Header = () => {
             />
           </svg>
         </div>
+
+        {/* Menu Items */}
         <div className="flex flex-col gap-6 mt-10 px-6">
-          <Link
-            to="/"
-            className="text-white text-lg block"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Home
-          </Link>
           {location.pathname === "/" ? (
             <button
               className="text-white text-lg block text-left"
-              onClick={() => {
-                scrollToSection("about");
-                setIsMenuOpen(false);
-              }}
+              onClick={() => scrollToSection("hero-section")}
+            >
+              Home
+            </button>
+          ) : (
+            <button
+              className="text-white text-lg block"
+              onClick={() => scrollToSection("hero-section")}
+            >
+              Home
+            </button>
+
+          )}
+          {location.pathname === "/" ? (
+            <button
+              className="text-white text-lg block text-left"
+              onClick={() => scrollToSection("about")}
             >
               About Us
             </button>
@@ -218,13 +253,13 @@ const Header = () => {
               About Us
             </Link>
           )}
-          <Link
-            to="/features"
-            className="text-white text-lg flex items-center gap-2"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Features
-            <svg
+          {location.pathname === "/" ? (
+            <button
+              className="text-white text-lg flex items-center gap-2 text-left"
+              onClick={() => scrollToSection("features")}
+            >
+              Features
+              <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -238,7 +273,16 @@ const Header = () => {
                 d="m19.5 8.25-7.5 7.5-7.5-7.5"
               />
             </svg>
-          </Link>
+            </button>
+          ) : (
+            <Link
+              to="/#features"
+              className="text-white text-lg block"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Features
+            </Link>
+          )}
           <Link
             to="/contact"
             className="text-white text-lg block"
@@ -246,24 +290,24 @@ const Header = () => {
           >
             Contact Us
           </Link>
-        </div>
 
-        {/* Mobile Menu Footer for Login and Signup */}
-        <div className="absolute bottom-6 left-6 right-6">
-          <Link
-            to="/signup"
-            className="block text-xl text-center text-gold mb-8"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Sign Up
-          </Link>
-          <Link
-            to="/login"
-            className="block text-lg text-center text-white mb-12"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Login
-          </Link>
+          {/* Mobile Menu Footer for Login and Signup */}
+          <div className="absolute bottom-6 left-6 right-6">
+            <Link
+              to="/signup"
+              className="block text-xl text-center text-gold mb-8"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Sign Up
+            </Link>
+            <Link
+              to="/login"
+              className="block text-lg text-center text-white mb-12"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Login
+            </Link>
+          </div>
         </div>
       </div>
     </header>
