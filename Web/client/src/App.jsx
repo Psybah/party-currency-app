@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import HeroSection from "./components/HeroSection";
 import About from "./pages/About";
-import Features from "./pages/Features"; 
+import Features from "./pages/Features";
+import CTASection from "./pages/CTASection";
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
               <HeroSection />
               <About />
               <Features />
+              <CTASection />
             </>
           }
         />
