@@ -5,6 +5,7 @@ import HeroSection from "./components/HeroSection";
 import About from "./pages/About";
 import Features from "./pages/Features";
 import CTASection from "./pages/CTASection";
+import Contact from "./pages/Contact";
 
 const App = () => {
   return (
@@ -19,12 +20,13 @@ const App = () => {
               <About />
               <Features />
               <CTASection />
+              <Contact />
             </>
           }
         />
         <Route path="/about" element={<About />} />
         <Route path="/features" element={<Features />} />
-        <Route path="/contact" element={<div className="mt-20">Contact Us</div>} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<div className="mt-20">Login</div>} />
         <Route path="/signup" element={<div className="mt-20">Sign Up</div>} />
       </Routes>
