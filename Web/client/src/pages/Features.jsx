@@ -26,6 +26,7 @@ const Features = () => {
 
   return (
     <section id="features" className="py-10 px-5 md:px-20 bg-softbg">
+      {/* Section Title */}
       <div className="mb-10 text-center">
         <h3 className="text-bluePrimary text-3xl md:text-5xl font-playfair 
                         font-bold mt-5 mb-6 text-center">
@@ -33,39 +34,45 @@ const Features = () => {
         </h3>
         <p className="text-lg text-paragraph leading-relaxed text-center">
           Discover our services for effortless spraying and see how we enhance
-          <br className="hidden sm:block"/> your party experience with ease and excitement.
+          <br className="hidden sm:block" /> your party experience with ease and excitement.
         </p>
       </div>
 
       {/* Card Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-6 p-7">
         {featuresData.map((feature, index) => (
-            <div
+          <div
             key={index}
-            className="bg-lightgray rounded-3xl 
+            className="bg-lightgray rounded-2xl 
                 text-center overflow-hidden 
                 transform transition-transform duration-300 hover:scale-105"
-            >
-            <div className="p-4">
-                <img
+          >
+            {/* Image */}
+            <div className="p-6">
+              <img
                 src={feature.img}
                 alt={feature.title}
                 className="items-center w-full h-auto 
-                           object-contain rounded-xl mb-2 
+                           object-contain rounded-xl mb-4 
                            border-b border-gray-300"
-                />
+              />
             </div>
-            <h3 className="text-paragraph font-playfair text-2xl font-bold mb-4">
-                {feature.title}
-            </h3>
-            <button className="bg-secbutton text-lg text-white 
-                                py-3 px-20 mb-6 rounded-xl cursor-pointer">
-                See More
-            </button>
-            </div>
-  ))}
-</div>
 
+            {/* Title */}
+            <h3 className="text-paragraph font-playfair text-xl font-bold mb-4 px-2">
+              {feature.title}
+            </h3>
+
+            {/* Button */}
+            <button
+              className="bg-secbutton text-lg text-white 
+                                py-3 px-4 w-[80%] mx-auto mb-6 rounded-lg cursor-pointer"
+            >
+              See More
+            </button>
+          </div>
+        ))}
+      </div>
     </section>
   );
 };

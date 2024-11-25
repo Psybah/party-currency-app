@@ -25,7 +25,7 @@ const CTASection = () => {
 
           {/* Subtitle */}
           <p
-            className="font-bold text-sm sm:text-xl 
+            className="font-bold text-xl sm:text-xl 
             md:text-3xl lg:text-4xl xl:text-5xl font-playfair 
             bg-clip-text text-transparent bg-gradient-to-r from-gold 
             via-gradientWhite2 to-gradientWhite3 mb-2 sm:mb-2 md:mb-4 lg:mb-10 "
