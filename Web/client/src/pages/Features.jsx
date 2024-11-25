@@ -43,7 +43,7 @@ const Features = () => {
             <div
             key={index}
             className="bg-lightgray rounded-3xl 
-                shadow-md text-center overflow-hidden 
+                text-center overflow-hidden 
                 transform transition-transform duration-300 hover:scale-105"
             >
             <div className="p-4">
