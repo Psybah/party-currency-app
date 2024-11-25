@@ -283,13 +283,22 @@ const Header = () => {
               Features
             </Link>
           )}
-          <Link
-            to="/contact"
-            className="text-white text-lg block"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Contact Us
-          </Link>
+          {location.pathname === "/" ? (
+            <button
+              className="text-white text-lg block text-left"
+              onClick={() => scrollToSection("contact")}
+            >
+              Contact Us
+            </button>
+          ) : (
+            <Link
+              to="/#contact"
+              className="text-white text-lg block"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Contact Us
+            </Link>
+          )}
 
           {/* Mobile Menu Footer for Login and Signup */}
           <div className="absolute bottom-6 left-6 right-6">
