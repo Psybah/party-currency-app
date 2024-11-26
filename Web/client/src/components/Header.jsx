@@ -196,7 +196,7 @@ const Header = () => {
 
       {/* Mobile Menu Panel */}
       <div
-        className={`fixed top-0 right-0 w-1/2 h-screen bg-bluePrimary bg-opacity-90 z-40 transform ${
+        className={`fixed top-0 right-0 w-1/2 h-screen bg-bluePrimary backdrop-blur bg-opacity-80 z-40 transform ${
           isMenuOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300`}
       >
@@ -208,7 +208,7 @@ const Header = () => {
             viewBox="0 0 24 24"
             strokeWidth={2}
             stroke="currentColor"
-            className="w-6 h-6 text-white cursor-pointer"
+            className="w-8 h-8 text-white cursor-pointer"
             onClick={() => setIsMenuOpen(false)}
           >
             <path
