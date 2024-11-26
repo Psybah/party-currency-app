@@ -147,27 +147,28 @@ const Header = () => {
             </svg>
             {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <div className="absolute top-full left-0 mt-2 bg-white shadow-md rounded-lg w-52">
+              <div className="absolute top-full left-0 mt-4 bg-bluePrimary 
+                              bg-opacity-50 backdrop-blur-xl shadow-md text-white w-60 rounded-md">
                 <button
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-4 hover:bg-gray-100"
                   onClick={() => scrollToSection("custom-currency")}
                 >
                   Custom Currency
                 </button>
                 <button
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-4 hover:bg-gray-100"
                   onClick={() => scrollToSection("reconciliation-service")}
                 >
                   Reconciliation Service
                 </button>
                 <button
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-4 hover:bg-gray-100"
                   onClick={() => scrollToSection("vendor-kiosk-system")}
                 >
                   Vendor Kiosk System
                 </button>
                 <button
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-4 hover:bg-gray-100"
                   onClick={() => scrollToSection("foot-soldiers")}
                 >
                   Foot Soldiers
