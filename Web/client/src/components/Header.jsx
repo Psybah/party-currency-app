@@ -4,9 +4,10 @@ import logo from "../assets/main_logo.svg";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isBlurred, setIsBlurred] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
+
   const location = useLocation();
 
   // Track header visibility and blur when scrolling past the hero section
@@ -45,6 +46,24 @@ const Header = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const menuPanel = document.getElementById("mobile-menu-panel");
+      if (menuPanel && !menuPanel.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+  
+    if (isMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+  
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMenuOpen]);
+  
+
   // Smooth scroll to sections
   const scrollToSection = (sectionId) => {
     const section = document.getElementById(sectionId);
@@ -69,9 +88,9 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-50 py-2 md:px-5 text-white transition-all duration-300 ${
-        isHeaderVisible ? "translate-y-0" : "-translate-y-full"
-      } ${isBlurred ? "bg-bluePrimary bg-opacity-30 backdrop-blur-sm shadow-md" : ""}`}
+      className={`fixed top-0 left-0 w-full z-50 py-2 md:px-5 text-white 
+        transition-all duration-300 
+        ${isBlurred ? "bg-bluePrimary bg-opacity-30 backdrop-blur-sm shadow-md" : ""}`}
     >
       <div className="flex justify-between px-7 py-4 items-center w-full">
         {/* Logo */}
@@ -122,8 +141,7 @@ const Header = () => {
           )}
           <div
             className="relative flex items-center gap-1 hover:text-gold cursor-pointer"
-            onMouseEnter={() => setIsDropdownOpen(true)}
-            onMouseLeave={() => setIsDropdownOpen(false)}
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           >
             <button
               className="hover:text-gold"
@@ -131,20 +149,22 @@ const Header = () => {
             >
               Features
             </button>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-5 h-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m19.5 8.25-7.5 7.5-7.5-7.5"
-              />
-            </svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className={`w-5 h-5 transform ${
+                  isDropdownOpen ? "rotate-180" : "rotate-0"
+                }`}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                />
+              </svg>
             {/* Dropdown Menu */}
             {isDropdownOpen && (
               <div className="absolute top-full left-0 mt-4 bg-bluePrimary 
@@ -176,9 +196,12 @@ const Header = () => {
               </div>
             )}
           </div>
-          <Link to="/contact" className="hover:text-gold">
+          <button
+            className="hover:text-gold"
+            onClick={() => scrollToSection("contact")}
+          >
             Contact Us
-          </Link>
+          </button>
         </nav>
 
         {/* Login and Signup */}
@@ -188,7 +211,7 @@ const Header = () => {
           </Link>
           <Link
             to="/signup"
-            className="px-4 py-2 bg-gold text-white rounded-xl hover:bg-yellow-500"
+            className="px-4 py-2 bg-gold text-white rounded-lg hover:bg-yellow-500"
           >
             Sign Up
           </Link>
@@ -197,7 +220,9 @@ const Header = () => {
 
       {/* Mobile Menu Panel */}
       <div
-        className={`fixed top-0 right-0 w-1/2 h-screen bg-bluePrimary backdrop-blur bg-opacity-80 z-40 transform ${
+        id="mobile-menu-panel"
+        className={`fixed top-0 right-0 w-1/2 h-screen bg-bluePrimary 
+          bg-opacity-90 backdrop-blur-sm z-40 transform ${
           isMenuOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300`}
       >
@@ -254,39 +279,69 @@ const Header = () => {
               About Us
             </Link>
           )}
-          {location.pathname === "/" ? (
+          {/* Features Dropdown */}
+          <div>
             <button
-              className="text-white text-lg flex items-center gap-2 text-left"
-              onClick={() => scrollToSection("features")}
+              className="text-white text-lg flex items-center gap-2 w-full text-left"
+              onClick={() => scrollToSection("features")} // Scroll to "Features" when "Features" text is clicked
             >
               Features
               <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-5 h-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m19.5 8.25-7.5 7.5-7.5-7.5"
-              />
-            </svg>
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className={`w-5 h-5 transform ${
+                  isMobileDropdownOpen ? "rotate-180" : "rotate-0"
+                } cursor-pointer`}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent "Features" click event
+                  setIsMobileDropdownOpen(!isMobileDropdownOpen); // Toggle dropdown
+                }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                />
+              </svg>
             </button>
-          ) : (
-            <Link
-              to="/#features"
-              className="text-white text-lg block"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Features
-            </Link>
-          )}
+
+            {/* Dropdown Items */}
+            {isMobileDropdownOpen && (
+              <div className="mt-2 ml-2 flex flex-col gap-4">
+                <button
+                  className="text-white text-sm text-left"
+                  onClick={() => scrollToSection("custom-currency")}
+                >
+                  Custom Currency
+                </button>
+                <button
+                  className="text-white text-sm text-left"
+                  onClick={() => scrollToSection("reconciliation-service")}
+                >
+                  Reconciliation Service
+                </button>
+                <button
+                  className="text-white text-sm text-left"
+                  onClick={() => scrollToSection("vendor-kiosk-system")}
+                >
+                  Vendor Kiosk System
+                </button>
+                <button
+                  className="text-white text-sm text-left"
+                  onClick={() => scrollToSection("foot-soldiers")}
+                >
+                  Foot Soldiers
+                </button>
+              </div>
+            )}
+          </div>
+
           {location.pathname === "/" ? (
             <button
-              className="text-white text-lg block text-left"
+              className="text-white text-lg flex items-center gap-2 text-left"
               onClick={() => scrollToSection("contact")}
             >
               Contact Us
