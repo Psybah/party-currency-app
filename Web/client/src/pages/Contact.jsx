@@ -13,7 +13,7 @@ const Contact = () => {
         {/* Left Section: Contact Info */}
         <div className="flex-1 text-left">
           <h4 className="text-bluePrimary font-playfair font-bold text-lg uppercase mb-2">Contact Us</h4>
-          <h2 className="text-bluePrimary font-playfair text-3xl md:text-5xl font-bold mb-6">
+          <h2 className="text-bluePrimary font-playfair text-2xl md:text-5xl font-bold mb-6">
             Get In Touch With Us
           </h2>
           <p className="text-gray-600 text-lg leading-relaxed mb-6">
@@ -66,12 +66,9 @@ const Contact = () => {
         </div>
 
         {/* Right Section: Contact Form */}
-        <div className="flex-1 bg-bluePrimary text-white p-8 rounded-2xl">
-          <form className="space-y-4">
+        <div className="flex-1 bg-bluePrimary text-white p-10 rounded-2xl">
+          <form className="space-y-6">
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium mb-1">
-                Full Name
-              </label>
               <input
                 type="text"
                 id="fullName"
@@ -81,9 +78,6 @@ const Contact = () => {
             </div>
 
             <div>
-              <label htmlFor="emailAddress" className="block text-sm font-medium mb-1">
-                Email Address
-              </label>
               <input
                 type="email"
                 id="emailAddress"
@@ -93,9 +87,6 @@ const Contact = () => {
             </div>
 
             <div>
-              <label htmlFor="telephone" className="block text-sm font-medium mb-1">
-                Telephone
-              </label>
               <input
                 type="text"
                 id="telephone"
@@ -105,9 +96,6 @@ const Contact = () => {
             </div>
 
             <div>
-              <label htmlFor="message" className="block text-sm font-medium mb-1">
-                Type in message...
-              </label>
               <textarea
                 id="message"
                 placeholder="Type in message..."
@@ -118,8 +106,8 @@ const Contact = () => {
 
             <button
               type="submit"
-              className="bg-gold rounded-md hover:bg-yellow-500 
-              text-lg font-medium py-3 px-6 transition-all w-full"
+              className="bg-gold rounded-lg hover:bg-yellow-500 flx items-center justify-center
+              text-lg font-medium py-5 px-6 transition-all w-[3/4]"
             >
               Send Message <FontAwesomeIcon icon={faPaperPlane} className="ml-2" />
             </button>
