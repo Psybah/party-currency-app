@@ -7,28 +7,28 @@ const CTASection = () => {
   return (
     <section className="relative flex items-center justify-center py-20 px-5 bg-gray-50">
       {/* Image Container */}
-      <div className="relative w-full max-w-6xl">
+      <div className="relative w-full max-w-3xl mx-auto">
         {/* Background Image */}
         <img
           src={ctaImg}
           alt="Call to Action"
-          className="w-full rounded-lg object-cover"
-        />
+          className="w-full rounded-xl object-cover md:max-h-[500px] lg:max-h-[1000px] xl:max-h-[1500px]" />
 
         {/* Overlay Content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-5">
           {/* Heading */}
-          <h2 className="text-sm sm:text-xl md:text-4xl lg:text-5xl 
-          text-white font-playfair mb-2 sm:mb-2 md:mb-10 lg:mb-20">
+          <h2 className="text-sm sm:text-xl md:text-3xl lg:text-4xl
+           text-white font-playfair mb-2 sm:mb-2 md:mb-8 lg:mb-12
+           mt-2 sm:mt-2 md:mt-8 lg:mt-8">
             Join the Celebration!
           </h2>
 
           {/* Subtitle */}
           <p
-            className="font-bold text-xl sm:text-xl 
-            md:text-3xl lg:text-4xl xl:text-5xl font-playfair 
-            bg-clip-text text-transparent bg-gradient-to-r from-gold 
-            via-gradientWhite2 to-gradientWhite3 mb-2 sm:mb-2 md:mb-4 lg:mb-10 "
+            className="font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl 
+            xl:text-4xl font-playfair bg-clip-text text-transparent 
+            bg-gradient-to-r from-gold via-gradientWhite2 to-gradientWhite3 
+            mb-1 sm:mb-2 md:mb-8 lg:mb-10"
           >
             Experience secure transactions with <br /> Party Currency by
             downloading <br />
@@ -36,21 +36,42 @@ const CTASection = () => {
           </p>
 
           {/* App Store Buttons */}
-          <div className="flex flex-row flex-wrap items-center justify-center gap-3 sm:gap-6 mt-2 sm:mt-10 md:mt-10 lg:mt-10">
+          <div className="flex flex-row flex-wrap items-center justify-center 
+          gap-3 sm:gap-4 md:gap-6 mt-3 sm:mt-6 md:mt-8">
             {/* Apple Store Button */}
-            <button className="flex items-center gap-2 px-3 py-2 sm:px-6 sm:py-3 bg-gold text-white text-xs sm:text-lg rounded-xl hover:bg-yellow-500 transition">
-            <FontAwesomeIcon icon={faApple} className="mr-1 sm:mr-1 md:mr-2 lg:mr-2 text-lg sm:text-lg md:text-3xl lg:text-5xl" />
+            <button className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-3 
+            md:px-5 md:py-2 bg-gold text-white text-xs sm:text-sm md:text-lg 
+            rounded-lg hover:bg-yellow-500 transition">
+              <FontAwesomeIcon
+                icon={faApple}
+                className="text-base sm:text-lg md:text-2xl lg:text-2xl"
+              />
               <div className="flex flex-col items-start leading-tight">
-                <span className="text-[10px] sm:text-sm md:text-lg lg:text-2xl font-playfair">Download on the</span>
-                <span className="text-sm sm:text-sm md:text-xl lg:text-4xl font-playfair">Google Play</span>
+                <span className="text-[10px] sm:text-xs md:text-sm 
+                lg:text-base font-playfair">
+                  Download on the
+                </span>
+                <span className="text-sm sm:text-base md:text-lg lg:text-xl font-playfair">
+                  App Store
+                </span>
               </div>
             </button>
             {/* Google Play Button */}
-            <button className="flex items-center gap-2 px-3 py-2 sm:px-6 sm:py-3 bg-gold text-white text-xs sm:text-lg rounded-xl hover:bg-yellow-500 transition">
-              <FontAwesomeIcon icon={faGooglePlay} className="mr-1 sm:mr-1 md:mr-2 lg:mr-2 text-lg sm:text-lg md:text-3xl lg:text-5xl" />
+            <button className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-3 
+            md:px-5 md:py-2 bg-gold text-white text-xs sm:text-sm md:text-lg 
+            rounded-lg hover:bg-yellow-500 transition">
+              <FontAwesomeIcon
+                icon={faGooglePlay}
+                className="text-base sm:text-lg md:text-2xl lg:text-2xl"
+              />
               <div className="flex flex-col items-start leading-tight">
-                <span className="text-[10px] sm:text-sm md:text-lg lg:text-2xl font-playfair">Download on the</span>
-                <span className="text-sm sm:text-sm md:text-xl lg:text-4xl font-playfair">Google Play</span>
+                <span className="text-[10px] sm:text-xs md:text-sm 
+                lg:text-base font-playfair">
+                  Download on the
+                </span>
+                <span className="text-sm sm:text-base md:text-lg lg:text-xl font-playfair">
+                  Google Play
+                </span>
               </div>
             </button>
           </div>

@@ -4,13 +4,14 @@ import aboutImage from "../assets/about-img.jpg";
 const About = () => {
   return (
     <section id="about" className="py-20 px-5 md:px-20 bg-white">
-      <div className="flex flex-col md:flex-row items-center gap-10">
+      <div className="flex flex-col md:flex-row items-center gap-10
+      mr-auto ml-auto lg:max-w-[90%]">
         {/* Text Section */}
         <div className="flex-1">
           <h3 className="text-bluePrimary uppercase font-bold text-lg font-playfair mb-4 text-center md:text-left">
             Smart Spraying Solution
           </h3>
-          <h2 className="text-bluePrimary text-3xl md:text-5xl font-playfair font-bold mb-6 text-center md:text-left">
+          <h2 className="text-bluePrimary text-3xl md:text-4xl lg:text-5xl font-playfair font-bold mb-6 text-center md:text-left">
             No Worries, Just Party
           </h2>
           <p className="text-paragraph leading-relaxed text-center md:text-left">
@@ -29,7 +30,7 @@ const About = () => {
           <img
             src={aboutImage}
             alt="About Party Currency"
-            className="rounded-3xl shadow-md w-full object-cover"
+            className="rounded-3xl w-full object-cover md:max-h-[500px]" 
           />
         </div>
       </div>
