@@ -7,8 +7,9 @@ import callsvg from "../assets/contact-icons/call.svg";
 
 const Contact = () => {
   return (
-    <section id="contact" className="bg-white py-20 px-5 md:px-20">
-      <div className="flex flex-col md:flex-row gap-10 items-start">
+    <section id="contact" className="bg-white py-20 px-5 md:px-20 ">
+      <div className="flex flex-col md:flex-row gap-10 items-start 
+      mr-auto ml-auto lg:max-w-[90%]">
         {/* Left Section: Contact Info */}
         <div className="flex-1 text-left">
           <h4 className="text-bluePrimary font-playfair font-bold text-lg uppercase mb-2">Contact Us</h4>
@@ -66,7 +67,7 @@ const Contact = () => {
 
         {/* Right Section: Contact Form */}
         <div className="flex-1 bg-bluePrimary text-white p-8 rounded-2xl">
-          <form className="space-y-6">
+          <form className="space-y-4">
             <div>
               <label htmlFor="fullName" className="block text-sm font-medium mb-1">
                 Full Name
@@ -75,7 +76,7 @@ const Contact = () => {
                 type="text"
                 id="fullName"
                 placeholder="Full Name"
-                className="w-full p-3 rounded-lg text-gray-900"
+                className="w-full p-3 rounded-md text-gray-900"
               />
             </div>
 
@@ -87,7 +88,7 @@ const Contact = () => {
                 type="email"
                 id="emailAddress"
                 placeholder="Email Address"
-                className="w-full p-3 rounded-lg text-gray-900"
+                className="w-full p-3 rounded-md text-gray-900"
               />
             </div>
 
@@ -99,7 +100,7 @@ const Contact = () => {
                 type="text"
                 id="telephone"
                 placeholder="Telephone"
-                className="w-full p-3 rounded-lg text-gray-900"
+                className="w-full p-3 rounded-md text-gray-900"
               />
             </div>
 
@@ -110,14 +111,14 @@ const Contact = () => {
               <textarea
                 id="message"
                 placeholder="Type in message..."
-                rows="5"
-                className="w-full p-3 rounded-lg text-gray-900"
+                rows="4"
+                className="w-full p-3 rounded-md text-gray-900"
               />
             </div>
 
             <button
               type="submit"
-              className="bg-gold rounded-lg hover:bg-yellow-500 
+              className="bg-gold rounded-md hover:bg-yellow-500 
               text-lg font-medium py-3 px-6 transition-all w-full"
             >
               Send Message <FontAwesomeIcon icon={faPaperPlane} className="ml-2" />
