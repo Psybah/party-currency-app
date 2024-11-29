@@ -14,6 +14,7 @@ export default {
         paragraph: "#2D2D2D",
         lightgray: "#E3E3E3",
         secbutton: "#6A7BA2",
+        footer: "#1A1A1A",
       },
       fontFamily: {
         playfair: ["Playfair Display", "serif"],

@@ -1,19 +1,17 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faPaperPlane, faPhone } from "@fortawesome/free-solid-svg-icons";
-import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
-import callsvg from "../assets/contact-icons/call.svg";
 
 
 const Contact = () => {
   return (
     <section id="contact" className="bg-white py-20 px-5 md:px-20 ">
       <div className="flex flex-col md:flex-row gap-10 items-start 
-      mr-auto ml-auto lg:max-w-[90%]">
+      mr-auto ml-auto lg:max-w-[80%]">
         {/* Left Section: Contact Info */}
         <div className="flex-1 text-left">
           <h4 className="text-bluePrimary font-playfair font-bold text-lg uppercase mb-2">Contact Us</h4>
-          <h2 className="text-bluePrimary font-playfair text-2xl md:text-5xl font-bold mb-6">
+          <h2 className="text-bluePrimary font-playfair text-2xl md:text-4xl font-bold mb-6">
             Get In Touch With Us
           </h2>
           <p className="text-gray-600 text-lg leading-relaxed mb-6">
@@ -73,26 +71,29 @@ const Contact = () => {
                 type="text"
                 id="fullName"
                 placeholder="Full Name"
-                className="w-full p-3 rounded-md text-gray-900"
-              />
+                className="w-full p-3 rounded-sm text-gray-900"/>
             </div>
 
-            <div>
+            <div className="relative">
               <input
                 type="email"
                 id="emailAddress"
                 placeholder="Email Address"
-                className="w-full p-3 rounded-md text-gray-900"
+                className="w-full p-3 rounded-sm text-gray-900"/>
+              <FontAwesomeIcon
+                icon={faEnvelope}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2
+                 text-secbutton"
               />
             </div>
+
 
             <div>
               <input
                 type="text"
                 id="telephone"
                 placeholder="Telephone"
-                className="w-full p-3 rounded-md text-gray-900"
-              />
+                className="w-full p-3 rounded-sm text-gray-900"/>
             </div>
 
             <div>
@@ -100,17 +101,16 @@ const Contact = () => {
                 id="message"
                 placeholder="Type in message..."
                 rows="4"
-                className="w-full p-3 rounded-md text-gray-900"
-              />
+                className="w-full p-3 rounded-sm text-gray-900"/>
             </div>
 
             <button
               type="submit"
-              className="bg-gold rounded-lg hover:bg-yellow-500 flx items-center justify-center
-              text-lg font-medium py-5 px-6 transition-all w-[3/4]"
-            >
+              className="bg-gold rounded-xl hover:bg-yellow-500
+              text-lg font-medium py-5 px-6 transition-all mx-auto block">
               Send Message <FontAwesomeIcon icon={faPaperPlane} className="ml-2" />
             </button>
+
           </form>
         </div>
       </div>
