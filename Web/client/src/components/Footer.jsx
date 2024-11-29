@@ -13,7 +13,7 @@ const Footer = () => {
       <div className="container mx-auto flex flex-col md:flex-row justify-between gap-10">
         {/* Company Section */}
         <div>
-          <h3 className="font-playfair font-medium text-xl mb-4">Company</h3>
+          <h3 className="font-playfair font-bold text-3xl mb-4">Company</h3>
           <ul className="space-y-2">
             <li>
               <a href="#" className="hover:text-secbutton">
@@ -40,7 +40,7 @@ const Footer = () => {
 
         {/* Features Section */}
         <div>
-          <h3 className="font-playfair font-medium text-xl mb-4">Features</h3>
+          <h3 className="font-playfair font-bold text-3xl mb-4">Features</h3>
           <ul className="space-y-2">
             <li>
               <a href="#" className="hover:text-secbutton">
@@ -67,9 +67,9 @@ const Footer = () => {
 
         {/* Contact Section */}
         <div>
-          <h3 className="font-playfair font-medium text-xl mb-4">Contact</h3>
+          <h3 className="font-playfair font-bold text-3xl mb-4">Contact</h3>
           <ul className="space-y-2">
-            <li>Partycurrency@gmail.com</li>
+            <li>partycurrency@gmail.com</li>
             <li>Whatsapp: +1 (764) 3782 85</li>
             <li>Call: 1 (437) 1234 74</li>
           </ul>
@@ -86,7 +86,7 @@ const Footer = () => {
 
       {/* Description Section */}
       <div className="text-left mt-10 text-lg">
-        <p className="font-playfair font-bold text-xl">
+        <p className="font-playfair font-medium text-2xl">
           Party Currency: Effortless Management for Your Event Finances
         </p>
         <p className="mt-2">
