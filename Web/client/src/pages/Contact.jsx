@@ -1,14 +1,18 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope, faPaperPlane, faPhone } from "@fortawesome/free-solid-svg-icons";
-
-
+import { faEnvelope, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import contactIcon from "../assets/contact-icons/contact-icon.svg"; 
 const Contact = () => {
+  
   return (
-    <section id="contact" className="bg-white py-20 px-5 md:px-20 ">
-      <div className="flex flex-col md:flex-row gap-10 items-start 
-      mr-auto ml-auto lg:max-w-[80%]">
-        {/* Left Section: Contact Info */}
+    <>
+      {/* Contact Section */}
+      <section
+        id="contact"
+        className="bg-white py-20 px-5 md:px-20 hidden sm:block" 
+      >
+        <div className="flex flex-col md:flex-row gap-10 items-start mr-auto ml-auto lg:max-w-[80%]">
+          {/* Left Section: Contact Info */}
         <div className="flex-1 text-left">
           <h4 className="text-bluePrimary font-playfair font-bold text-lg uppercase mb-2">Contact Us</h4>
           <h2 className="text-bluePrimary font-playfair text-2xl md:text-4xl font-bold mb-6">
@@ -63,58 +67,77 @@ const Contact = () => {
           </div>
         </div>
 
-        {/* Right Section: Contact Form */}
-        <div className="flex-1 bg-bluePrimary text-white p-10 rounded-2xl">
-          <form className="space-y-6">
-            <div>
-              <input
-                type="text"
-                id="fullName"
-                placeholder="Full Name"
-                className="w-full p-3 rounded-sm text-gray-900"/>
-            </div>
+          {/* Right Section: Contact Form */}
+          <div className="flex-1 bg-bluePrimary text-white p-10 rounded-2xl">
+            <form className="space-y-6">
+              <div>
+                <input
+                  type="text"
+                  id="fullName"
+                  placeholder="Full Name"
+                  className="w-full p-3 rounded-sm text-gray-900"
+                />
+              </div>
 
-            <div className="relative">
-              <input
-                type="email"
-                id="emailAddress"
-                placeholder="Email Address"
-                className="w-full p-3 rounded-sm text-gray-900"/>
-              <FontAwesomeIcon
-                icon={faEnvelope}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2
-                 text-secbutton"
-              />
-            </div>
+              <div className="relative">
+                <input
+                  type="email"
+                  id="emailAddress"
+                  placeholder="Email Address"
+                  className="w-full p-3 rounded-sm text-gray-900"
+                />
+                <FontAwesomeIcon
+                  icon={faEnvelope}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-secbutton"
+                />
+              </div>
 
+              <div>
+                <input
+                  type="text"
+                  id="telephone"
+                  placeholder="Telephone"
+                  className="w-full p-3 rounded-sm text-gray-900"
+                />
+              </div>
 
-            <div>
-              <input
-                type="text"
-                id="telephone"
-                placeholder="Telephone"
-                className="w-full p-3 rounded-sm text-gray-900"/>
-            </div>
+              <div>
+                <textarea
+                  id="message"
+                  placeholder="Type in message..."
+                  rows="4"
+                  className="w-full p-3 rounded-sm text-gray-900"
+                />
+              </div>
 
-            <div>
-              <textarea
-                id="message"
-                placeholder="Type in message..."
-                rows="4"
-                className="w-full p-3 rounded-sm text-gray-900"/>
-            </div>
-
-            <button
-              type="submit"
-              className="bg-gold rounded-xl hover:bg-yellow-500
-              text-lg font-medium py-5 px-6 transition-all mx-auto block">
-              Send Message <FontAwesomeIcon icon={faPaperPlane} className="ml-2" />
-            </button>
-
-          </form>
+              <button
+                type="submit"
+                className="bg-gold rounded-xl hover:bg-yellow-500 text-lg font-medium py-5 px-6 transition-all mx-auto block"
+              >
+                Send Message{" "}
+                <FontAwesomeIcon icon={faPaperPlane} className="ml-2" />
+              </button>
+            </form>
+          </div>
         </div>
+      </section>
+
+      {/* Floating Contact Icon for Mobile */}
+      <div className="sm:hidden shadow-md rounded-full fixed bottom-4 right-4 z-50">
+        <img
+          src={contactIcon}
+          alt="Contact Us"
+          className="w-16 h-16 cursor-pointer"
+          onClick={() => {
+            // Scroll to the contact section when clicked
+            const contactSection = document.getElementById("contact");
+            if (contactSection) {
+              contactSection.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+        />
       </div>
-    </section>
+    </>
   );
 };
 
