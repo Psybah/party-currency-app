@@ -140,55 +140,62 @@ const Header = () => {
             </Link>
           )}
           <div
-            className="relative flex items-center gap-1 hover:text-gold cursor-pointer"
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          >
+            className="relative flex items-center gap-1">
+            {/* "Features" link navigates to the "Features" section */}
             <button
               className="hover:text-gold"
               onClick={() => scrollToSection("features")}
             >
               Features
             </button>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className={`w-5 h-5 transform ${
-                  isDropdownOpen ? "rotate-180" : "rotate-0"
-                }`}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                />
-              </svg>
+
+            {/* Chevron toggles the dropdown */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className={`w-5 h-5 transform ${
+                isDropdownOpen ? "rotate-180" : "rotate-0"
+              } cursor-pointer`}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent click on chevron from triggering link navigation
+                setIsDropdownOpen(!isDropdownOpen);
+              }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m19.5 8.25-7.5 7.5-7.5-7.5"
+              />
+            </svg>
+
             {/* Dropdown Menu */}
             {isDropdownOpen && (
               <div className="absolute top-full left-0 mt-4 bg-bluePrimary 
-                              bg-opacity-50 backdrop-blur-xl shadow-md text-white w-60 rounded-md">
+                              bg-opacity-50 backdrop-blur-xl shadow-md
+                              text-white w-60 rounded-md">
                 <button
-                  className="block w-full text-left px-4 py-4 hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-4 hover:bg-gray-100 hover:text-gold"
                   onClick={() => scrollToSection("custom-currency")}
                 >
                   Custom Currency
                 </button>
                 <button
-                  className="block w-full text-left px-4 py-4 hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-4 hover:bg-gray-100 hover:text-gold"
                   onClick={() => scrollToSection("reconciliation-service")}
                 >
                   Reconciliation Service
                 </button>
                 <button
-                  className="block w-full text-left px-4 py-4 hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-4 hover:bg-gray-100 hover:text-gold"
                   onClick={() => scrollToSection("vendor-kiosk-system")}
                 >
                   Vendor Kiosk System
                 </button>
                 <button
-                  className="block w-full text-left px-4 py-4 hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-4 hover:bg-gray-100 hover:text-gold"
                   onClick={() => scrollToSection("foot-soldiers")}
                 >
                   Foot Soldiers

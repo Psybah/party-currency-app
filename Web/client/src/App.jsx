@@ -6,6 +6,7 @@ import About from "./pages/About";
 import Features from "./pages/Features";
 import CTASection from "./pages/CTASection";
 import Contact from "./pages/Contact";
+import Footer from "./components/Footer";
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
               <Features />
               <CTASection />
               <Contact />
+              <Footer />
             </>
           }
         />
