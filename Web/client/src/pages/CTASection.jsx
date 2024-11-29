@@ -17,7 +17,7 @@ const CTASection = () => {
         {/* Overlay Content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-5">
           {/* Heading */}
-          <h2 className="text-sm sm:text-xl md:text-3xl lg:text-4xl
+          <h2 className="text-sm sm:text-md md:text-3xl lg:text-4xl
            text-white font-playfair mb-2 sm:mb-2 md:mb-8 lg:mb-12
            mt-2 sm:mt-2 md:mt-8 lg:mt-8">
             Join the Celebration!
@@ -25,10 +25,10 @@ const CTASection = () => {
 
           {/* Subtitle */}
           <p
-            className="font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl 
+            className="font-bold text-sm sm:text-md md:text-2xl lg:text-3xl 
             xl:text-4xl font-playfair bg-clip-text text-transparent 
             bg-gradient-to-r from-gold via-gradientWhite2 to-gradientWhite3 
-            mb-1 sm:mb-2 md:mb-8 lg:mb-10"
+            mb-1 md:mb-8 lg:mb-10"
           >
             Experience secure transactions with <br /> Party Currency by
             downloading <br />
@@ -37,9 +37,9 @@ const CTASection = () => {
 
           {/* App Store Buttons */}
           <div className="flex flex-row flex-wrap items-center justify-center 
-          gap-3 sm:gap-4 md:gap-6 mt-3 sm:mt-6 md:mt-8">
+          gap-2 sm:gap-2 md:gap-6 mt-1 sm:mt-2 md:mt-8">
             {/* Apple Store Button */}
-            <button className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-3 
+            <button className="flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-2 
             md:px-5 md:py-2 bg-gold text-white text-xs sm:text-sm md:text-lg 
             rounded-lg hover:bg-yellow-500 transition">
               <FontAwesomeIcon
@@ -57,7 +57,7 @@ const CTASection = () => {
               </div>
             </button>
             {/* Google Play Button */}
-            <button className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-3 
+            <button className="flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-2 
             md:px-5 md:py-2 bg-gold text-white text-xs sm:text-sm md:text-lg 
             rounded-lg hover:bg-yellow-500 transition">
               <FontAwesomeIcon
