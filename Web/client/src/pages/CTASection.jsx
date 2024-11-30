@@ -1,7 +1,7 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faApple, faGooglePlay } from "@fortawesome/free-brands-svg-icons";
 import ctaImg from "../assets/cta_img.jpg";
+import AppleIcon from "../assets/app-icons/apple-icon.svg";
+import AndroidIcon from "../assets/app-icons/android-icon.svg";
 
 const CTASection = () => {
   return (
@@ -37,15 +37,14 @@ const CTASection = () => {
 
           {/* App Store Buttons */}
           <div className="flex flex-row flex-wrap items-center justify-center 
-          gap-2 sm:gap-2 md:gap-6 mt-1 sm:mt-2 md:mt-8">
+          gap-1 sm:gap-1 md:gap-6 mt-1 sm:mt-2 md:mt-8">
             {/* Apple Store Button */}
-            <button className="flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-2 
+            <button className="flex items-center gap-2 px-2 py-1 sm:px-3 sm:py-2 
             md:px-5 md:py-2 bg-gold text-white text-xs sm:text-sm md:text-lg 
             rounded-lg hover:bg-yellow-500 transition">
-              <FontAwesomeIcon
-                icon={faApple}
-                className="text-base sm:text-lg md:text-2xl lg:text-2xl"
-              />
+              <img src={AppleIcon} 
+              className="size-6 md:size-10 lg:size-12" 
+              alt="Apple icon" />
               <div className="flex flex-col items-start leading-tight">
                 <span className="text-[10px] sm:text-xs md:text-sm 
                 lg:text-base font-playfair">
@@ -57,13 +56,13 @@ const CTASection = () => {
               </div>
             </button>
             {/* Google Play Button */}
-            <button className="flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-2 
+            <button className="flex items-center gap-2 px-2 py-1 sm:px-3 sm:py-2 
             md:px-5 md:py-2 bg-gold text-white text-xs sm:text-sm md:text-lg 
             rounded-lg hover:bg-yellow-500 transition">
-              <FontAwesomeIcon
-                icon={faGooglePlay}
-                className="text-base sm:text-lg md:text-2xl lg:text-2xl"
-              />
+              <img src={AndroidIcon} 
+                    alt="google icon"
+                    className="size-6 md:size-10 lg:size-12"  />
+
               <div className="flex flex-col items-start leading-tight">
                 <span className="text-[10px] sm:text-xs md:text-sm 
                 lg:text-base font-playfair">
