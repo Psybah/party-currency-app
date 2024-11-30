@@ -38,7 +38,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h5 className="text-lg font-bold text-paragraph">Telephone</h5>
-                  <p className="text-gray-600">1 (437) 1234 74</p>
+                  <p className="text-gray-600">+1 (240) 481-5186</p>
                 </div>
               </div>
 
@@ -52,7 +52,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h5 className="text-lg font-bold text-paragraph">Whatsapp</h5>
-                  <p className="text-gray-600">+1 (764) 3782 85</p>
+                  <p className="text-gray-600">+1 (240) 481-5186</p>
                 </div>
               </div>
 
@@ -145,7 +145,7 @@ const Contact = () => {
           rounded-b-none shadow-2xl p-4 z-50 w-[280px] animate-in fade-in slide-in-from-bottom-5">
             <div className="space-y-4">
               {/* Telephone */}
-              <a href="tel:14371234744" className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
+              <a href="tel:14371234744" className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg transition-colors">
                 <div className="w-10 h-10 flex items-center justify-center">
                   <svg width="40" height="40" viewBox="0 0 70 71" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="1.5" y="1.5" width="68" height="68" rx="34" stroke="#6A7BA2" strokeWidth="2"/>
@@ -154,12 +154,12 @@ const Contact = () => {
                 </div>
                 <div>
                   <h5 className="text-sm font-semibold text-paragraph">Telephone</h5>
-                  <p className="text-sm text-gray-600">1 (437) 1234 74</p>
+                  <p className="text-sm text-gray-600">+1 (240) 481-5186</p>
                 </div>
               </a>
 
               {/* WhatsApp */}
-              <a href="https://wa.me/17643782855" className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
+              <a href="https://wa.me/12404815186" className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg transition-colors">
                 <div className="w-10 h-10 flex items-center justify-center">
                 <svg width="40" height="40" viewBox="0 0 70 71" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="1" y="1.5" width="68" height="68" rx="34" stroke="#6A7BA2" strokeWidth="2"/>
@@ -169,12 +169,12 @@ const Contact = () => {
                 </div>
                 <div>
                   <h5 className="text-sm font-semibold text-paragraph">WhatsApp</h5>
-                  <p className="text-sm text-gray-600">+1 (764) 3782 85</p>
+                  <p className="text-sm text-gray-600">+1 (240) 481-5186</p>
                 </div>
               </a>
 
               {/* Email */}
-              <a href="mailto:partycurrency@gmail.com" className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
+              <a href="mailto:partycurrency@gmail.com" className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg transition-colors">
                 <div className="w-10 h-10 flex items-center justify-center">
                   <svg width="40" height="40" viewBox="0 0 70 71" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="1" y="1.5" width="68" height="68" rx="34" stroke="#6A7BA2" strokeWidth="2"/>

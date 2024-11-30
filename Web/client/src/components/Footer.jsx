@@ -70,8 +70,8 @@ const Footer = () => {
           <h3 className="font-playfair font-semibold text-2xl mb-4">Contact</h3>
           <ul className="space-y-2">
             <li>partycurrency@gmail.com</li>
-            <li>Whatsapp: +1 (764) 3782 85</li>
-            <li>Call: 1 (437) 1234 74</li>
+            <li href="https://wa.me/12404815186">Whatsapp: +1 (240) 481-5186</li>
+            <li>Call: +1 (240) 481-5186</li>
           </ul>
         </div>
       </div>
