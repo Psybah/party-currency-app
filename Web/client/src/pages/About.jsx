@@ -3,7 +3,7 @@ import aboutImage from "../assets/about-img.jpg";
 
 const About = () => {
   return (
-    <section id="about" className="py-20 px-5 md:px-20 bg-white">
+    <section id="about" className="py-40 px-5 md:px-20 bg-white">
       <div className="flex flex-col md:flex-row items-center gap-10
       mr-auto ml-auto lg:max-w-[90%]">
         {/* Text Section */}
