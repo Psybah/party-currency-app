@@ -141,7 +141,8 @@ const Contact = () => {
 
         {/* Contact Popup */}
         {isPopupOpen && (
-          <div className="fixed bottom-20 right-4 bg-white rounded-lg shadow-lg p-4 z-50 w-[280px] animate-in fade-in slide-in-from-bottom-5">
+          <div className="fixed bottom-20 right-4 mb-4 bg-white rounded-t-2xl 
+          rounded-b-none shadow-2xl p-4 z-50 w-[280px] animate-in fade-in slide-in-from-bottom-5">
             <div className="space-y-4">
               {/* Telephone */}
               <a href="tel:14371234744" className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
