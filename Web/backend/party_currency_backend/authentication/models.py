@@ -10,3 +10,10 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']  # Optional: add 'email' if needed
 
 # Create your models here.
+
+class Merchant(CustomUser):
+    business_type = models.CharField()
+    city = models.CharField()
+    country = models.CharField()
+    state = models.CharField()
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name','business_type']
