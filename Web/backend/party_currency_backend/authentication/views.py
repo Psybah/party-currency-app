@@ -2,8 +2,8 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .serializers import UserSerializer
-from.models import CustomUser as User
+from .serializers import UserSerializer,MerchantSerializer
+from.models import CustomUser as User,Merchant
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -26,7 +26,7 @@ def login(request):
         }, status=status.HTTP_202_ACCEPTED)
 # Create your views here.
 @api_view(["POST"])
-def signup(request):
+def signupUser(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         user = User.objects.create_user(
@@ -50,6 +50,42 @@ def signup(request):
                 "firstname":user.first_name,
                 "lastname":user.last_name,
                 "phonenumber":user.phone_number
+            }
+        }, status=status.HTTP_201_CREATED)
+
+    # Return validation errors
+    return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+def signupMerchant(request):
+    serializer = MerchantSerializer(data=request.data)
+    if serializer.is_valid():
+        user = Merchant.objects.create_user(
+            username=request.data.get("email"),  
+            email=request.data.get("email"),
+            password=request.data.get("password"),
+            first_name=request.data.get("first_name"),
+            last_name=request.data.get("last_name"),
+            phone_number=request.data.get("phone_number"),
+            country=request.data.get("country"),
+            state = request.data.get("state"),
+            city = request.data.get("city"),
+            business_type = request.data.get("business_type"),
+                
+        )
+
+        token, created = Token.objects.get_or_create(user=user)
+
+        return Response({
+            "token": token.key,
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "firstname":user.first_name,
+                "lastname":user.last_name,
+                "phonenumber":user.phone_number,
+                "Type":user.business_type,
+                "location":user.country+"/"+user.state+"/"+user.city,
             }
         }, status=status.HTTP_201_CREATED)
 
