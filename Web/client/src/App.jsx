@@ -7,6 +7,7 @@ import Features from "./pages/Features";
 import CTASection from "./pages/CTASection";
 import Contact from "./pages/Contact";
 import Footer from "./components/Footer";
+import CelebrantSignup from "./pages/CelebrantSignup";
 
 const App = () => {
   return (
@@ -30,7 +31,7 @@ const App = () => {
         <Route path="/features" element={<Features />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<div className="mt-20">Login</div>} />
-        <Route path="/signup" element={<div className="mt-20">Sign Up</div>} />
+        <Route path="/celebrant-signup" element={<CelebrantSignup />} />
       </Routes>
     </Router>
   );

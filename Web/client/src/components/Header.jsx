@@ -1,68 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/main_logo.svg";
+import CelebrantSignup from "../pages/CelebrantSignup";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isBlurred, setIsBlurred] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isPopUpOpen, setIsPopUpOpen] = useState(false);
+  const [formType, setFormType] = useState("");
 
   const location = useLocation();
 
-  // Track header visibility and blur when scrolling past the hero section
+  // Handle scroll to add/remove background
   useEffect(() => {
-    const heroSection = document.getElementById("hero-section");
-    let lastScrollY = window.scrollY;
-
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      // Apply blur and shadow when scrolling starts
-      if (currentScrollY > 0) {
-        setIsBlurred(true);
-      } else {
-        setIsBlurred(false);
-      }
-
-      // Hide the header when scrolling past hero section
-      if (heroSection) {
-        const heroSectionBottom = heroSection.getBoundingClientRect().bottom;
-        if (heroSectionBottom <= 0) {
-          setIsHeaderVisible(false);
-        } else {
-          setIsHeaderVisible(true);
-        }
-      }
-
-      // Save last scroll position
-      lastScrollY = currentScrollY;
+      setIsScrolled(window.scrollY > 0);
     };
 
-    window.addEventListener("scroll", handleScroll);
-
+    window.addEventListener('scroll', handleScroll);
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      const menuPanel = document.getElementById("mobile-menu-panel");
-      if (menuPanel && !menuPanel.contains(event.target)) {
-        setIsMenuOpen(false);
-      }
-    };
-  
-    if (isMenuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-  
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isMenuOpen]);
-  
 
   // Smooth scroll to sections
   const scrollToSection = (sectionId) => {
@@ -74,7 +35,7 @@ const Header = () => {
   };
 
   // Prevent body scrolling when menu is open
-  useEffect(() => {
+  React.useEffect(() => {
     const body = document.body;
     if (isMenuOpen) {
       body.classList.add("overflow-hidden");
@@ -86,12 +47,20 @@ const Header = () => {
     };
   }, [isMenuOpen]);
 
+   // Show/hide pop-up
+   const handlePopUpToggle = (type = "") => {
+  setIsPopUpOpen(!isPopUpOpen);
+  setFormType(type); // Set the form type
+  };
+
   return (
     <header
       className={`fixed top-0 left-0 w-full z-50 py-2 md:px-5 text-white 
         transition-all duration-300 
-        ${isBlurred ? "bg-bluePrimary bg-opacity-30 backdrop-blur-sm shadow-md" : ""}`}
-    >
+        ${isScrolled 
+          ? "bg-bluePrimary bg-opacity-30 backdrop-blur-sm shadow-md" 
+          : ""}`}>
+
       <div className="flex justify-between px-7 py-4 items-center w-full">
         {/* Logo */}
         <Link to="/" className="w-28">
@@ -217,13 +186,56 @@ const Header = () => {
             Login
           </Link>
           <Link
-            to="/signup"
             className="px-4 py-2 bg-gold text-white rounded-lg hover:bg-yellow-500"
+            onClick={handlePopUpToggle}
           >
             Sign Up
           </Link>
         </div>
       </div>
+
+      {/* Pop-up */}
+        <div
+        className="fixed top-0 left-0 w-full h-full z-40 flex items-center justify-center"
+        style={{ display: isPopUpOpen ? 'flex' : 'none' }}
+        onClick={handlePopUpToggle}>
+        
+        <div className=" bg-bluePrimary bg-opacity-90 backdrop-blur-sm  
+        rounded-3xl w-full max-w-md py-10 px-5">
+          {/* close button */}
+          <div className="flex justify-end">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="w-8 h-8 text-white cursor-pointer"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </div>
+          <h2 className="text-xl text-center font-playfair mb-10">Are you joining as a <br />CELEBRANT or MERCHANT</h2>
+          <div className="flex flex-col items-center space-y-4">
+          <Link
+              className=" text-lg px-20 py-5 bg-gold text-white rounded-lg hover:bg-yellow-500"
+              onClick={() => handlePopUpToggle("merchant")}
+            >
+              Merchant
+            </Link>
+            <Link
+              className=" text-lg px-20 py-5 border border-gold text-white rounded-lg hover:bg-white hover:text-gold"
+              onClick={() => handlePopUpToggle("celebrant")}
+            >
+              Celebrant
+            </Link>
+        </div>
+      </div>        
 
       {/* Mobile Menu Panel */}
       <div
@@ -268,7 +280,6 @@ const Header = () => {
             >
               Home
             </button>
-
           )}
           {location.pathname === "/" ? (
             <button
@@ -290,7 +301,7 @@ const Header = () => {
           <div>
             <button
               className="text-white text-lg flex items-center gap-2 w-full text-left"
-              onClick={() => scrollToSection("features")} // Scroll to "Features" when "Features" text is clicked
+              onClick={() => scrollToSection("features")}
             >
               Features
               <svg
@@ -303,8 +314,8 @@ const Header = () => {
                   isMobileDropdownOpen ? "rotate-180" : "rotate-0"
                 } cursor-pointer`}
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent "Features" click event
-                  setIsMobileDropdownOpen(!isMobileDropdownOpen); // Toggle dropdown
+                  e.stopPropagation();
+                  setIsMobileDropdownOpen(!isMobileDropdownOpen);
                 }}
               >
                 <path
@@ -366,9 +377,8 @@ const Header = () => {
           {/* Mobile Menu Footer for Login and Signup */}
           <div className="absolute bottom-6 left-6 right-6">
             <Link
-              to="/signup"
               className="block text-xl text-center text-gold mb-8"
-              onClick={() => setIsMenuOpen(false)}
+              onClick={handlePopUpToggle}
             >
               Sign Up
             </Link>
@@ -381,6 +391,7 @@ const Header = () => {
             </Link>
           </div>
         </div>
+      </div>
       </div>
     </header>
   );
