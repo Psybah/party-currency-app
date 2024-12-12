@@ -1,5 +1,5 @@
 {
-  // for type alias
+  "type": "commonjs",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
