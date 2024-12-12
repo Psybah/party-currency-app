@@ -75,5 +75,12 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  // ! require isn't supported in ES modules, and vercel only supports ES modules
+  // plugins: [require("tailwindcss-animate")],
+  plugins: [
+    async () => {
+      const tailwindcssAnimate = await import("tailwindcss-animate");
+      return tailwindcssAnimate;
+    },
+  ],
 };
