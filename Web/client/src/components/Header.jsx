@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from 'react';
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/main_logo.svg";
-import CelebrantSignup from "../pages/CelebrantSignup";
+import { SignupPopup } from './SignupPopup'
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -9,12 +9,11 @@ const Header = () => {
   const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isPopUpOpen, setIsPopUpOpen] = useState(false);
-  const [formType, setFormType] = useState("");
 
   const location = useLocation();
 
   // Handle scroll to add/remove background
-  useEffect(() => {
+  React.useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
     };
@@ -48,10 +47,9 @@ const Header = () => {
   }, [isMenuOpen]);
 
    // Show/hide pop-up
-   const handlePopUpToggle = (type = "") => {
-  setIsPopUpOpen(!isPopUpOpen);
-  setFormType(type); // Set the form type
-  };
+   const handlePopUpToggle = () => {
+    setIsPopUpOpen(!isPopUpOpen);
+   };
 
   return (
     <header
@@ -185,57 +183,17 @@ const Header = () => {
           <Link to="/login" className="hover:text-gold">
             Login
           </Link>
-          <Link
+          <button
             className="px-4 py-2 bg-gold text-white rounded-lg hover:bg-yellow-500"
             onClick={handlePopUpToggle}
           >
             Sign Up
-          </Link>
+          </button>
         </div>
       </div>
 
-      {/* Pop-up */}
-        <div
-        className="fixed top-0 left-0 w-full h-full z-40 flex items-center justify-center"
-        style={{ display: isPopUpOpen ? 'flex' : 'none' }}
-        onClick={handlePopUpToggle}>
-        
-        <div className=" bg-bluePrimary bg-opacity-90 backdrop-blur-sm  
-        rounded-3xl w-full max-w-md py-10 px-5">
-          {/* close button */}
-          <div className="flex justify-end">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-            className="w-8 h-8 text-white cursor-pointer"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </div>
-          <h2 className="text-xl text-center font-playfair mb-10">Are you joining as a <br />CELEBRANT or MERCHANT</h2>
-          <div className="flex flex-col items-center space-y-4">
-          <Link
-              className=" text-lg px-20 py-5 bg-gold text-white rounded-lg hover:bg-yellow-500"
-              onClick={() => handlePopUpToggle("merchant")}
-            >
-              Merchant
-            </Link>
-            <Link
-              className=" text-lg px-20 py-5 border border-gold text-white rounded-lg hover:bg-white hover:text-gold"
-              onClick={() => handlePopUpToggle("celebrant")}
-            >
-              Celebrant
-            </Link>
-        </div>
-      </div>        
+      {/* SignupPopup */}
+      <SignupPopup isOpen={isPopUpOpen} onClose={handlePopUpToggle} />
 
       {/* Mobile Menu Panel */}
       <div
@@ -376,12 +334,12 @@ const Header = () => {
 
           {/* Mobile Menu Footer for Login and Signup */}
           <div className="absolute bottom-6 left-6 right-6">
-            <Link
+            <button
               className="block text-xl text-center text-gold mb-8"
               onClick={handlePopUpToggle}
             >
               Sign Up
-            </Link>
+            </button>
             <Link
               to="/login"
               className="block text-lg text-center text-white mb-12"
@@ -391,7 +349,6 @@ const Header = () => {
             </Link>
           </div>
         </div>
-      </div>
       </div>
     </header>
   );
