@@ -2,9 +2,16 @@ import React from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Link } from 'react-router-dom'
 
-export default function CelebrantSignupPage() {
+export default function MerchantSignupPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
@@ -14,7 +21,7 @@ export default function CelebrantSignupPage() {
             alt="Party Currency Logo"
             className="w-28 h-28 mb-4"
           />
-          <h1 className="font-playfair text-3xl">Sign up as Host/Event planner</h1>
+          <h1 className="font-playfair text-3xl">Sign up as merchant</h1>
         </div>
 
         <form className="space-y-6">
@@ -66,6 +73,20 @@ export default function CelebrantSignupPage() {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="businessType">Business Type</Label>
+            <Select>
+              <SelectTrigger className="border-lightgray">
+                <SelectValue placeholder="Select business type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="restaurant">Restaurant</SelectItem>
+                <SelectItem value="retail">Retail</SelectItem>
+                <SelectItem value="service">Service</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="phone">Phone number</Label>
             <Input
               id="phone"
@@ -75,42 +96,52 @@ export default function CelebrantSignupPage() {
             />
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="country">Country</Label>
+            <Select>
+              <SelectTrigger className="border-lightgray">
+                <SelectValue placeholder="Select country" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ng">Nigeria</SelectItem>
+                <SelectItem value="gh">Ghana</SelectItem>
+                <SelectItem value="ke">Kenya</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="state">State</Label>
+            <Select>
+              <SelectTrigger className="border-lightgray">
+                <SelectValue placeholder="Select state" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="lagos">Lagos</SelectItem>
+                <SelectItem value="abuja">Abuja</SelectItem>
+                <SelectItem value="ph">Port Harcourt</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="city">City</Label>
+            <Select>
+              <SelectTrigger className="border-lightgray">
+                <SelectValue placeholder="Select city" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ikeja">Ikeja</SelectItem>
+                <SelectItem value="lekki">Lekki</SelectItem>
+                <SelectItem value="vi">Victoria Island</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <Button type="submit" className="w-full bg-[#1A1A1A] hover:bg-[#2D2D2D]">
             Create an account
           </Button>
         </form>
-
-        <div className="space-y-4">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-lightgray"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-muted-foreground">
-                Or continue with
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" className="border-lightgray">
-              <img
-                src="/google.svg"
-                alt="Google"
-                className="w-5 h-5 mr-2"
-              />
-              Google
-            </Button>
-            <Button variant="outline" className="border-lightgray">
-              <img
-                src="/apple.svg"
-                alt="Apple"
-                className="w-5 h-5 mr-2"
-              />
-              Apple
-            </Button>
-          </div>
-        </div>
 
         <div className="text-center text-sm">
           By clicking "Create account" above, you acknowledge that you have read and understood, and agree to Party Currency's{" "}
