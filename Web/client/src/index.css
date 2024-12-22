@@ -9,8 +9,6 @@ html, body {
   width: 100%;
   height: 100%;
   font-family: 'Montserrat', sans-serif;
-  background-color: #334495;
-  color: #ffffff;
 }
 
 @layer base {

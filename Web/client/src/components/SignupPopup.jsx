@@ -52,7 +52,7 @@ export function SignupPopup({ isOpen, onClose }) {
             className="w-full text-center text-lg px-20 py-5 border border-gold text-white rounded-lg hover:bg-white hover:text-gold transition-colors"
             onClick={onClose}
           >
-            Celebrant
+            Host/Event planner
           </Link>
         </div>
       </div>
