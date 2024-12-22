@@ -3,14 +3,15 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Link } from 'react-router-dom'
+import logo from '../assets/logo_icon.svg'
 
 export default function CelebrantSignupPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen flex flex-col items-center mt-20 justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center">
           <img
-            src="/logo.svg"
+            src={logo}
             alt="Party Currency Logo"
             className="w-28 h-28 mb-4"
           />

@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/main_logo.svg";
 import { SignupPopup } from './SignupPopup'
-
+const WithoutHeader = ["/login", "/celebrant-signup", "/merchant-signup", "/forgot-password", "/terms"]
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isPopUpOpen, setIsPopUpOpen] = useState(false);
-
+  const { pathname } = useLocation();
+  if(WithoutHeader.includes(pathname)) return null
   const location = useLocation();
 
   // Handle scroll to add/remove background
