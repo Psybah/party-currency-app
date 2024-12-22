@@ -49,7 +49,7 @@ export function SignupPopup({ isOpen, onClose }) {
           </Link>
           <Link
             to="/celebrant-signup"
-            className="w-full text-center text-lg px-20 py-5 border border-gold text-white rounded-lg hover:bg-white hover:text-gold transition-colors"
+            className="w-full text-center text-lg px-18 py-5 border border-gold text-white rounded-lg hover:bg-white hover:text-gold transition-colors"
             onClick={onClose}
           >
             Host/Event planner

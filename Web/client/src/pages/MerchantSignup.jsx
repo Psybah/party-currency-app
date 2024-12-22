@@ -20,7 +20,7 @@ export default function MerchantSignupPage() {
           <img
             src={logo}
             alt="Party Currency Logo"
-            className="w-28 h-28 mb-4"
+            className="w-20 h-20 mb-4"
           />
           <h1 className="font-playfair text-3xl">Sign up as merchant</h1>
         </div>
