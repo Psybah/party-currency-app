@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/main_logo.svg";
 import { SignupPopup } from './SignupPopup'
+import {SIGNUP_MODAL} from '../context.jsx'
 const WithoutHeader = ["/login", "/celebrant-signup", "/merchant-signup", "/forgot-password", "/terms"]
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isPopUpOpen, setIsPopUpOpen] = useState(false);
+  const {signupOpen, setSignupOpen} = useContext(SIGNUP_MODAL)
   const { pathname } = useLocation();
-  if(WithoutHeader.includes(pathname)) return null
+
   const location = useLocation();
 
   // Handle scroll to add/remove background
@@ -49,9 +50,10 @@ const Header = () => {
 
    // Show/hide pop-up
    const handlePopUpToggle = () => {
-    setIsPopUpOpen(!isPopUpOpen);
+    // setIsPopUpOpen(!isPopUpOpen);
+    setSignupOpen(true)
    };
-
+   if(WithoutHeader.includes(pathname)) return null
   return (
     <header
       className={`fixed top-0 left-0 w-full z-50 py-2 md:px-5 text-white 
@@ -60,7 +62,7 @@ const Header = () => {
           ? "bg-bluePrimary bg-opacity-30 backdrop-blur-sm shadow-md" 
           : ""}`}>
 
-      <div className="flex justify-between px-7 py-4 items-center w-full">
+      <div className="flex justify-between items-center px-7 py-4 w-full">
         {/* Logo */}
         <Link to="/" className="w-28">
           <img src={logo} alt="Party Currency Logo" />
@@ -88,7 +90,7 @@ const Header = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="hidden md:flex gap-8 items-center font-montserrat text-lg">
+        <nav className="md:flex items-center gap-8 hidden font-montserrat text-lg">
           <button
             className="hover:text-gold"
             onClick={() => scrollToSection("hero-section")}
@@ -141,29 +143,27 @@ const Header = () => {
 
             {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <div className="absolute top-full left-0 mt-4 bg-bluePrimary 
-                              bg-opacity-50 backdrop-blur-xl shadow-md
-                              text-white w-60 rounded-md">
+              <div className="top-full left-0 absolute bg-bluePrimary bg-opacity-50 shadow-md backdrop-blur-xl mt-4 rounded-md w-60 text-white">
                 <button
-                  className="block w-full text-left px-4 py-4 hover:bg-gray-100 hover:text-gold"
+                  className="block hover:bg-gray-100 px-4 py-4 w-full text-left hover:text-gold"
                   onClick={() => scrollToSection("custom-currency")}
                 >
                   Custom Currency
                 </button>
                 <button
-                  className="block w-full text-left px-4 py-4 hover:bg-gray-100 hover:text-gold"
+                  className="block hover:bg-gray-100 px-4 py-4 w-full text-left hover:text-gold"
                   onClick={() => scrollToSection("reconciliation-service")}
                 >
                   Reconciliation Service
                 </button>
                 <button
-                  className="block w-full text-left px-4 py-4 hover:bg-gray-100 hover:text-gold"
+                  className="block hover:bg-gray-100 px-4 py-4 w-full text-left hover:text-gold"
                   onClick={() => scrollToSection("vendor-kiosk-system")}
                 >
                   Vendor Kiosk System
                 </button>
                 <button
-                  className="block w-full text-left px-4 py-4 hover:bg-gray-100 hover:text-gold"
+                  className="block hover:bg-gray-100 px-4 py-4 w-full text-left hover:text-gold"
                   onClick={() => scrollToSection("foot-soldiers")}
                 >
                   Foot Soldiers
@@ -180,12 +180,12 @@ const Header = () => {
         </nav>
 
         {/* Login and Signup */}
-        <div className="hidden md:flex gap-6 items-center font-montserrat text-lg">
+        <div className="md:flex items-center gap-6 hidden font-montserrat text-lg">
           <Link to="/login" className="hover:text-gold">
             Login
           </Link>
           <button
-            className="px-4 py-2 bg-gold text-white rounded-lg hover:bg-yellow-500"
+            className="bg-gold hover:bg-yellow-500 px-4 py-2 rounded-lg text-white"
             onClick={handlePopUpToggle}
           >
             Sign Up
@@ -194,7 +194,6 @@ const Header = () => {
       </div>
 
       {/* SignupPopup */}
-      <SignupPopup isOpen={isPopUpOpen} onClose={handlePopUpToggle} />
 
       {/* Mobile Menu Panel */}
       <div
@@ -227,14 +226,14 @@ const Header = () => {
         <div className="flex flex-col gap-6 mt-10 px-6">
           {location.pathname === "/" ? (
             <button
-              className="text-white text-lg block text-left"
+              className="block text-left text-lg text-white"
               onClick={() => scrollToSection("hero-section")}
             >
               Home
             </button>
           ) : (
             <button
-              className="text-white text-lg block"
+              className="block text-lg text-white"
               onClick={() => scrollToSection("hero-section")}
             >
               Home
@@ -242,7 +241,7 @@ const Header = () => {
           )}
           {location.pathname === "/" ? (
             <button
-              className="text-white text-lg block text-left"
+              className="block text-left text-lg text-white"
               onClick={() => scrollToSection("about")}
             >
               About Us
@@ -250,7 +249,7 @@ const Header = () => {
           ) : (
             <Link
               to="/#about"
-              className="text-white text-lg block"
+              className="block text-lg text-white"
               onClick={() => setIsMenuOpen(false)}
             >
               About Us
@@ -259,7 +258,7 @@ const Header = () => {
           {/* Features Dropdown */}
           <div>
             <button
-              className="text-white text-lg flex items-center gap-2 w-full text-left"
+              className="flex items-center gap-2 w-full text-left text-lg text-white"
               onClick={() => scrollToSection("features")}
             >
               Features
@@ -287,27 +286,27 @@ const Header = () => {
 
             {/* Dropdown Items */}
             {isMobileDropdownOpen && (
-              <div className="mt-2 ml-2 flex flex-col gap-4">
+              <div className="flex flex-col gap-4 mt-2 ml-2">
                 <button
-                  className="text-white text-sm text-left"
+                  className="text-left text-sm text-white"
                   onClick={() => scrollToSection("custom-currency")}
                 >
                   Custom Currency
                 </button>
                 <button
-                  className="text-white text-sm text-left"
+                  className="text-left text-sm text-white"
                   onClick={() => scrollToSection("reconciliation-service")}
                 >
                   Reconciliation Service
                 </button>
                 <button
-                  className="text-white text-sm text-left"
+                  className="text-left text-sm text-white"
                   onClick={() => scrollToSection("vendor-kiosk-system")}
                 >
                   Vendor Kiosk System
                 </button>
                 <button
-                  className="text-white text-sm text-left"
+                  className="text-left text-sm text-white"
                   onClick={() => scrollToSection("foot-soldiers")}
                 >
                   Foot Soldiers
@@ -318,7 +317,7 @@ const Header = () => {
 
           {location.pathname === "/" ? (
             <button
-              className="text-white text-lg flex items-center gap-2 text-left"
+              className="flex items-center gap-2 text-left text-lg text-white"
               onClick={() => scrollToSection("contact")}
             >
               Contact Us
@@ -326,7 +325,7 @@ const Header = () => {
           ) : (
             <Link
               to="/#contact"
-              className="text-white text-lg block"
+              className="block text-lg text-white"
               onClick={() => setIsMenuOpen(false)}
             >
               Contact Us
@@ -334,16 +333,16 @@ const Header = () => {
           )}
 
           {/* Mobile Menu Footer for Login and Signup */}
-          <div className="absolute bottom-6 left-6 right-6">
+          <div className="right-6 bottom-6 left-6 absolute">
             <button
-              className="block text-xl text-center text-gold mb-8"
+              className="block mb-8 text-center text-gold text-xl"
               onClick={handlePopUpToggle}
             >
               Sign Up
             </button>
             <Link
               to="/login"
-              className="block text-lg text-center text-white mb-12"
+              className="block mb-12 text-center text-lg text-white"
               onClick={() => setIsMenuOpen(false)}
             >
               Login

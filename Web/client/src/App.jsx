@@ -11,10 +11,12 @@ import Login from "./pages/Login"
 import CelebrantSignup from "./pages/CelebrantSignup"
 import MerchantSignup from "./pages/MerchantSignup"
 import ForgotPassword from "./pages/ForgotPassword"
+import {ContextWrapper} from "./context"
 import TermsOfService from "./pages/TermsOfService"
 
 const App = () => {
   return (
+    <ContextWrapper>
     <Router>
       <Header />
       <Routes>
@@ -41,6 +43,7 @@ const App = () => {
       </Routes>
       <Footer />
     </Router>
+    </ContextWrapper>
   )
 }
 

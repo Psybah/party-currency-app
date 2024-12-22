@@ -4,16 +4,17 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Link } from 'react-router-dom'
 import logo from '../assets/logo_icon.svg'
-
+import {SIGNUP_MODAL} from '../context.jsx'
 export default function LoginPage() {
+  const {signupOpen, setSignupOpen} = useContext(SIGNUP_MODAL)
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
+    <div className="flex flex-col justify-center items-center p-4 min-h-screen">
+      <div className="space-y-8 w-full max-w-md">
         <div className="flex flex-col items-center">
           <img
             src={logo}
             alt="Party Currency Logo"
-            className="w-20 h-20 mb-4"
+            className="mb-4 w-20 h-20"
           />
           <h1 className="font-playfair text-3xl">Welcome back!</h1>
         </div>
@@ -38,7 +39,7 @@ export default function LoginPage() {
             />
           </div>
 
-          <Button type="submit" className="w-full bg-[#1A1A1A] hover:bg-[#2D2D2D]">
+          <Button type="submit" className="bg-[#1A1A1A] hover:bg-[#2D2D2D] w-full">
             Sign in
           </Button>
         </form>
@@ -46,7 +47,7 @@ export default function LoginPage() {
         <div className="space-y-4">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-lightgray"></div>
+              <div className="border-t border-lightgray w-full"></div>
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="bg-white px-2 text-muted-foreground">
@@ -55,12 +56,12 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="gap-4 grid grid-cols-2">
             <Button variant="outline" className="border-lightgray">
               <img
                 src="/google.svg"
                 alt="Google"
-                className="w-5 h-5 mr-2"
+                className="mr-2 w-5 h-5"
               />
               Google
             </Button>
@@ -68,25 +69,27 @@ export default function LoginPage() {
               <img
                 src="/apple.svg"
                 alt="Apple"
-                className="w-5 h-5 mr-2"
+                className="mr-2 w-5 h-5"
               />
               Apple
             </Button>
           </div>
         </div>
 
-        <div className="text-center space-y-2">
+        <div className="space-y-2 text-center">
           <Link
             to="/forgot-password"
-            className="text-sm text-muted-foreground hover:underline"
+            className="text-muted-foreground text-sm hover:underline"
           >
             Forgotten password?
           </Link>
           <div className="text-sm">
             New to Party Currency?{" "}
-            <Link to="/signup" className="text-gold hover:underline">
+            <p onClick={()=>{
+              setSignupOpen(true)
+            }} className="text-gold hover:underline">
               Sign up
-            </Link>
+            </p>
           </div>
         </div>
       </div>
