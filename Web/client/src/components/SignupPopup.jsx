@@ -1,30 +1,29 @@
-import React, { useEffect, useRef } from 'react'
-import { X } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import {useContext} from 'react'
-import {SIGNUP_MODAL} from '../context.jsx'
+import React, { useEffect, useRef } from "react";
+import { X } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { SIGNUP_CONTEXT } from "../context";
 export function SignupPopup() {
-  const {signupOpen, setSignupOpen} = useContext(SIGNUP_MODAL)
-  const popupRef = useRef(null)
-  const isOpen = signupOpen
-  const onClose = () => setSignupOpen(false)
+  const { signupOpen, setSignupOpen } = useContext(SIGNUP_CONTEXT);
+  const popupRef = useRef(null);
+  const onClose = () => setSignupOpen(false);
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (popupRef.current && !popupRef.current.contains(event.target)) {
-        onClose()
+        onClose();
       }
-    }
+    };
 
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
+    if (signupOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isOpen, onClose])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [signupOpen, onClose]);
 
-  if (!isOpen) return null
+  if (!signupOpen) return null;
 
   return (
     <div className="z-50 fixed inset-0 flex justify-center items-center bg-black/50 backdrop-blur-sm">
@@ -40,7 +39,8 @@ export function SignupPopup() {
           <span className="sr-only">Close</span>
         </button>
         <h2 className="mb-10 font-playfair text-2xl text-center text-white">
-          Are you joining as a<br />CELEBRANT or MERCHANT
+          Are you joining as a<br />
+          CELEBRANT or MERCHANT
         </h2>
         <div className="flex flex-col items-center space-y-4">
           <Link
@@ -60,5 +60,5 @@ export function SignupPopup() {
         </div>
       </div>
     </div>
-  )
+  );
 }
