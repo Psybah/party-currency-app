@@ -1,12 +1,12 @@
-import React from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Link } from 'react-router-dom'
-import logo from '../assets/logo_icon.svg'
-import {SIGNUP_MODAL} from '../context.jsx'
+import React, { useContext } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Link } from "react-router-dom";
+import logo from "../assets/logo_icon.svg";
+import { SIGNUP_CONTEXT } from "../context";
 export default function LoginPage() {
-  const {signupOpen, setSignupOpen} = useContext(SIGNUP_MODAL)
+  const { setSignupOpen } = useContext(SIGNUP_CONTEXT);
   return (
     <div className="flex flex-col justify-center items-center p-4 min-h-screen">
       <div className="space-y-8 w-full max-w-md">
@@ -32,14 +32,13 @@ export default function LoginPage() {
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              className="border-lightgray"
-            />
+            <Input id="password" type="password" className="border-lightgray" />
           </div>
 
-          <Button type="submit" className="bg-[#1A1A1A] hover:bg-[#2D2D2D] w-full">
+          <Button
+            type="submit"
+            className="bg-[#1A1A1A] hover:bg-[#2D2D2D] w-full"
+          >
             Sign in
           </Button>
         </form>
@@ -58,19 +57,11 @@ export default function LoginPage() {
 
           <div className="gap-4 grid grid-cols-2">
             <Button variant="outline" className="border-lightgray">
-              <img
-                src="/google.svg"
-                alt="Google"
-                className="mr-2 w-5 h-5"
-              />
+              <img src="/google.svg" alt="Google" className="mr-2 w-5 h-5" />
               Google
             </Button>
             <Button variant="outline" className="border-lightgray">
-              <img
-                src="/apple.svg"
-                alt="Apple"
-                className="mr-2 w-5 h-5"
-              />
+              <img src="/apple.svg" alt="Apple" className="mr-2 w-5 h-5" />
               Apple
             </Button>
           </div>
@@ -85,14 +76,17 @@ export default function LoginPage() {
           </Link>
           <div className="text-sm">
             New to Party Currency?{" "}
-            <p onClick={()=>{
-              setSignupOpen(true)
-            }} className="text-gold hover:underline">
+            <p
+              onClick={() => {
+                setSignupOpen(true);
+              }}
+              className="text-gold hover:underline"
+            >
               Sign up
             </p>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
