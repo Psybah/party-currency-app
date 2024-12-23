@@ -1,12 +1,16 @@
-import {createContext, useState} from 'react';
-export const SIGNUP_MODAL = createContext({});
+import { createContext, useState } from "react";
+import { SignupPopup } from "./components/SignupPopup";
+export const SIGNUP_CONTEXT = createContext({
+  signupOpen: false,
+  setSignupOpen: () => {},
+});
 
-export function ContextWrapper({children}) {
+export function ContextWrapper({ children }) {
   const [signupOpen, setSignupOpen] = useState(false);
   return (
-    <SIGNUP_MODAL.Provider value={{signupOpen, setSignupOpen}}>
-      
+    <SIGNUP_CONTEXT.Provider value={{ signupOpen, setSignupOpen }}>
       {children}
-    </SIGNUP_MODAL.Provider>
+      <SignupPopup />
+    </SIGNUP_CONTEXT.Provider>
   );
 }

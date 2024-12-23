@@ -1,15 +1,21 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/main_logo.svg";
-import { SignupPopup } from './SignupPopup'
-import {SIGNUP_MODAL} from '../context.jsx'
-const WithoutHeader = ["/login", "/celebrant-signup", "/merchant-signup", "/forgot-password", "/terms"]
+import { SignupPopup } from "./SignupPopup";
+import { SIGNUP_CONTEXT } from "../context.jsx";
+const WithoutHeader = [
+  "/login",
+  "/celebrant-signup",
+  "/merchant-signup",
+  "/forgot-password",
+  "/terms",
+];
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const {signupOpen, setSignupOpen} = useContext(SIGNUP_MODAL)
+  const { setSignupOpen } = useContext(SIGNUP_CONTEXT);
   const { pathname } = useLocation();
 
   const location = useLocation();
@@ -20,9 +26,9 @@ const Header = () => {
       setIsScrolled(window.scrollY > 0);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
@@ -48,20 +54,21 @@ const Header = () => {
     };
   }, [isMenuOpen]);
 
-   // Show/hide pop-up
-   const handlePopUpToggle = () => {
-    // setIsPopUpOpen(!isPopUpOpen);
-    setSignupOpen(true)
-   };
-   if(WithoutHeader.includes(pathname)) return null
+  // Show/hide pop-up
+  const handlePopUpToggle = () => {
+    setSignupOpen(true);
+  };
+  if (WithoutHeader.includes(pathname)) return null;
   return (
     <header
       className={`fixed top-0 left-0 w-full z-50 py-2 md:px-5 text-white 
         transition-all duration-300 
-        ${isScrolled 
-          ? "bg-bluePrimary bg-opacity-30 backdrop-blur-sm shadow-md" 
-          : ""}`}>
-
+        ${
+          isScrolled
+            ? "bg-bluePrimary bg-opacity-30 backdrop-blur-sm shadow-md"
+            : ""
+        }`}
+    >
       <div className="flex justify-between items-center px-7 py-4 w-full">
         {/* Logo */}
         <Link to="/" className="w-28">
@@ -109,8 +116,7 @@ const Header = () => {
               About Us
             </Link>
           )}
-          <div
-            className="relative flex items-center gap-1">
+          <div className="relative flex items-center gap-1">
             {/* "Features" link navigates to the "Features" section */}
             <button
               className="hover:text-gold"
@@ -200,8 +206,8 @@ const Header = () => {
         id="mobile-menu-panel"
         className={`fixed top-0 right-0 w-1/2 h-screen bg-bluePrimary 
           bg-opacity-90 backdrop-blur-sm z-40 transform ${
-          isMenuOpen ? "translate-x-0" : "translate-x-full"
-        } transition-transform duration-300`}
+            isMenuOpen ? "translate-x-0" : "translate-x-full"
+          } transition-transform duration-300`}
       >
         {/* Close Button */}
         <div className="flex justify-end p-4">
