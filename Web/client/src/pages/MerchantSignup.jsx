@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import { Eye, EyeOff, Mail } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useState } from "react";
+import { Eye, EyeOff, Mail } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom";
 import {
   Select,
@@ -10,31 +10,39 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
-const formSchema = z.object({
-  firstName: z.string().min(2, "First name is required"),
-  lastName: z.string().min(2, "Last name is required"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string(),
-  businessType: z.string().min(1, "Please select a business type"),
-  country: z.string().min(1, "Please select a country"),
-  state: z.string().min(1, "Please select a state"),
-  city: z.string().min(1, "Please select a city"),
-  phoneNumber: z.string().min(10, "Invalid phone number"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-})
+const formSchema = z
+  .object({
+    firstName: z.string().min(2, "First name is required"),
+    lastName: z.string().min(2, "Last name is required"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+    businessType: z.string().min(1, "Please select a business type"),
+    country: z.string().min(1, "Please select a country"),
+    state: z.string().min(1, "Please select a state"),
+    city: z.string().min(1, "Please select a city"),
+    phoneNumber: z.string().min(10, "Invalid phone number"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export default function MerchantSignup() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -50,15 +58,15 @@ export default function MerchantSignup() {
       city: "",
       phoneNumber: "",
     },
-  })
+  });
 
   function onSubmit(values) {
-    console.log(values)
+    console.log(values);
   }
 
   return (
-    <div className="min-h-screen bg-white p-4 sm:p-6 relative">
-      <div className="max-w-[1000px] mx-auto">
+    <div className="relative bg-white p-4 sm:p-6 min-h-screen">
+      <div className="mx-auto max-w-[1000px]">
         <div className="mb-8">
           <img
             src="/logo.svg"
@@ -67,14 +75,16 @@ export default function MerchantSignup() {
             height={60}
             className="mb-6"
           />
-          <h1 className="text-3xl font-bold text-gray-900">Sign up as merchant</h1>
+          <h1 className="font-bold text-3xl text-gray-900">
+            Sign up as merchant
+          </h1>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 relative">
-          <div className="absolute top-0 bottom-0 left-1/2 w-px bg-gold hidden md:block" />
+        <div className="relative gap-8 grid md:grid-cols-2">
+          <div className="md:block top-0 bottom-0 left-1/2 absolute hidden bg-gold w-px" />
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="gap-4 grid grid-cols-2">
                 <FormField
                   control={form.control}
                   name="firstName"
@@ -110,7 +120,7 @@ export default function MerchantSignup() {
                     <FormControl>
                       <div className="relative">
                         <Input placeholder="example@gmail.com" {...field} />
-                        <Mail className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        <Mail className="top-1/2 right-3 absolute w-5 h-5 text-gray-400 -translate-y-1/2" />
                       </div>
                     </FormControl>
                   </FormItem>
@@ -125,16 +135,20 @@ export default function MerchantSignup() {
                     <FormLabel>Password</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Input 
-                          type={showPassword ? "text" : "password"} 
-                          {...field} 
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          {...field}
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                          className="top-1/2 right-3 absolute text-gray-400 -translate-y-1/2"
                         >
-                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          {showPassword ? (
+                            <EyeOff className="w-5 h-5" />
+                          ) : (
+                            <Eye className="w-5 h-5" />
+                          )}
                         </button>
                       </div>
                     </FormControl>
@@ -150,16 +164,22 @@ export default function MerchantSignup() {
                     <FormLabel>Confirm Password</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Input 
-                          type={showConfirmPassword ? "text" : "password"} 
-                          {...field} 
+                        <Input
+                          type={showConfirmPassword ? "text" : "password"}
+                          {...field}
                         />
                         <button
                           type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
+                          className="top-1/2 right-3 absolute text-gray-400 -translate-y-1/2"
                         >
-                          {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          {showConfirmPassword ? (
+                            <EyeOff className="w-5 h-5" />
+                          ) : (
+                            <Eye className="w-5 h-5" />
+                          )}
                         </button>
                       </div>
                     </FormControl>
@@ -173,7 +193,10 @@ export default function MerchantSignup() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Business Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select an option" />
@@ -181,7 +204,9 @@ export default function MerchantSignup() {
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="kiosk">Kiosk operator</SelectItem>
-                        <SelectItem value="foot-soldier">Foot soldier</SelectItem>
+                        <SelectItem value="foot-soldier">
+                          Foot soldier
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </FormItem>
@@ -194,7 +219,10 @@ export default function MerchantSignup() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Country</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select an option" />
@@ -210,14 +238,17 @@ export default function MerchantSignup() {
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="gap-4 grid grid-cols-2">
                 <FormField
                   control={form.control}
                   name="state"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>State</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select an option" />
@@ -239,7 +270,10 @@ export default function MerchantSignup() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>City</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select an option" />
@@ -269,17 +303,21 @@ export default function MerchantSignup() {
                 )}
               />
 
-              <Button type="submit" className="w-full bg-[#1A1A1A] hover:bg-[#2D2D2D]">
+              <Button
+                type="submit"
+                className="bg-[#1A1A1A] hover:bg-[#2D2D2D] w-full"
+              >
                 Create an account
               </Button>
 
-              <p className="text-sm text-gray-500">
-                By clicking "Create account" above, you acknowledge that you will receive updates
-                from Party Currency team and that you have read, understood, and agreed to Party Currency{' '}
+              <p className="text-gray-500 text-sm">
+                By clicking "Create account" above, you acknowledge that you
+                will receive updates from Party Currency team and that you have
+                read, understood, and agreed to Party Currency{" "}
                 <Link href="/terms" className="text-gold-600 hover:underline">
                   Terms Of Service
-                </Link>{' '}
-                and{' '}
+                </Link>{" "}
+                and{" "}
                 <Link href="/privacy" className="text-gold-600 hover:underline">
                   Privacy Policy
                 </Link>
@@ -288,12 +326,12 @@ export default function MerchantSignup() {
             </form>
           </Form>
           <div className="space-y-4 md:pl-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Button 
-                variant="outline" 
-                className="w-full flex items-center justify-center gap-2"
+            <div className="gap-4 grid grid-cols-1 sm:grid-cols-2">
+              <Button
+                variant="outline"
+                className="flex justify-center items-center gap-2 w-full"
               >
-                <Image
+                <img
                   src="/google.svg"
                   alt="Google logo"
                   width={20}
@@ -301,21 +339,16 @@ export default function MerchantSignup() {
                 />
                 Continue with Google
               </Button>
-              <Button 
-                variant="outline" 
-                className="w-full flex items-center justify-center gap-2"
+              <Button
+                variant="outline"
+                className="flex justify-center items-center gap-2 w-full"
               >
-                <Image
-                  src="/apple.svg"
-                  alt="Apple logo"
-                  width={20}
-                  height={20}
-                />
+                <img src="/apple.svg" alt="Apple logo" width={20} height={20} />
                 Continue with Apple
               </Button>
             </div>
             <p className="text-center text-gray-600">
-              Already have an account?{' '}
+              Already have an account?{" "}
               <Link href="/sign-in" className="text-gold hover:underline">
                 Sign in
               </Link>
@@ -324,6 +357,5 @@ export default function MerchantSignup() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-
