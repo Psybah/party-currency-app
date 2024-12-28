@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Eye, EyeOff, Mail } from "lucide-react";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +44,7 @@ const formSchema = z
 export default function MerchantSignup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -60,8 +62,29 @@ export default function MerchantSignup() {
     },
   });
 
-  function onSubmit(values) {
-    console.log(values);
+  async function onSubmit(values) {
+    setLoading(true);
+    try {
+      const response = await axios.post("https://api.partycurrency.com/signup", {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        password: values.password,
+        businessType: values.businessType,
+        country: values.country,
+        state: values.state,
+        city: values.city,
+        phoneNumber: values.phoneNumber,
+      });
+      alert("Signup successful! Check your email for confirmation.");
+      console.log(response.data);
+    } catch (error) {
+      alert(
+        error.response?.data?.message || "An error occurred during signup."
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -83,7 +106,10 @@ export default function MerchantSignup() {
         <div className="relative gap-8 grid md:grid-cols-2">
           <div className="md:block top-0 bottom-0 left-1/2 absolute hidden bg-gold w-px" />
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-6"
+            >
               <div className="gap-4 grid grid-cols-2">
                 <FormField
                   control={form.control}
@@ -204,9 +230,7 @@ export default function MerchantSignup() {
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="kiosk">Kiosk operator</SelectItem>
-                        <SelectItem value="foot-soldier">
-                          Foot soldier
-                        </SelectItem>
+                        <SelectItem value="foot-soldier">Foot soldier</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormItem>
@@ -306,19 +330,20 @@ export default function MerchantSignup() {
               <Button
                 type="submit"
                 className="bg-[#1A1A1A] hover:bg-[#2D2D2D] w-full"
+                disabled={loading}
               >
-                Create an account
+                {loading ? "Signing up..." : "Create an account"}
               </Button>
 
               <p className="text-gray-500 text-sm">
                 By clicking "Create account" above, you acknowledge that you
                 will receive updates from Party Currency team and that you have
                 read, understood, and agreed to Party Currency{" "}
-                <Link href="/terms" className="text-gold-600 hover:underline">
+                <Link href="/terms" className="text-gold hover:underline">
                   Terms Of Service
                 </Link>{" "}
                 and{" "}
-                <Link href="/privacy" className="text-gold-600 hover:underline">
+                <Link href="/privacy" className="text-gold hover:underline">
                   Privacy Policy
                 </Link>
                 .
@@ -343,7 +368,12 @@ export default function MerchantSignup() {
                 variant="outline"
                 className="flex justify-center items-center gap-2 w-full"
               >
-                <img src="/apple.svg" alt="Apple logo" width={20} height={20} />
+                <img
+                  src="/apple.svg"
+                  alt="Apple logo"
+                  width={20}
+                  height={20}
+                />
                 Continue with Apple
               </Button>
             </div>
