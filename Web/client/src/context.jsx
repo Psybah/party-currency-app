@@ -4,13 +4,19 @@ export const SIGNUP_CONTEXT = createContext({
   signupOpen: false,
   setSignupOpen: () => {},
 });
-
+export const USER_PROFILE_CONTEXT = createContext({
+  userProfile: null,
+  setUserProfile: () => {},
+});
 export function ContextWrapper({ children }) {
   const [signupOpen, setSignupOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
   return (
-    <SIGNUP_CONTEXT.Provider value={{ signupOpen, setSignupOpen }}>
-      {children}
-      <SignupPopup />
-    </SIGNUP_CONTEXT.Provider>
+    <USER_PROFILE_CONTEXT.Provider value={{ userProfile, setUserProfile }}>
+      <SIGNUP_CONTEXT.Provider value={{ signupOpen, setSignupOpen }}>
+        {children}
+        <SignupPopup />
+      </SIGNUP_CONTEXT.Provider>
+    </USER_PROFILE_CONTEXT.Provider>
   );
 }
