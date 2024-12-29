@@ -4,6 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom";
 import { SIGNUP_CONTEXT } from "../context";
+import { useNavigate } from "react-router-dom";
+import { getCustomerProfile, loginCustomerApi } from "@/services/apiAuth";
+import { storeAuth } from "@/lib/util";
+import { USER_PROFILE_CONTEXT } from "@/context";
 
 export default function LoginPage() {
   const { setSignupOpen } = useContext(SIGNUP_CONTEXT);
@@ -11,32 +15,30 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const navigate = useNavigate();
+  const { userProfile, setUserProfile } = useContext(USER_PROFILE_CONTEXT);
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevent page reload
     setLoading(true);
     setErrorMessage("");
 
     try {
-      const response = await fetch(
-        "https://6177-105-113-98-202.ngrok-free.app/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const response = loginCustomerApi(email, password);
 
       const data = await response.json();
 
       if (response.ok) {
         // Handle successful login
         console.log("Login successful", data);
-        // You can save the token in localStorage or context for later use
-        localStorage.setItem("authToken", data.token);
-        // Redirect user or update UI state
+        const accessToken = data.token;
+        storeAuth(accessToken, "customer", true);
+        const userProfileResponse = await getCustomerProfile(accessToken);
+        if (userProfileResponse.ok) {
+          const userProfileData = await userProfileResponse.json();
+          setUserProfile(userProfileData);
+          console.log("Login Successful", userProfileData);
+          navigate("/dashboard");
+        }
       } else {
         // Handle errors
         setErrorMessage(data.message || "Login failed. Please try again.");
