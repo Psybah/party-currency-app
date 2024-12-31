@@ -1,13 +1,12 @@
 Django>=3.2,<4.0
 djangorestframework
 django-cors-headers
-django-allauth
+django-allauth>=0.54.0
 dj-rest-auth
 psycopg2-binary
 gunicorn
 python-dotenv
 whitenoise
+PyJWT
 requests
-
-# Dependencies for your installed apps
-django-allauth>=0.54.0
+requests-oauthlib
