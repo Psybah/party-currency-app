@@ -7,6 +7,6 @@ psycopg2-binary
 gunicorn
 python-dotenv
 whitenoise
-sslserver
+
 # Dependencies for your installed apps
 django-allauth>=0.54.0
