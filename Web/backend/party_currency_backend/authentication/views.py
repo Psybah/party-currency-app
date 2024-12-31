@@ -71,12 +71,8 @@ def signupMerchant(request):
     return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
-from rest_framework import status
-from rest_framework.permissions import AllowAny
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-from allauth.socialaccount.models import SocialAccount
-from .serializers import UserSerializer
+from dj_rest_auth.registration.views import SocialLoginView
 
+class GoogleLogin(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
