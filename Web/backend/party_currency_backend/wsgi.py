@@ -15,5 +15,4 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'party_currency_backend.settings
 
 application = get_wsgi_application()
 
-
-a= 10
+a =20
