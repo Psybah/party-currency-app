@@ -3,9 +3,9 @@ import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/main_logo.svg";
 import { SIGNUP_CONTEXT } from "../context.jsx";
 const WithoutHeader = [
-  // "/login",
+  "/login",
   "/celebrant-signup",
-  // "/merchant-signup",
+  "/merchant-signup",
   "/forgot-password",
   "/terms",
 ];

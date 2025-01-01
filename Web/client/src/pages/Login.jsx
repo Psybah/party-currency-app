@@ -2,57 +2,83 @@ import React, { useContext, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
-import { SIGNUP_CONTEXT } from "../context";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getCustomerProfile, loginCustomerApi } from "@/services/apiAuth";
 import { storeAuth } from "@/lib/util";
-import { USER_PROFILE_CONTEXT } from "@/context";
+import { USER_PROFILE_CONTEXT, SIGNUP_CONTEXT } from "@/context";
 
 export default function LoginPage() {
-  const { setSignupOpen } = useContext(SIGNUP_CONTEXT);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { userProfile, setUserProfile } = useContext(USER_PROFILE_CONTEXT);
+  const { setSignupOpen } = useContext(SIGNUP_CONTEXT); // Handles opening the signup modal
+  const { setUserProfile } = useContext(USER_PROFILE_CONTEXT); // Updates user profile context
+  const [email, setEmail] = useState(""); // State for email input
+  const [password, setPassword] = useState(""); // State for password input
+  const [errorMessage, setErrorMessage] = useState(""); // State for error messages
+  const [loading, setLoading] = useState(false); // State for loading indicator
+  const navigate = useNavigate(); // React Router navigation hook
+
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevent page reload
     setLoading(true);
     setErrorMessage("");
 
     try {
-      const response = loginCustomerApi(email, password);
-
+      // Call login API
+      const response = await loginCustomerApi(email, password);
       const data = await response.json();
 
       if (response.ok) {
-        // Handle successful login
-        console.log("Login successful", data);
-        const accessToken = data.token;
-        storeAuth(accessToken, "customer", true);
+        console.log("Login successful:", data);
+        const accessToken = data.token; // Get the token from API response
+        storeAuth(accessToken, "customer", true); // Store token in cookies and user type in local storage
+
+        // Fetch user profile using the access token
         const userProfileResponse = await getCustomerProfile(accessToken);
         if (userProfileResponse.ok) {
           const userProfileData = await userProfileResponse.json();
-          setUserProfile(userProfileData);
-          console.log("Login Successful", userProfileData);
-          navigate("/dashboard");
+          setUserProfile(userProfileData); // Update user profile context
+          console.log("User profile fetched:", userProfileData);
+          navigate("/dashboard"); // Redirect to dashboard
+        } else {
+          throw new Error("Failed to fetch user profile.");
         }
       } else {
-        // Handle errors
-        setErrorMessage(data.message || "Login failed. Please try again.");
+        setErrorMessage(data.message || "Invalid email or password.");
       }
     } catch (error) {
-      setErrorMessage("An error occurred. Please try again later.");
       console.error("Login error:", error);
+      setErrorMessage("An error occurred. Please try again later.");
     } finally {
-      setLoading(false);
+      setLoading(false); // Reset loading state
     }
   };
 
   return (
     <div className="flex flex-col justify-center items-center p-4 min-h-screen">
+      {/* Back Button */}
+      <div className="absolute top-4 left-4 md:left-8">
+        <button
+          onClick={() => navigate("/")} // Navigate back to the home page
+          className="flex items-center text-gray-600 hover:text-black transition"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="1.5"
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 19.5L8.25 12l7.5-7.5"
+            />
+          </svg>
+          <span className="ml-2 text-sm md:text-base">Back</span>
+        </button>
+      </div>
+
+      {/* Login Form */}
       <div className="space-y-8 w-full max-w-md">
         <div className="flex flex-col items-center">
           <img
@@ -102,6 +128,7 @@ export default function LoginPage() {
           </Button>
         </form>
 
+        {/* Alternative Login Options */}
         <div className="space-y-4">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -126,6 +153,7 @@ export default function LoginPage() {
           </div>
         </div>
 
+        {/* Sign-up and Forgot Password Links */}
         <div className="space-y-2 text-center">
           <Link
             to="/forgot-password"
@@ -136,10 +164,8 @@ export default function LoginPage() {
           <div className="text-sm">
             New to Party Currency?{" "}
             <p
-              onClick={() => {
-                setSignupOpen(true);
-              }}
-              className="text-gold hover:underline"
+              onClick={() => setSignupOpen(true)} // Open signup modal
+              className="text-gold hover:underline cursor-pointer"
             >
               Sign up
             </p>
