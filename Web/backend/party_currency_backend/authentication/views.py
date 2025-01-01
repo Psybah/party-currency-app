@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,authentication_classes,permission_classes
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from .serializers import UserSerializer,MerchantSerializer
@@ -7,7 +7,10 @@ from.models import CustomUser as CUser,Merchant
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticated,AllowAny
 @api_view(["POST"])
+@csrf_exempt
+@permission_classes([AllowAny])
 def login(request):
     user = get_object_or_404(CUser,username=request.data["email"])
     if not user.check_password(request.data["password"]):
@@ -20,6 +23,7 @@ def login(request):
 # Create your views here.
 @api_view(["POST"])
 @csrf_exempt
+@permission_classes([AllowAny])
 def signupUser(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
@@ -44,6 +48,8 @@ def signupUser(request):
     # Return validation errors
     return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 @api_view(["POST"])
+@permission_classes([AllowAny])
+@csrf_exempt
 def signupMerchant(request):
     serializer = MerchantSerializer(data=request.data)
     if serializer.is_valid():
