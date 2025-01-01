@@ -11,7 +11,7 @@ WSGI_APPLICATION = 'party_currency_backend.wsgi.application'
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security Settings
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False  # Set to False for development
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
