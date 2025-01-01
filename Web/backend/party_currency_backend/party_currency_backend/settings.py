@@ -29,6 +29,7 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 CSRF_TRUSTED_ORIGINS = [
     'https://party-currency-app-production.up.railway.app',
+    'https://party-currency-app-production.up.railway.app',
     'http://localhost:8000',
     'http://127.0.0.1:8000'
 ]
@@ -172,6 +173,8 @@ TEMPLATES = [
 #     CSRF_COOKIE_SECURE = True
 #     SECURE_BROWSER_XSS_FILTER = True
 #     SECURE_CONTENT_TYPE_NOSNIFF = True
+
+DEBUG = True  # Only for debugging on Railway
 
 
 REST_FRAMEWORK = {
