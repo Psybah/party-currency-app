@@ -26,7 +26,7 @@ def login(request):
 def signupUser(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
-        user = CUser.objects.create_user(
+        user1 = CUser.objects.create_user(
             username=request.data.get("email"),  
             email=request.data.get("email"),
             password=request.data.get("password"),
@@ -36,7 +36,7 @@ def signupUser(request):
                 # Password is hashed here
         )
 
-        token, created = Token.objects.get_or_create(user=user)
+        token, created = Token.objects.get_or_create(user=user1)
 
         return Response({
             "Message":"Login successful. use api/users/profile to get userdetails passing this token as an authorization, ",
