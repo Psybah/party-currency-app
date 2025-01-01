@@ -22,7 +22,6 @@ def login(request):
         }, status=status.HTTP_202_ACCEPTED)
 # Create your views here.
 @api_view(["POST"])
-@csrf_exempt
 @permission_classes([AllowAny])
 def signupUser(request):
     serializer = UserSerializer(data=request.data)
