@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view,csrf_exempt
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
+from django.views.decorators.csrf import csrf_exempt
 from .serializers import UserSerializer,MerchantSerializer
 from.models import CustomUser as CUser,Merchant
 from rest_framework.authtoken.models import Token
