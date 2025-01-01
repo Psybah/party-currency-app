@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,csrf_exempt
 from rest_framework.response import Response
 
 from .serializers import UserSerializer,MerchantSerializer
@@ -19,6 +19,7 @@ def login(request):
         }, status=status.HTTP_202_ACCEPTED)
 # Create your views here.
 @api_view(["POST"])
+@csrf_exempt
 def signupUser(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
