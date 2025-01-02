@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import { getCustomerProfile, loginCustomerApi } from "@/services/apiAuth";
+import { getProfileApi, loginCustomerApi } from "@/services/apiAuth";
 import { storeAuth } from "@/lib/util";
 import { USER_PROFILE_CONTEXT, SIGNUP_CONTEXT } from "@/context";
 
@@ -29,15 +29,16 @@ export default function LoginPage() {
       if (response.ok) {
         console.log("Login successful:", data);
         const accessToken = data.token; // Get the token from API response
-        storeAuth(accessToken, "customer", true); // Store token in cookies and user type in local storage
+        // Store token in cookies and user type in local storage
+        storeAuth(accessToken, "customer", true);
 
         // Fetch user profile using the access token
-        const userProfileResponse = await getCustomerProfile(accessToken);
+        const userProfileResponse = await getProfileApi();
         if (userProfileResponse.ok) {
           const userProfileData = await userProfileResponse.json();
           setUserProfile(userProfileData); // Update user profile context
           console.log("User profile fetched:", userProfileData);
-          navigate("/dashboard"); // Redirect to dashboard
+          navigate("/"); // Redirect to dashboard
         } else {
           throw new Error("Failed to fetch user profile.");
         }
