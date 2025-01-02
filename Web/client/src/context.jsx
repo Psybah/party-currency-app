@@ -1,5 +1,6 @@
 import { createContext, useState } from "react";
 import { SignupPopup } from "./components/SignupPopup";
+import { InitializeApp } from "./components/IntitializeApp";
 export const SIGNUP_CONTEXT = createContext({
   signupOpen: false,
   setSignupOpen: () => {},
@@ -16,6 +17,7 @@ export function ContextWrapper({ children }) {
       <SIGNUP_CONTEXT.Provider value={{ signupOpen, setSignupOpen }}>
         {children}
         <SignupPopup />
+        <InitializeApp />
       </SIGNUP_CONTEXT.Provider>
     </USER_PROFILE_CONTEXT.Provider>
   );

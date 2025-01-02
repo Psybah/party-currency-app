@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Eye, EyeOff, Mail } from "lucide-react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -22,6 +22,9 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { getProfileApi, signupMerchantApi } from "@/services/apiAuth";
+import { USER_PROFILE_CONTEXT } from "@/context";
+import { storeAuth } from "@/lib/util";
 
 const formSchema = z
   .object({
@@ -45,7 +48,9 @@ export default function MerchantSignup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const { userProfile, setUserProfile } = useContext(USER_PROFILE_CONTEXT);
+  const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,25 +68,37 @@ export default function MerchantSignup() {
   });
 
   async function onSubmit(values) {
+    if (values.password !== values.confirmPassword) {
+      setErrorMessage("Passwords do not match");
+      return;
+    }
     setLoading(true);
     try {
-      const response = await axios.post("https://api.partycurrency.com/signup", {
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
-        password: values.password,
-        businessType: values.businessType,
-        country: values.country,
-        state: values.state,
-        city: values.city,
-        phoneNumber: values.phoneNumber,
-      });
-      alert("Signup successful! Check your email for confirmation.");
-      console.log(response.data);
+      const response = await signupMerchantApi(values);
+
+      const data = await response.json();
+      if (response.ok) {
+        console.log("mercant signup successful:", data);
+        const accessToken = data.token; // Get the token from API response
+        // Store token in cookies and user type in local storage
+        storeAuth(accessToken, "merchant", true);
+
+        // Fetch user profile using the access token
+        const userProfileResponse = await getProfileApi();
+        if (userProfileResponse.ok) {
+          const userProfileData = await userProfileResponse.json();
+          setUserProfile(userProfileData); // Update user profile context
+          console.log("Merchant profile fetched:", userProfileData);
+          navigate("/"); // Redirect to dashboard
+        } else {
+          throw new Error("Failed to fetch user profile.");
+        }
+      } else {
+        setErrorMessage(data.message || "Unable to signup .");
+      }
     } catch (error) {
-      alert(
-        error.response?.data?.message || "An error occurred during signup."
-      );
+      setErrorMessage("An error occurred during signup.");
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -102,14 +119,13 @@ export default function MerchantSignup() {
             Sign up as merchant
           </h1>
         </div>
-
+        {errorMessage && (
+          <div className="mb-4 text-red-500">{errorMessage}</div>
+        )}
         <div className="relative gap-8 grid md:grid-cols-2">
           <div className="md:block top-0 bottom-0 left-1/2 absolute hidden bg-gold w-px" />
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-6"
-            >
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="gap-4 grid grid-cols-2">
                 <FormField
                   control={form.control}
@@ -230,7 +246,9 @@ export default function MerchantSignup() {
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="kiosk">Kiosk operator</SelectItem>
-                        <SelectItem value="foot-soldier">Foot soldier</SelectItem>
+                        <SelectItem value="foot-soldier">
+                          Foot soldier
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </FormItem>
@@ -368,12 +386,7 @@ export default function MerchantSignup() {
                 variant="outline"
                 className="flex justify-center items-center gap-2 w-full"
               >
-                <img
-                  src="/apple.svg"
-                  alt="Apple logo"
-                  width={20}
-                  height={20}
-                />
+                <img src="/apple.svg" alt="Apple logo" width={20} height={20} />
                 Continue with Apple
               </Button>
             </div>
