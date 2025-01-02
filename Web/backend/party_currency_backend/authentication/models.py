@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.contrib.auth.models import AbstractUser, Group, Permission,User
 from django.db import models
 
 class CustomUser(AbstractUser):
@@ -26,7 +26,7 @@ class CustomUser(AbstractUser):
     )
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    REQUIRED_FIELDS = [ 'first_name', 'last_name']
 
     class Meta:
         db_table = 'custom_user'  # Explicit table name
@@ -38,3 +38,5 @@ class Merchant(CustomUser):
         self.type = "merchant"
         super().save(*args, **kwargs)
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'business_type']
+
+
