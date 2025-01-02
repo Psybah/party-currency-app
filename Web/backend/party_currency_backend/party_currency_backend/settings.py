@@ -37,13 +37,17 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1'
 ]
-CORS_ALLOW_ALL_ORIGINS = False
+
+# If you need to allow all origins, use this instead of wildcard
+CORS_ORIGIN_ALLOW_ALL = True
+
+# Or specify exact origins
 CORS_ALLOWED_ORIGINS = [
     'https://party-currency-app-production.up.railway.app',
     'http://localhost:8000',
-    'http://127.0.0.1:8000',
-    '*'
+    'http://127.0.0.1:8000'
 ]
+
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
     'DELETE',
