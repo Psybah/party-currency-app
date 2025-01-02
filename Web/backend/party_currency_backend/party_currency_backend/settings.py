@@ -6,8 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 WSGI_APPLICATION = 'party_currency_backend.wsgi.application'
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+AUTH_USER_MODEL = 'authentication.CustomUser'# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security Settings
@@ -25,7 +24,7 @@ SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+# DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 CSRF_TRUSTED_ORIGINS = [
     'https://party-currency-app-production.up.railway.app',
@@ -129,7 +128,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'dj_rest_auth',
-]
+    ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  
@@ -164,8 +163,7 @@ TEMPLATES = [
     },
 ]
 
-# ...existing code...
-# ...existing code...
+
 # Security settings for production
 # if not DEBUG:
 #     SECURE_SSL_REDIRECT = True
@@ -180,7 +178,7 @@ DEBUG = True  # Only for debugging on Railway
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',

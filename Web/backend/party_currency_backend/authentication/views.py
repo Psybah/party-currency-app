@@ -1,32 +1,37 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view,authentication_classes,permission_classes
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.views.decorators.csrf import csrf_exempt
-from .serializers import UserSerializer,MerchantSerializer
+
+from .serializers import UserSerializer
 from.models import CustomUser as CUser,Merchant
 from rest_framework.authtoken.models import Token
-from rest_framework import status
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAuthenticated,AllowAny
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.decorators import permission_classes
+
+
 @api_view(["POST"])
-@csrf_exempt
 @permission_classes([AllowAny])
 def login(request):
     user = get_object_or_404(CUser,username=request.data["email"])
+    print(user.first_name)
     if not user.check_password(request.data["password"]):
-        return Response({"message":"user not found"},status.HTTP_404_NOT_FOUND)
-    token,created = Token.objects.get_or_create(user=user)
+        return Response({"message":"user not found or incorrect password"},status.HTTP_404_NOT_FOUND)
+    token, _ = Token.objects.get_or_create(user=user)
     return Response({
-                    "Message":"Login successful. use api/users/profile to get userdetails passing this token as an authorization, ",
+                    "Message":"Signup successful. use api/users/profile to get userdetails passing this token as an authorization, ",
             "token": token.key
         }, status=status.HTTP_202_ACCEPTED)
-# Create your views here.
+
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def signupUser(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
-        user1 = CUser.objects.create_user(
+        user = CUser.objects.create_user(
             username=request.data.get("email"),  
             email=request.data.get("email"),
             password=request.data.get("password"),
@@ -35,8 +40,7 @@ def signupUser(request):
             phone_number=request.data.get("phone_number"),
                 # Password is hashed here
         )
-
-        token, created = Token.objects.get_or_create(user=user1)
+        token, created = Token.objects.get_or_create(user=user)
 
         return Response({
             "Message":"Login successful. use api/users/profile to get userdetails passing this token as an authorization, ",
@@ -46,11 +50,12 @@ def signupUser(request):
 
     # Return validation errors
     return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
-@csrf_exempt
 def signupMerchant(request):
-    serializer = MerchantSerializer(data=request.data)
+    serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         user = Merchant.objects.create_user(
             username=request.data.get("email"),  
