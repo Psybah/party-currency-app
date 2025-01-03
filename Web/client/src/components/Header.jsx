@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/main_logo.svg";
 import { SIGNUP_CONTEXT } from "../context.jsx";
+import UserAvatar from "./UserAvatar";
 const WithoutHeader = [
   "/login",
   "/celebrant-signup",
@@ -185,17 +186,7 @@ const Header = () => {
         </nav>
 
         {/* Login and Signup */}
-        <div className="md:flex items-center gap-6 hidden font-montserrat text-lg">
-          <Link to="/login" className="hover:text-gold">
-            Login
-          </Link>
-          <button
-            className="bg-gold hover:bg-yellow-500 px-4 py-2 rounded-lg text-white"
-            onClick={handlePopUpToggle}
-          >
-            Sign Up
-          </button>
-        </div>
+        <UserAvatar auth={true} showName={true} />
       </div>
 
       {/* SignupPopup */}
