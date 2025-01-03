@@ -98,7 +98,7 @@ export default function MerchantSignup() {
             height={60}
             className="mb-6"
           />
-          <h1 className="font-bold text-3xl text-gray-900">
+          <h1 className="font-bold font-playfair text-3xl text-gray-900">
             Sign up as merchant
           </h1>
         </div>
