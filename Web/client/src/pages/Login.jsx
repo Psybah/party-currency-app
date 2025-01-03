@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import { getCustomerProfile, loginCustomerApi } from "@/services/apiAuth";
+import { getProfileApi, loginCustomerApi } from "@/services/apiAuth";
 import { storeAuth } from "@/lib/util";
 import { USER_PROFILE_CONTEXT, SIGNUP_CONTEXT } from "@/context";
 
@@ -22,22 +22,23 @@ export default function LoginPage() {
     setErrorMessage("");
 
     try {
-      // Call login API
       const response = await loginCustomerApi(email, password);
+
       const data = await response.json();
 
       if (response.ok) {
         console.log("Login successful:", data);
         const accessToken = data.token; // Get the token from API response
-        storeAuth(accessToken, "customer", true); // Store token in cookies and user type in local storage
+        // Store token in cookies and user type in local storage
+        storeAuth(accessToken, "customer", true);
 
         // Fetch user profile using the access token
-        const userProfileResponse = await getCustomerProfile(accessToken);
+        const userProfileResponse = await getProfileApi();
         if (userProfileResponse.ok) {
           const userProfileData = await userProfileResponse.json();
           setUserProfile(userProfileData); // Update user profile context
           console.log("User profile fetched:", userProfileData);
-          navigate("/dashboard"); // Redirect to dashboard
+          navigate("/"); // Redirect to dashboard
         } else {
           throw new Error("Failed to fetch user profile.");
         }
@@ -54,31 +55,6 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col justify-center items-center p-4 min-h-screen">
-      {/* Back Button */}
-      <div className="absolute top-4 left-4 md:left-8">
-        <button
-          onClick={() => navigate("/")} // Navigate back to the home page
-          className="flex items-center text-gray-600 hover:text-black transition"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 19.5L8.25 12l7.5-7.5"
-            />
-          </svg>
-          <span className="ml-2 text-sm md:text-base">Back</span>
-        </button>
-      </div>
-
-      {/* Login Form */}
       <div className="space-y-8 w-full max-w-md">
         <div className="flex flex-col items-center">
           <img

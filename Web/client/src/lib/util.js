@@ -6,8 +6,9 @@ export function storeAuth(
   userType = "customer",
   rememberMe = true
 ) {
-  // Usertype can be 'customer' or 'merchant'
+  // Supertype can be 'customer' or 'merchant'
   localStorage.setItem("userType", userType);
+
   if (rememberMe) {
     Cookies.set("accessToken", accessToken, { expires: ACCESS_TOKEN_DURATION });
   } else {
@@ -19,6 +20,7 @@ export function storeAuth(
 export function getAuth() {
   const accessToken = Cookies.get("accessToken");
   const userType = localStorage.getItem("userType");
+
   return { accessToken, userType };
 }
 export function deleteAuth() {
