@@ -1,0 +1,13 @@
+Django
+djangorestframework
+django-cors-headers
+django-allauth>=0.54.0
+dj-rest-auth
+psycopg2-binary
+gunicorn
+python-dotenv
+whitenoise
+PyJWT
+requests
+requests-oauthlib
+cryptography
