@@ -14,8 +14,7 @@ from rest_framework.decorators import permission_classes
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def login(request):
-    user = get_object_or_404(CUser,username=request.data["email"])
-    print(user.first_name)
+    user = get_object_or_404(CUser, username=request.data["email"].strip().lower())
     if not user.check_password(request.data["password"]):
         return Response({"message":"user not found or incorrect password"},status.HTTP_404_NOT_FOUND)
     token, _ = Token.objects.get_or_create(user=user)
