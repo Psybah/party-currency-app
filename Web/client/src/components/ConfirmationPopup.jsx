@@ -1,9 +1,18 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LayoutDashboard, PenSquare, ClipboardList, Coins, Settings, LogOut, ChevronsLeft, ChevronsRight } from "lucide-react";
+import {
+  LayoutDashboard,
+  PenSquare,
+  ClipboardList,
+  Coins,
+  Settings,
+  LogOut,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 import { USER_PROFILE_CONTEXT } from "@/context"; // Import the context
 import { deleteAuth } from "@/lib/util"; // Import the deleteAuth function
-import ConfirmationPopup from "./ConfirmationPopup"; // Import the ConfirmationPopup component
+// import ConfirmationPopup from "./ConfirmationPopup"; // Import the ConfirmationPopup component
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -49,7 +58,7 @@ export default function Sidebar() {
       }`}
     >
       {/* Logo Section with Collapse Button */}
-      <div className="h-16 flex items-center justify-between px-3 py-2 border-b border-white/10">
+      <div className="flex justify-between items-center border-white/10 px-3 py-2 border-b h-16">
         {!isCollapsed && (
           <img
             src="/main_logo.svg"
@@ -58,18 +67,25 @@ export default function Sidebar() {
             height={40}
           />
         )}
-        <button onClick={toggleSidebar} className="text-white hover:text-gray-300">
-          {isCollapsed ? <ChevronsRight className="w-5 h-5" /> : <ChevronsLeft className="w-5 h-5" />}
+        <button
+          onClick={toggleSidebar}
+          className="text-white hover:text-gray-300"
+        >
+          {isCollapsed ? (
+            <ChevronsRight className="w-5 h-5" />
+          ) : (
+            <ChevronsLeft className="w-5 h-5" />
+          )}
         </button>
       </div>
 
       {/* Navigation Links */}
-      <nav className="mt-8 space-y-2">
+      <nav className="space-y-2 mt-8">
         {navItems.map((item) => (
           <Link
             key={item.href}
             to={item.href}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors"
+            className="flex items-center gap-3 hover:bg-white/10 px-3 py-2 rounded-lg transition-colors"
           >
             <item.icon className="w-5 h-5" />
             {!isCollapsed && <span>{item.label}</span>}
@@ -78,22 +94,22 @@ export default function Sidebar() {
       </nav>
 
       {/* Logout Button */}
-      <div className="absolute bottom-8 left-0 w-full px-4">
+      <div className="bottom-8 left-0 absolute px-4 w-full">
         <button
           onClick={openPopup} // Open the confirmation popup
-          className="flex items-center gap-3 px-3 py-2 w-full text-left hover:bg-white/10 rounded-lg transition-colors"
+          className="flex items-center gap-3 hover:bg-white/10 px-3 py-2 rounded-lg w-full text-left transition-colors"
         >
           <LogOut className="w-5 h-5" />
           {!isCollapsed && <span>Log out</span>}
         </button>
       </div>
 
-      {/* Confirmation Popup */}
+      {/* Confirmation Popup
       <ConfirmationPopup
         isOpen={isPopupOpen}
         onConfirm={handleLogout} // Confirm logout
         onCancel={closePopup} // Close the popup
-      />
+      /> */}
     </div>
   );
 }
