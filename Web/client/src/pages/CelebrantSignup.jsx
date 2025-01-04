@@ -68,7 +68,7 @@ export default function CelebrantSignupPage() {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center mt-20 p-4 min-h-screen">
+    <div className="flex flex-col justify-center items-center p-4 min-h-screen">
       {/* Back Button */}
       <div className="absolute top-4 left-4 md:left-8">
         <button
@@ -92,14 +92,14 @@ export default function CelebrantSignupPage() {
           <span className="ml-2 text-sm md:text-base">Back</span>
         </button>
       </div>
-      <div className="space-y-8 w-full max-w-md">
+      <div className="space-y-6 w-full max-w-md"> {/* Reduced space-y-8 to space-y-6 */}
         <div className="flex flex-col items-center">
           <img
             src="/logo.svg"
             alt="Party Currency Logo"
             width={60}
             height={60}
-            className="mb-6"
+            className="mb-4"
           />
           <h1 className="font-playfair text-3xl">
             Sign up as Host/Event planner

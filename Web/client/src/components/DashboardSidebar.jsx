@@ -33,6 +33,7 @@ export default function Sidebar() {
   };
 
   const handleLogout = () => {
+    console.log("Logging out..."); // Debugging
     // Clear the user profile from context
     setUserProfile(null);
 

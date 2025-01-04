@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { USER_PROFILE_CONTEXT } from "@/context"; // Import the context
 import { deleteAuth } from "@/lib/util"; // Import the deleteAuth function
-// import ConfirmationPopup from "./ConfirmationPopup"; // Import the ConfirmationPopup component
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
