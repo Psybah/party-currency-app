@@ -1,6 +1,5 @@
 import { useState, useContext } from "react";
 import { Eye, EyeOff, Mail } from "lucide-react";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -105,7 +104,7 @@ export default function MerchantSignup() {
   }
 
   return (
-    <div className="relative bg-white p-4 sm:p-6 min-h-screen">
+    <div className="flex flex-col justify-center items-center p-4 min-h-screen">
       {/* Back Button */}
       <div className="absolute top-4 left-4 md:left-8">
         <button
@@ -129,8 +128,8 @@ export default function MerchantSignup() {
           <span className="ml-2 text-sm md:text-base">Back</span>
         </button>
       </div>
-      <div className="mx-auto max-w-[1000px]">
-        <div className="flex flex-col items-center mb-8">
+      <div className="space-y-8 w-full max-w-md">
+        <div className="flex flex-col items-center">
           <img
             src="/logo.svg"
             alt="Party Currency Logo"
@@ -145,281 +144,280 @@ export default function MerchantSignup() {
         {errorMessage && (
           <div className="mb-4 text-red-500">{errorMessage}</div>
         )}
-        <div className="relative gap-8 grid md:grid-cols-2">
-          <div className="md:block top-0 bottom-0 left-1/2 absolute hidden bg-gold w-px" />
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="gap-4 grid grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="firstName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>First Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="John" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="lastName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Last Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Doe" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="gap-4 grid grid-cols-2">
               <FormField
                 control={form.control}
-                name="email"
+                name="firstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>First Name</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input placeholder="example@gmail.com" {...field} />
-                        <Mail className="top-1/2 right-3 absolute w-5 h-5 text-gray-400 -translate-y-1/2" />
-                      </div>
+                      <Input placeholder="John" {...field} />
                     </FormControl>
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
-                name="password"
+                name="lastName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>Last Name</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          type={showPassword ? "text" : "password"}
-                          {...field}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="top-1/2 right-3 absolute text-gray-400 -translate-y-1/2"
-                        >
-                          {showPassword ? (
-                            <EyeOff className="w-5 h-5" />
-                          ) : (
-                            <Eye className="w-5 h-5" />
-                          )}
-                        </button>
-                      </div>
+                      <Input placeholder="Doe" {...field} />
                     </FormControl>
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          type={showConfirmPassword ? "text" : "password"}
-                          {...field}
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setShowConfirmPassword(!showConfirmPassword)
-                          }
-                          className="top-1/2 right-3 absolute text-gray-400 -translate-y-1/2"
-                        >
-                          {showConfirmPassword ? (
-                            <EyeOff className="w-5 h-5" />
-                          ) : (
-                            <Eye className="w-5 h-5" />
-                          )}
-                        </button>
-                      </div>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="businessType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Business Type</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select an option" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="kiosk">Kiosk operator</SelectItem>
-                        <SelectItem value="foot-soldier">
-                          Foot soldier
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="country"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Country</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select an option" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="ng">Nigeria</SelectItem>
-                        <SelectItem value="gh">Ghana</SelectItem>
-                        <SelectItem value="ke">Kenya</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-
-              <div className="gap-4 grid grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="state"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>State</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select an option" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="lagos">Lagos</SelectItem>
-                          <SelectItem value="abuja">Abuja</SelectItem>
-                          <SelectItem value="ph">Port Harcourt</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>City</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select an option" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="ikeja">Ikeja</SelectItem>
-                          <SelectItem value="lekki">Lekki</SelectItem>
-                          <SelectItem value="vi">Victoria Island</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="phoneNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone number</FormLabel>
-                    <FormControl>
-                      <Input placeholder="+234..." {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <Button
-                type="submit"
-                className="bg-[#1A1A1A] hover:bg-[#2D2D2D] w-full"
-                disabled={loading}
-              >
-                {loading ? "Signing up..." : "Create an account"}
-              </Button>
-
-              <div className="text-center text-sm">
-                By clicking "Create account" above, you acknowledge that you have read
-                and understood, and agree to Party Currency's{" "}
-                <Link to="/terms" className="text-gold hover:underline">
-                  Terms of Service
-                </Link>{" "}
-                  and{" "}
-                <Link to="/privacy" className="text-gold hover:underline">
-                  Privacy Policy
-                </Link>
-                  .
-                </div>
-            </form>
-          </Form>
-          <div className="space-y-4 md:pl-8">
-            <div className="gap-4 grid grid-cols-1 sm:grid-cols-2">
-              <Button
-                variant="outline"
-                className="flex justify-center items-center gap-2 w-full"
-              >
-                <img
-                  src="/google.svg"
-                  alt="Google logo"
-                  width={20}
-                  height={20}
-                />
-                Continue with Google
-              </Button>
-              <Button
-                variant="outline"
-                className="flex justify-center items-center gap-2 w-full"
-              >
-                <img src="/apple.svg" alt="Apple logo" width={20} height={20} />
-                Continue with Apple
-              </Button>
             </div>
-            <p className="text-center text-gray-600">
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input placeholder="example@gmail.com" {...field} />
+                      <Mail className="top-1/2 right-3 absolute w-5 h-5 text-gray-400 -translate-y-1/2" />
+                    </div>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="top-1/2 right-3 absolute text-gray-400 -translate-y-1/2"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={showConfirmPassword ? "text" : "password"}
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                        className="top-1/2 right-3 absolute text-gray-400 -translate-y-1/2"
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="businessType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Business Type</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an option" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="kiosk">Kiosk operator</SelectItem>
+                      <SelectItem value="foot-soldier">
+                        Foot soldier
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="country"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Country</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an option" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="ng">Nigeria</SelectItem>
+                      <SelectItem value="gh">Ghana</SelectItem>
+                      <SelectItem value="ke">Kenya</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+
+            <div className="gap-4 grid grid-cols-2">
+              <FormField
+                control={form.control}
+                name="state"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>State</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an option" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="lagos">Lagos</SelectItem>
+                        <SelectItem value="abuja">Abuja</SelectItem>
+                        <SelectItem value="ph">Port Harcourt</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>City</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an option" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="ikeja">Ikeja</SelectItem>
+                        <SelectItem value="lekki">Lekki</SelectItem>
+                        <SelectItem value="vi">Victoria Island</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone number</FormLabel>
+                  <FormControl>
+                    <Input placeholder="+234..." {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <Button
+              type="submit"
+              className="bg-footer hover:bg-[#2D2D2D] w-full"
+              disabled={loading}
+            >
+              {loading ? "Signing up..." : "Create an account"}
+            </Button>
+
+            <div className="space-y-4">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="border-t border-lightgray w-full"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-white px-2 text-muted-foreground">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+
+              <div className="gap-4 grid grid-cols-2">
+                <Button variant="outline" className="border-lightgray">
+                  <img src="/google.svg" alt="Google" className="mr-2 w-5 h-5" />
+                  Google
+                </Button>
+                <Button variant="outline" className="border-lightgray">
+                  <img src="/apple.svg" alt="Apple" className="mr-2 w-5 h-5" />
+                  Apple
+                </Button>
+              </div>
+            </div>
+
+            <div className="text-center text-sm">
+              By clicking "Create account" above, you acknowledge that you have read
+              and understood, and agree to Party Currency's{" "}
+              <Link to="/terms" className="text-gold hover:underline">
+                Terms of Service
+              </Link>{" "}
+              and{" "}
+              <Link to="/privacy" className="text-gold hover:underline">
+                Privacy Policy
+              </Link>
+              .
+            </div>
+
+            <div className="text-center text-sm">
               Already have an account?{" "}
               <Link to="/login" className="text-gold hover:underline">
                 Sign in
               </Link>
-            </p>
-          </div>
-        </div>
+            </div>
+          </form>
+        </Form>
       </div>
     </div>
   );
