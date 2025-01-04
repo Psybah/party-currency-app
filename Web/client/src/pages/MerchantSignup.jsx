@@ -89,7 +89,7 @@ export default function MerchantSignup() {
           const userProfileData = await userProfileResponse.json();
           setUserProfile(userProfileData); // Update user profile context
           console.log("Merchant profile fetched:", userProfileData);
-          navigate("/"); // Redirect to dashboard
+          navigate("/dashboard"); // Redirect to dashboard
         } else {
           throw new Error("Failed to fetch user profile.");
         }
@@ -106,8 +106,31 @@ export default function MerchantSignup() {
 
   return (
     <div className="relative bg-white p-4 sm:p-6 min-h-screen">
+      {/* Back Button */}
+      <div className="absolute top-4 left-4 md:left-8">
+        <button
+          onClick={() => navigate("/")}
+          className="flex items-center text-gray-600 hover:text-black transition"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="1.5"
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 19.5L8.25 12l7.5-7.5"
+            />
+          </svg>
+          <span className="ml-2 text-sm md:text-base">Back</span>
+        </button>
+      </div>
       <div className="mx-auto max-w-[1000px]">
-        <div className="mb-8">
+        <div className="flex flex-col items-center mb-8">
           <img
             src="/logo.svg"
             alt="Party Currency Logo"
@@ -115,7 +138,7 @@ export default function MerchantSignup() {
             height={60}
             className="mb-6"
           />
-          <h1 className="font-bold font-playfair text-3xl text-gray-900">
+          <h1 className="font-playfair text-3xl">
             Sign up as merchant
           </h1>
         </div>
@@ -339,7 +362,7 @@ export default function MerchantSignup() {
                   <FormItem>
                     <FormLabel>Phone number</FormLabel>
                     <FormControl>
-                      <Input placeholder="+234123456789" {...field} />
+                      <Input placeholder="+234..." {...field} />
                     </FormControl>
                   </FormItem>
                 )}
@@ -353,19 +376,18 @@ export default function MerchantSignup() {
                 {loading ? "Signing up..." : "Create an account"}
               </Button>
 
-              <p className="text-gray-500 text-sm">
-                By clicking "Create account" above, you acknowledge that you
-                will receive updates from Party Currency team and that you have
-                read, understood, and agreed to Party Currency{" "}
-                <Link href="/terms" className="text-gold hover:underline">
-                  Terms Of Service
+              <div className="text-center text-sm">
+                By clicking "Create account" above, you acknowledge that you have read
+                and understood, and agree to Party Currency's{" "}
+                <Link to="/terms" className="text-gold hover:underline">
+                  Terms of Service
                 </Link>{" "}
-                and{" "}
-                <Link href="/privacy" className="text-gold hover:underline">
+                  and{" "}
+                <Link to="/privacy" className="text-gold hover:underline">
                   Privacy Policy
                 </Link>
-                .
-              </p>
+                  .
+                </div>
             </form>
           </Form>
           <div className="space-y-4 md:pl-8">
@@ -392,7 +414,7 @@ export default function MerchantSignup() {
             </div>
             <p className="text-center text-gray-600">
               Already have an account?{" "}
-              <Link href="/" className="text-gold hover:underline">
+              <Link to="/login" className="text-gold hover:underline">
                 Sign in
               </Link>
             </p>

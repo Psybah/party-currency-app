@@ -9,6 +9,7 @@ const WithoutHeader = [
   "/merchant-signup",
   "/forgot-password",
   "/terms",
+  "/dashboard",
 ];
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -331,14 +332,14 @@ const Header = () => {
           {/* Mobile Menu Footer for Login and Signup */}
           <div className="right-6 bottom-6 left-6 absolute">
             <button
-              className="block mb-8 text-center text-gold text-xl"
+              className="block mb-8 text-gold text-xl"
               onClick={handlePopUpToggle}
             >
               Sign Up
             </button>
             <Link
               to="/login"
-              className="block mb-12 text-center text-lg text-white"
+              className="block mb-12 text-lg text-white"
               onClick={() => setIsMenuOpen(false)}
             >
               Login

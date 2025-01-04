@@ -7,6 +7,7 @@ import { signupCelebrantApi, getProfileApi } from "@/services/apiAuth";
 import { storeAuth } from "@/lib/util";
 import { USER_PROFILE_CONTEXT } from "@/context";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react"; // Import Lucide icons
 
 export default function CelebrantSignupPage() {
   const [firstName, setFirstName] = useState("");
@@ -16,8 +17,11 @@ export default function CelebrantSignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { userProfile, setUserProfile } = useContext(USER_PROFILE_CONTEXT);
   const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(""); // Clear previous error
@@ -51,18 +55,51 @@ export default function CelebrantSignupPage() {
       const userProfileData = await userProfileResponse.json();
       setUserProfile(userProfileData); // Update user profile context
       console.log("User profile fetched:", userProfileData);
-      navigate("/"); // Redirect to dashboard
+      navigate("/dashboard"); // Redirect to dashboard
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   return (
     <div className="flex flex-col justify-center items-center mt-20 p-4 min-h-screen">
+      {/* Back Button */}
+      <div className="absolute top-4 left-4 md:left-8">
+        <button
+          onClick={() => navigate("/")}
+          className="flex items-center text-gray-600 hover:text-black transition"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="1.5"
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 19.5L8.25 12l7.5-7.5"
+            />
+          </svg>
+          <span className="ml-2 text-sm md:text-base">Back</span>
+        </button>
+      </div>
       <div className="space-y-8 w-full max-w-md">
         <div className="flex flex-col items-center">
           <img
             src="/logo.svg"
             alt="Party Currency Logo"
-            className="mb-4 w-28 h-28"
+            width={60}
+            height={60}
+            className="mb-6"
           />
           <h1 className="font-playfair text-3xl">
             Sign up as Host/Event planner
@@ -110,27 +147,53 @@ export default function CelebrantSignupPage() {
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              className="border-lightgray"
-              value={password}
-              min={8}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                className="border-lightgray pr-10"
+                value={password}
+                min={8}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+              >
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5 text-gray-500" /> // Lucide EyeOff icon
+                ) : (
+                  <Eye className="w-5 h-5 text-gray-500" /> // Lucide Eye icon
+                )}
+              </button>
+            </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              className="border-lightgray"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                className="border-lightgray pr-10"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={toggleConfirmPasswordVisibility}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="w-5 h-5 text-gray-500" /> // Lucide EyeOff icon
+                ) : (
+                  <Eye className="w-5 h-5 text-gray-500" /> // Lucide Eye icon
+                )}
+              </button>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -138,7 +201,7 @@ export default function CelebrantSignupPage() {
             <Input
               id="phone"
               type="tel"
-              placeholder="+234123456789"
+              placeholder="+234..."
               className="border-lightgray"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -148,7 +211,7 @@ export default function CelebrantSignupPage() {
           {error && <div className="text-red-500 text-sm">{error}</div>}
           <Button
             type="submit"
-            className="bg-[#1A1A1A] hover:bg-[#2D2D2D] w-full"
+            className="bg-footer hover:bg-[#2D2D2D] w-full"
           >
             Create an account
           </Button>
