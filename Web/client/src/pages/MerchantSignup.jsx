@@ -398,8 +398,8 @@ export default function MerchantSignup() {
             </div>
 
             <div className="text-center text-sm">
-              By clicking "Create account" above, you acknowledge that you have read
-              and understood, and agree to Party Currency's{" "}
+              By clicking 'Create an Account' above, you acknowledge that you have read, 
+              understood, and agree to Party Currency's{" "}
               <Link to="/terms" className="text-gold hover:underline">
                 Terms of Service
               </Link>{" "}
