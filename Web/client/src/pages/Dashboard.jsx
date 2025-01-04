@@ -1,13 +1,23 @@
-import React from "react";
+import React, { useEffect, useContext } from "react";
 import { Info } from "lucide-react";
-import { Link } from "react-router-dom"; // Import Link for navigation
+import { Link, useNavigate } from "react-router-dom"; // Import Link for navigation
+import { USER_PROFILE_CONTEXT } from "../context";
 import DashboardSidebar from "../components/DashboardSidebar"; // Import Sidebar
 import DashboardHeader from "../components/DashboardHeader"; // Import Header
 import StatsCard from "../components/StatsCard"; // Import StatsCard
 
 export default function Dashboard() {
+  const { userProfile } = useContext(USER_PROFILE_CONTEXT);
+  const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   if (!userProfile) {
+  //     navigate("/login");
+  //   }
+  // }, [userProfile, navigate]);
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="bg-white min-h-screen">
       {/* Sidebar */}
       <DashboardSidebar />
 
@@ -19,7 +29,7 @@ export default function Dashboard() {
         {/* Main Section */}
         <main className="p-6">
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 gap-6 mb-8">
+          <div className="gap-6 grid grid-cols-2 mb-8">
             <StatsCard
               label="Total Transaction Amount"
               value="₦500,000.00"
@@ -30,12 +40,14 @@ export default function Dashboard() {
 
           {/* Transaction History Section */}
           <section>
-            <h2 className="text-xl font-semibold mb-6">Transaction History</h2>
+            <h2 className="mb-6 font-semibold text-xl">Transaction History</h2>
 
             {/* Empty State */}
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <Info className="w-12 h-12 text-[#F5B014] mb-4" />
-              <p className="text-gray-600 mb-4">Yet to perform any transaction</p>
+            <div className="flex flex-col justify-center items-center py-12 text-center">
+              <Info className="mb-4 w-12 h-12 text-[#F5B014]" />
+              <p className="mb-4 text-gray-600">
+                Yet to perform any transaction
+              </p>
               <Link
                 to="/create-event"
                 className="text-[#F5B014] hover:underline"
