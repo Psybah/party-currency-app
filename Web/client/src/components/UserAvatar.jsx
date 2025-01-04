@@ -40,18 +40,18 @@ export default function UserAvatar({ showName, auth }) {
       <Popover
         placement="bottom"
         content={options}
-        style={{ backgroundColor: "#D4AF37" }}
+        style={{ backgroundColor: "bluePrimary" }}
         mouseEnterDelay={0.3}
         mouseLeaveDelay={0.5}
       >
         <div className="cursor-pointer flex items-center gap-2">
-          <span className="text-gray-600">Hello,</span>
-          <span className="font-semibold text-[#334495]">{name}</span>
+          <span className="text-paragraph">Hello,</span>
+          <span className="text-paragraph">{name}</span>
           <Avatar
-            style={{ backgroundColor: "#D6D979", verticalAlign: "middle" }}
+            style={{ backgroundColor: "bluePrimary", verticalAlign: "middle" }}
             size="default"
           >
-            <span className="font-semibold">{name[0]}</span>
+            <span className="font-semibold text-white">{name[0]}</span>
           </Avatar>
         </div>
       </Popover>
