@@ -13,6 +13,7 @@ import MerchantSignup from "./pages/MerchantSignup";
 import ForgotPassword from "./pages/ForgotPassword";
 import { ContextWrapper } from "./context";
 import TermsOfService from "./pages/TermsOfService";
+import Dashboard from "./pages/Dashboard";
 
 const App = () => {
   return (
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="/merchant-signup" element={<MerchantSignup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
         <Footer />
       </ContextWrapper>

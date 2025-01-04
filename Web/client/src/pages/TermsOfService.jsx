@@ -1,17 +1,21 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import logo from '../assets/logo_icon.svg'
+import React, { useContext } from "react"; // Import useContext
+import { Link } from "react-router-dom";
+import { SIGNUP_CONTEXT } from "../context"; // Import SIGNUP_CONTEXT
 
 export default function TermsOfService() {
+  const { setSignupOpen } = useContext(SIGNUP_CONTEXT); // Use useContext to access the context
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-3xl mx-auto px-4 py-12">
         {/* Logo */}
         <div className="mb-8">
           <img
-            src = {logo}
+            src="/logo.svg"
             alt="Party Currency Logo"
-            className="w-20 h-20"
+            width={60}
+            height={60}
+            className="mb-6"
           />
         </div>
 
@@ -155,7 +159,7 @@ export default function TermsOfService() {
 
         <div className="mt-12">
           <Link
-            to="/signup"
+            onClick={() => setSignupOpen(true)}
             className="text-gold hover:underline"
           >
             Back to sign up page
@@ -163,5 +167,5 @@ export default function TermsOfService() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 import { getProfileApi, loginCustomerApi } from "@/services/apiAuth";
 import { storeAuth } from "@/lib/util";
 import { USER_PROFILE_CONTEXT, SIGNUP_CONTEXT } from "@/context";
@@ -12,6 +13,7 @@ export default function LoginPage() {
   const { setUserProfile } = useContext(USER_PROFILE_CONTEXT); // Updates user profile context
   const [email, setEmail] = useState(""); // State for email input
   const [password, setPassword] = useState(""); // State for password input
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
   const [errorMessage, setErrorMessage] = useState(""); // State for error messages
   const [loading, setLoading] = useState(false); // State for loading indicator
   const navigate = useNavigate(); // React Router navigation hook
@@ -38,7 +40,7 @@ export default function LoginPage() {
           const userProfileData = await userProfileResponse.json();
           setUserProfile(userProfileData); // Update user profile context
           console.log("User profile fetched:", userProfileData);
-          navigate("/"); // Redirect to dashboard
+          navigate("/dashboard"); // Redirect to dashboard
         } else {
           throw new Error("Failed to fetch user profile.");
         }
@@ -55,6 +57,30 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col justify-center items-center p-4 min-h-screen">
+      {/* Back Button */}
+      <div className="absolute top-4 left-4 md:left-8">
+        <button
+          onClick={() => navigate("/")}
+          className="flex items-center text-gray-600 hover:text-black transition"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="1.5"
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 19.5L8.25 12l7.5-7.5"
+            />
+          </svg>
+          <span className="ml-2 text-sm md:text-base">Back</span>
+        </button>
+      </div>
+
       <div className="space-y-8 w-full max-w-md">
         <div className="flex flex-col items-center">
           <img
@@ -82,13 +108,22 @@ export default function LoginPage() {
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              className="border-lightgray"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                className="border-lightgray"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
 
           {errorMessage && (
