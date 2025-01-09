@@ -14,7 +14,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import { ContextWrapper } from "./context";
 import TermsOfService from "./pages/TermsOfService";
 import Dashboard from "./pages/Dashboard";
-
+import CustomCurrency from "./pages/CustomCurrency";
 const App = () => {
   return (
     <Router>
@@ -42,6 +42,7 @@ const App = () => {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/custom-currency" element={<CustomCurrency />} />
         </Routes>
         <Footer />
       </ContextWrapper>
