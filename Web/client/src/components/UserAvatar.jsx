@@ -52,7 +52,7 @@ export default function UserAvatar({ showName, auth }) {
         mouseEnterDelay={0.3}
         mouseLeaveDelay={0.5}
       >
-        <div className="flex items-center gap-2 cursor-pointer">
+        <div className="flex items-center gap-2 font-semibold cursor-pointer">
           <span className="text-paragraph">Hello,</span>
           <span className="text-paragraph">{name}</span>
           <Avatar
