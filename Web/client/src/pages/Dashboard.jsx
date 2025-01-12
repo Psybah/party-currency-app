@@ -12,7 +12,7 @@ export default function Dashboard() {
   const authenticated = useAuthenticated();
   // Redirect to login if no user profile
 
-  return false ? (
+  return authenticated ? (
     <div className="bg-white min-h-screen">
       {/* Sidebar - Ensure this is only rendered once */}
       <DashboardSidebar />
