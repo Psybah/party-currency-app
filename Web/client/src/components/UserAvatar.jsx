@@ -27,6 +27,14 @@ export default function UserAvatar({ showName, auth }) {
       <ul className="space-y-2 mx-2 px-2 min-w-[10ch]">
         <li
           className="hover:font-semibold hover:text-Primary transition-colors cursor-pointer select-none"
+          onClick={() => {
+            navigate("/dashboard");
+          }}
+        >
+          Dashboard
+        </li>
+        <li
+          className="hover:font-semibold hover:text-Primary transition-colors cursor-pointer select-none"
           onClick={handleLogout}
         >
           Sign out
@@ -44,7 +52,7 @@ export default function UserAvatar({ showName, auth }) {
         mouseEnterDelay={0.3}
         mouseLeaveDelay={0.5}
       >
-        <div className="cursor-pointer flex items-center gap-2">
+        <div className="flex items-center gap-2 cursor-pointer">
           <span className="text-paragraph">Hello,</span>
           <span className="text-paragraph">{name}</span>
           <Avatar
