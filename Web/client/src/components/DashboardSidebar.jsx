@@ -105,12 +105,12 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* Confirmation Popup */}
+      {/* Confirmation Popup
       <ConfirmationPopup
         isOpen={isPopupOpen}
         onConfirm={handleLogout} // Confirm logout
         onCancel={closePopup} // Close the popup
-      />
+      /> */}
     </div>
   );
 }
