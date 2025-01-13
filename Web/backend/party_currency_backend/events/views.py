@@ -3,8 +3,9 @@ from rest_framework.decorators import api_view, permission_classes,authenticatio
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Event
-from .serializers import EventSerializer
+from .serializers import EventSerializer,EventSerializerFull
+from .models import Event  # Fix the import
+
 from datetime import datetime
 
 # Create your views here.
@@ -34,18 +35,22 @@ def EventList(request):
     events = Event.objects.filter(event_author=request.user.username)
     serializer = EventSerializer(events, many=True)
     return Response({"events": serializer.data, "message":"Event list retrieved successfully"}, status=status.HTTP_200_OK)
-    return Response({"events": events, "message":"Event list retrieved successfully"}, status=status.HTTP_200_OK)
 
 @api_view(["GET"])
-def EventDetail(request):
-    event = Event.objects.get(event_id=request.data["event_id"])
+def EventDetail(request,id):
+    event = Event.objects.get(event_id=id)
+    serializer=EventSerializerFull(event)
     return Response({"message":"Event details retrieved successfully",
-                     "event":event},status=status.HTTP_302_FOUND)
+                     "event":serializer.data},status=status.HTTP_302_FOUND)
 
 @api_view(["PUT"])
 def EventUpdate(request):
     return Response({"message":"Event updated successfully"},status=status.HTTP_200_OK)
 
 @api_view(["DELETE"])
-def EventDelete(request):
+@permission_classes([IsAuthenticated])
+def EventDelete(request, id):
+    event = Event.objects.get(event_id=id)
+    event.event_author = "archive"
+    event.save()
     return Response({"message":"Event deleted successfully"},status=status.HTTP_200_OK)

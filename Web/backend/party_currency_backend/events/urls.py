@@ -4,8 +4,8 @@ from .views import  EventCreate,EventUpdate,EventDelete,EventList,EventDetail
 urlpatterns = [
     path("create", EventCreate, name="eventCreate"),
     path("list", EventList, name="eventList"),
-    path("detail", EventDetail, name="eventDetail"),
+    path("get/<str:id>", EventDetail, name="eventDetail"),
     path("update", EventUpdate, name="eventUpdate"),
-    path("delete", EventDelete, name="eventDelete"),
+    path("delete/<str:id>", EventDelete, name="eventDelete"),
     
 ]
