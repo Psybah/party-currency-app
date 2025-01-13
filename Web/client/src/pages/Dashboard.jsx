@@ -1,23 +1,18 @@
 import React, { useEffect, useContext } from "react";
 import { Info } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { USER_PROFILE_CONTEXT } from "../context";
 import DashboardSidebar from "../components/DashboardSidebar";
 import DashboardHeader from "../components/DashboardHeader";
 import StatsCard from "../components/StatsCard";
+import { useAuthenticated } from "../lib/hooks";
+import LoadingDisplay from "@/components/LoadingDisplay";
 
 export default function Dashboard() {
-  const { userProfile } = useContext(USER_PROFILE_CONTEXT);
   const navigate = useNavigate();
-
+  const authenticated = useAuthenticated();
   // Redirect to login if no user profile
-  useEffect(() => {
-    if (!userProfile) {
-      navigate("/login");
-    }
-  }, [userProfile, navigate]);
 
-  return (
+  return authenticated ? (
     <div className="bg-white min-h-screen">
       {/* Sidebar - Ensure this is only rendered once */}
       <DashboardSidebar />
@@ -60,5 +55,7 @@ export default function Dashboard() {
         </main>
       </div>
     </div>
+  ) : (
+    <LoadingDisplay />
   );
 }
