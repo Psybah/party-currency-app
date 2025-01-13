@@ -11,3 +11,4 @@ PyJWT
 requests
 requests-oauthlib
 cryptography
+Pillow
