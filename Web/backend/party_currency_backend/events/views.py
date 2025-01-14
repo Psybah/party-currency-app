@@ -5,31 +5,42 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import EventSerializer,EventSerializerFull
 from .models import Event  # Fix the import
+from django.utils import timezone
 
 from datetime import datetime
 
 # Create your views here.
 @api_view(["POST"])
 def EventCreate(request):
-    current_time = datetime.now()
-    event = Event.objects.create(
-        event_name=request.data["event_name"],
-        event_description=request.data["event_description"],
-        event_date=request.data["event_date"],
-        event_author=request.user.username,
-        address=request.data["address"],
-        delivery_address=request.data["delivery_address"],
-        created_at=current_time.strftime('%Y-%m-%d %H:%M:%S'),
-        updated_at=current_time.strftime('%Y-%m-%d %H:%M:%S'),
-        event_id = f"event_{request.user.username}_{int(current_time.timestamp())}"
-    )
-    return Response({
-        "message": f"Event {event.event_name} created successfully",
-        "event": {
-            "event_id": event.event_id,
-            "event_name": event.event_name
-        }
-    }, status=status.HTTP_201_CREATED)
+    try:
+        current_time = timezone.now()
+        event_date = timezone.datetime.strptime(
+            request.data["event_date"], 
+            '%Y-%m-%d'
+        ).replace(tzinfo=timezone.utc)
+        
+        event = Event.objects.create(
+            event_name=request.data["event_name"],
+            event_description=request.data["event_description"],
+            event_date=event_date,
+            event_author=request.user.username,
+            address=request.data["address"],
+            delivery_address=request.data["delivery_address"],
+            event_id=f"event_{request.user.username}_{int(current_time.timestamp())}"
+        )
+        
+        return Response({
+            "message": f"Event {event.event_name} created successfully",
+            "event": {
+                "event_id": event.event_id,
+                "event_name": event.event_name
+            }
+        }, status=status.HTTP_201_CREATED)
+        
+    except Exception as e:
+        return Response({
+            "error": str(e)
+        }, )
 @api_view(["GET"])
 def EventList(request):
     events = Event.objects.filter(event_author=request.user.username)

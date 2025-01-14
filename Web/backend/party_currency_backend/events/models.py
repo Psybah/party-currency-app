@@ -5,7 +5,7 @@ class Event(models.Model):
     event_author = models.CharField(max_length=255, default="user")
     address = models.TextField(default="Nigeria")  # Fixed - was missing parentheses
     event_description = models.TextField(default="owanbe")
-    event_date = models.DateTimeField()
+    event_date = models.DateField()
     delivery_address = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)  # Changed to proper timestamp
     updated_at = models.DateTimeField(auto_now=True)      # Changed to proper timestamp
