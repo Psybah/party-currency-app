@@ -6,7 +6,6 @@ from rest_framework import status
 from .serializers import EventSerializer,EventSerializerFull
 from .models import Event  # Fix the import
 from django.utils import timezone
-import pytz
 from datetime import datetime
 
 # Create your views here.
