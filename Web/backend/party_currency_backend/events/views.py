@@ -6,7 +6,7 @@ from rest_framework import status
 from .serializers import EventSerializer,EventSerializerFull
 from .models import Event  # Fix the import
 from django.utils import timezone
-
+import pytz
 from datetime import datetime
 
 # Create your views here.
@@ -17,7 +17,7 @@ def EventCreate(request):
         event_date = timezone.datetime.strptime(
             request.data["event_date"], 
             '%Y-%m-%d'
-        ).replace(tzinfo=timezone.utc)
+        ).replace(tzinfo=pytz.UTC)
         
         event = Event.objects.create(
             event_name=request.data["event_name"],
