@@ -18,6 +18,7 @@ export default function Dashboard() {
       <DashboardSidebar />
 
       {/* Main Content */}
+
       <div className="pl-64">
         {/* Header */}
         <DashboardHeader />
