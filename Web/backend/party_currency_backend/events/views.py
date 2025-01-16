@@ -84,7 +84,7 @@ def EventDelete(request, id):
     event = Event.objects.get(event_id=id)
     event.event_author = "archive"
     event.save()
-    return Response({"message":"Event deleted successfully."},status=status.HTTP_200_OK)
+    return Response({"message":"Event deleted from list successfully."},status=status.HTTP_200_OK)
 
 
 #TODO  view archived event by admin or superuser
