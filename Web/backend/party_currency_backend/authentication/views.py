@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes,throttle_classes
-from .utils import generate_code,validate_code
+from .utils import generate_code,validate_code,invalidate_code
 from django.core.mail import send_mail
 from rest_framework.throttling import AnonRateThrottle
 
@@ -115,114 +115,6 @@ def generate_password_reset_code(request):
             [email],
             fail_silently=False,
         )
-        return Response(
-            {"message": "Reset code has been sent to your email"},
-            status=status.HTTP_200_OK
-        )
-    except CUser.DoesNotExist:
-        # Use same message to prevent email enumeration
-        return Response(
-            {"message": "If this email exists, a reset code has been sent"},
-            status=status.HTTP_200_OK
-        )
-    except Exception as e:
-        return Response(
-            {"message": "An error occurred"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
-
-
-
-
-KOhws this password reset flow @api_view(['POST'])
-@permission_classes([AllowAny])
-def generate_password_reset_code(request):
-    email = request.data['email']
-    try:
-        user = CUser.objects.get(email=email)
-        code = generate_code(email)
-        return Response(
-            {
-                "message": f"code generated for user {email}",
-                "code": code
-            }, status=status.HTTP_201_CREATED
-        )
-    except CUser.DoesNotExist:
-        return Response(
-            {
-                "message": "User with this email does not exist"
-            }, status=status.HTTP_404_NOT_FOUND
-        )@api_view(['POST'])
-@permission_classes([AllowAny])
-def get_password_reset_token(request):
-    email=request.data['email']
-    code=request.data['code']
-    if validate_code(email,code):
-        user = CUser.objects.get(email=email)
-        token =Token.objects.get_or_create(user=user)
-        return Response({"message":"code validated,use token to reset password",
-                         "token":token.key
-                         },status=status.HTTP_200_OK)
-    else:
-        return Response ({"message":"wrong or expired code"},status=status.HTTP_400_BAD_REQUEST)   @api_view(["POST"])
-def reset_password(request):
-    user = request.user
-    new_password = request.data['password']
-    user.set_password(new_password)
-    user.save()
-    return Response (
-        {
-            'message':"password reset successfully"
-        },status=status.HTTP_202_ACCEPTED
-    )EditI'll analyze this password reset flow. While the basic structure is there, there are several security and implementation concerns that should be addressed:
-Security Issues:
-
-The first endpoint returns the verification code in the response, which is a security risk. The code should only be sent via email/SMS.
-There's no rate limiting on code generation or validation attempts, which makes it vulnerable to brute force attacks.
-The reset_password endpoint doesn't verify the current password. While this is optional for a password reset flow, you should document this decision.
-
-Implementation Issues:
-
-In get_password_reset_token:
-
-pythonCopytoken =Token.objects.get_or_create(user=user)
-This returns a tuple (token, created). You need to handle it like:
-pythonCopytoken, _ = Token.objects.get_or_create(user=user)
-
-Error handling is incomplete. Many operations could raise exceptions.
-
-Here's an improved version:
-pythonCopyfrom django.core.cache import cache
-from rest_framework.decorators import api_view, permission_classes, throttle_classes
-from rest_framework.throttling import AnonRateThrottle
-from django.core.mail import send_mail
-
-class PasswordResetThrottle(AnonRateThrottle):
-    rate = '3/hour'
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-@throttle_classes([PasswordResetThrottle])
-def generate_password_reset_code(request):
-    try:
-        email = request.data.get('email')
-        if not email:
-            return Response(
-                {"message": "Email is required"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        user = CUser.objects.get(email=email)
-        code = generate_code(email)
-        
-        # Send code via email
-        send_mail(
-            'Password Reset Code',
-            f'Your password reset code is: {code}',
-            'from@yourdomain.com',
-            [email],
-            fail_silently=False,
-        )
 
         return Response(
             {"message": "Reset code has been sent to your email"},
@@ -239,6 +131,9 @@ def generate_password_reset_code(request):
             {"message": "An error occurred"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -247,19 +142,25 @@ def get_password_reset_token(request):
     try:
         email = request.data.get('email')
         code = request.data.get('code')
+        
         if not all([email, code]):
             return Response(
                 {"message": "Email and code are required"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
         if validate_code(email, code):
             user = CUser.objects.get(email=email)
             token, _ = Token.objects.get_or_create(user=user)
+            
+            # Invalidate the code after successful use
             invalidate_code(email, code)
+            
             return Response({
                 "message": "Code validated. Use token to reset password",
                 "token": token.key
             }, status=status.HTTP_200_OK)
+        
         return Response(
             {"message": "Invalid or expired code"},
             status=status.HTTP_400_BAD_REQUEST
@@ -269,7 +170,7 @@ def get_password_reset_token(request):
             {"message": "An error occurred"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-
+    
 
 @api_view(["POST"])
 def reset_password(request):
@@ -280,18 +181,23 @@ def reset_password(request):
                 {"message": "New password is required"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+        # Add password validation
         if len(new_password) < 8:
             return Response(
                 {"message": "Password must be at least 8 characters long"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
         user = request.user
         user.set_password(new_password)
         user.save()
+
+        # Optionally invalidate all tokens after password reset
         Token.objects.filter(user=user).delete()
 
         return Response({
-            'message': "Password reset successfully, login again"
+            'message': "Password reset successfully"
         }, status=status.HTTP_200_OK)
     except Exception as e:
         return Response(
