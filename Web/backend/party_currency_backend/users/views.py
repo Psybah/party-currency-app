@@ -35,3 +35,10 @@ def fetchUser(request):
                
             })
 
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def editUser(request):
+     user = request.user
+     
+
