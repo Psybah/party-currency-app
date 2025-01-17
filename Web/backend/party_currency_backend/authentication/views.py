@@ -12,6 +12,7 @@ from rest_framework.decorators import permission_classes,throttle_classes
 from .utils import generate_code,validate_code,invalidate_code
 from django.core.mail import send_mail
 from rest_framework.throttling import AnonRateThrottle
+from .utils import PasswordResetCodeManager as prcm
 
 
 class PasswordResetThrottle(AnonRateThrottle):
@@ -107,11 +108,11 @@ def generate_password_reset_code(request):
                 status=status.HTTP_400_BAD_REQUEST
             )
         user = CUser.objects.get(email=email)
-        code = generate_code(email)
+        code = prcm.generate_code(email)
         send_mail(
             'Password Reset Code',
             f'Your password reset code is: {code}',
-            'from@yourdomain.com',
+            'from@partycurrency.com',
             [email],
             fail_silently=False,
         )
@@ -149,12 +150,11 @@ def get_password_reset_token(request):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if validate_code(email, code):
+        if prcm.validate_code(email, code):
             user = CUser.objects.get(email=email)
             token, _ = Token.objects.get_or_create(user=user)
             
-            # Invalidate the code after successful use
-            invalidate_code(email, code)
+            prcm.invalidate_code(email, code)
             
             return Response({
                 "message": "Code validated. Use token to reset password",
