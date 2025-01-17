@@ -1,6 +1,16 @@
 import { BASE_URL } from "@/config";
 import { getAuth } from "@/lib/util";
 
+export async function loginCustomerApi(email, password) {
+  return fetch(`${BASE_URL}/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password }),
+  });
+}
+
 export async function signupCelebrantApi(
   first_name,
   last_name,
@@ -23,35 +33,21 @@ export async function signupCelebrantApi(
   });
 }
 
-/**
- * Login a customer by sending email and password to the backend.
- * @param {string} email - User's email address.
- * @param {string} password - User's password.
- * @returns {Promise<Response>} The API response.
- */
-export async function loginCustomerApi(email, password) {
-  return fetch(`${BASE_URL}/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, password }),
-  });
-}
-
-/**
- * Fetch the customer profile using a valid access token.
- * @returns {Promise<Response>} The API response.
- */
 export async function getProfileApi() {
   const { accessToken } = getAuth();
+  if (!accessToken) {
+    throw new Error("No access token found");
+  }
+  
   return fetch(`${BASE_URL}/users/profile`, {
     method: "GET",
     headers: {
-      Authorization: `Token ${accessToken}`,
+      "Authorization": `Token ${accessToken}`,
+      "Content-Type": "application/json",
     },
   });
 }
+
 export async function signupMerchantApi(values) {
   return fetch(`${BASE_URL}/auth/signup/merchant`, {
     method: "POST",

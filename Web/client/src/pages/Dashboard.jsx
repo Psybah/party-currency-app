@@ -1,31 +1,32 @@
-import React, { useEffect, useContext } from "react";
+import React, { useState } from "react";
 import { Info } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import DashboardSidebar from "../components/DashboardSidebar";
 import DashboardHeader from "../components/DashboardHeader";
 import StatsCard from "../components/StatsCard";
 import { useAuthenticated } from "../lib/hooks";
-import LoadingDisplay from "@/components/LoadingDisplay";
+import { LoadingDisplay } from "@/components/LoadingDisplay";
 
 export default function Dashboard() {
-  const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const authenticated = useAuthenticated();
-  // Redirect to login if no user profile
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
 
   return authenticated ? (
     <div className="bg-white min-h-screen">
-      {/* Sidebar - Ensure this is only rendered once */}
-      <DashboardSidebar />
+      <DashboardSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
 
       {/* Main Content */}
-      <div className="pl-64">
-        {/* Header */}
-        <DashboardHeader />
+      <div className="md:pl-64">
+        <DashboardHeader toggleMobileMenu={toggleMobileMenu} />
 
         {/* Main Section */}
         <main className="p-6">
           {/* Stats Cards */}
-          <div className="gap-6 grid grid-cols-2 mb-8">
+          <div className="gap-6 grid grid-cols-1 md:grid-cols-2 mb-8">
             <StatsCard
               label="Total Transaction Amount"
               value="₦500,000.00"
