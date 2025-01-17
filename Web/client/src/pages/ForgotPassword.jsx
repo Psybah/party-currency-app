@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Link } from 'react-router-dom'
-import logo from '../assets/logo_icon.svg'
 
 export default function ForgotPasswordPage() {
   return (
@@ -11,9 +10,11 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center">
           <img
-            src={logo}
+            src="/logo.svg"
             alt="Party Currency Logo"
-            className="w-20 h-20 mb-4"
+            width={60}
+            height={60}
+            className="mb-4"
           />
           <h1 className="font-playfair text-3xl">Reset Password</h1>
         </div>

@@ -1,137 +1,172 @@
-import React from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Link } from 'react-router-dom'
-import logo from '../assets/logo_icon.svg'
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { AuthFormWrapper } from "@/components/forms/AuthFormWrapper";
+import { FormInput } from "@/components/forms/FormInput";
+import { SocialAuthButtons } from "@/components/forms/SocialAuthButtons";
+import { signupCelebrantApi, getProfileApi } from "@/services/apiAuth";
+import { storeAuth } from "@/lib/util";
+import { USER_PROFILE_CONTEXT } from "@/context";
+
+const formSchema = z.object({
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string(),
+  phone: z.string().min(10, "Invalid phone number"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
 
 export default function CelebrantSignupPage() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { setUserProfile } = useContext(USER_PROFILE_CONTEXT);
+  const navigate = useNavigate();
+  
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      phone: "",
+    },
+  });
+
+  const onSubmit = async (values) => {
+    try {
+      const response = await signupCelebrantApi(
+        values.firstName,
+        values.lastName,
+        values.email,
+        values.password,
+        values.phone
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        const message = JSON.stringify(Object.values(errorData)[0]);
+        form.setError("root", { message });
+        return;
+      }
+
+      const responseData = await response.json();
+      const accessToken = responseData.token;
+      storeAuth(accessToken, "customer", true);
+
+      const userProfileResponse = await getProfileApi();
+      if (userProfileResponse.ok) {
+        const userProfileData = await userProfileResponse.json();
+        setUserProfile(userProfileData);
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      form.setError("root", { 
+        message: "An error occurred during signup. Please try again." 
+      });
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center mt-20 justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
-        <div className="flex flex-col items-center">
-          <img
-            src={logo}
-            alt="Party Currency Logo"
-            className="w-28 h-28 mb-4"
+    <AuthFormWrapper
+      title="Sign up as Host/Event planner"
+      footerText="Already have an account?"
+      footerLinkText="Sign in"
+      footerLinkPath="/login"
+    >
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="gap-4 grid grid-cols-2">
+            <FormInput
+              label="First Name"
+              name="firstName"
+              placeholder="John"
+              control={form.control}
+            />
+            <FormInput
+              label="Last Name"
+              name="lastName"
+              placeholder="Doe"
+              control={form.control}
+            />
+          </div>
+
+          <FormInput
+            label="Email"
+            name="email"
+            type="email"
+            placeholder="example@gmail.com"
+            control={form.control}
           />
-          <h1 className="font-playfair text-3xl">Sign up as Host/Event planner</h1>
-        </div>
 
-        <form className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
-              <Input
-                id="firstName"
-                placeholder="John"
-                className="border-lightgray"
-              />
+          <FormInput
+            label="Password"
+            name="password"
+            placeholder="Enter your password"
+            control={form.control}
+            showPasswordToggle
+            showPassword={showPassword}
+            onTogglePassword={() => setShowPassword(!showPassword)}
+          />
+
+          <FormInput
+            label="Confirm Password"
+            name="confirmPassword"
+            placeholder="Confirm your password"
+            control={form.control}
+            showPasswordToggle
+            showPassword={showConfirmPassword}
+            onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+          />
+
+          <FormInput
+            label="Phone number"
+            name="phone"
+            type="tel"
+            placeholder="+234..."
+            control={form.control}
+          />
+
+          {form.formState.errors.root && (
+            <div className="text-red-500 text-sm">
+              {form.formState.errors.root.message}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input
-                id="lastName"
-                placeholder="Doe"
-                className="border-lightgray"
-              />
-            </div>
-          </div>
+          )}
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="example@gmail.com"
-              className="border-lightgray"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              className="border-lightgray"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              className="border-lightgray"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone number</Label>
-            <Input
-              id="phone"
-              type="tel"
-              placeholder="+234123456789"
-              className="border-lightgray"
-            />
-          </div>
-
-          <Button type="submit" className="w-full bg-[#1A1A1A] hover:bg-[#2D2D2D]">
-            Create an account
+          <Button
+            type="submit"
+            className="bg-footer hover:bg-[#2D2D2D] w-full"
+            disabled={form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting ? "Creating account..." : "Create an account"}
           </Button>
         </form>
+      </Form>
 
-        <div className="space-y-4">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-lightgray"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-muted-foreground">
-                Or continue with
-              </span>
-            </div>
-          </div>
+      <SocialAuthButtons />
 
-          <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" className="border-lightgray">
-              <img
-                src="/google.svg"
-                alt="Google"
-                className="w-5 h-5 mr-2"
-              />
-              Google
-            </Button>
-            <Button variant="outline" className="border-lightgray">
-              <img
-                src="/apple.svg"
-                alt="Apple"
-                className="w-5 h-5 mr-2"
-              />
-              Apple
-            </Button>
-          </div>
-        </div>
-
-        <div className="text-center text-sm">
-          By clicking "Create account" above, you acknowledge that you have read and understood, and agree to Party Currency's{" "}
-          <Link to="/terms" className="text-gold hover:underline">
-            Terms of Service
-          </Link>{" "}
-          and{" "}
-          <Link to="/privacy" className="text-gold hover:underline">
-            Privacy Policy
-          </Link>
-          .
-        </div>
-
-        <div className="text-center text-sm">
-          Already have an account?{" "}
-          <Link to="/login" className="text-gold hover:underline">
-            Sign in
-          </Link>
-        </div>
+      <div className="text-center text-sm">
+        By clicking "Create an Account" above, you acknowledge that you have read,
+        understood, and agree to Party Currency's{" "}
+        <a href="/terms" className="text-gold hover:underline">
+          Terms of Service
+        </a>{" "}
+        and{" "}
+        <a href="/privacy" className="text-gold hover:underline">
+          Privacy Policy
+        </a>
+        .
       </div>
-    </div>
-  )
+    </AuthFormWrapper>
+  );
 }
