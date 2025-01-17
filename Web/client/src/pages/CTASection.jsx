@@ -37,7 +37,7 @@ const CTASection = () => {
 
           {/* App Store Buttons */}
           <div className="flex flex-row flex-wrap items-center justify-center 
-          gap-1 sm:gap-1 md:gap-6 mt-1 sm:mt-2 md:mt-8">
+           gap-1 sm:gap-1 md:gap-6 mt-1 sm:mt-2 md:mt-8">
             {/* Apple Store Button */}
             <button className="flex items-center gap-2 px-2 py-1 sm:px-3 sm:py-2 
             md:px-5 md:py-2 bg-gold text-white text-xs sm:text-sm md:text-lg 

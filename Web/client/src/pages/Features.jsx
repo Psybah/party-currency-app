@@ -1,5 +1,6 @@
 import React from "react";
-import customCurrency from "../assets/features/custom_currency.jpg";
+import { Link } from "react-router-dom";
+import customCurrency from "../assets/features/custom_currency.svg";
 import reconciliationService from "../assets/features/reconciliation_service.png";
 import vendorKioskSystem from "../assets/features/vendor_kiosk_system.jpg";
 import footSoldier from "../assets/features/foot_soldier.jpg";
@@ -9,18 +10,22 @@ const Features = () => {
     {
       img: customCurrency,
       title: "Custom Currency",
+      link: "/custom-currency",
     },
     {
       img: reconciliationService,
       title: "Reconciliation Service",
+      link: "/reconciliation-service",
     },
     {
       img: vendorKioskSystem,
       title: "Vendor Kiosk System",
+      link: "/vendor-kiosk-system",
     },
     {
       img: footSoldier,
       title: "Foot Soldiers",
+      link: "/foot-soldiers",
     },
   ];
 
@@ -65,13 +70,14 @@ const Features = () => {
                 {feature.title}
               </h3>
 
-              {/* Button */}
-              <button
+              {/* Link */}
+              <Link
+                to={feature.link}
                 className="bg-secbutton text-lg text-white 
-                                  py-3 px-4 w-[80%] mx-auto mb-6 rounded-lg cursor-pointer"
+                                  py-3 px-4 w-[80%] mx-auto mb-6 rounded-lg cursor-pointer inline-block"
               >
                 See More
-              </button>
+              </Link>
             </div>
           ))}
         </div>

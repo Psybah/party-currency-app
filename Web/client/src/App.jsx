@@ -13,6 +13,11 @@ import MerchantSignup from "./pages/MerchantSignup";
 import ForgotPassword from "./pages/ForgotPassword";
 import { ContextWrapper } from "./context";
 import TermsOfService from "./pages/TermsOfService";
+import Dashboard from "./pages/Dashboard";
+import CustomCurrency from "./pages/CustomCurrency";
+import ReconciliationService from "./pages/ReconciliationService";
+import VendorKiosk from "./pages/VendorKiosk";
+import FootSoldiers from "./pages/FootSoldiers";
 
 const App = () => {
   return (
@@ -40,6 +45,11 @@ const App = () => {
           <Route path="/merchant-signup" element={<MerchantSignup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/custom-currency" element={<CustomCurrency />} />
+          <Route path="/reconciliation-service" element={<ReconciliationService />} />
+          <Route path="/vendor-kiosk-system" element={<VendorKiosk />} />
+          <Route path="/foot-soldiers" element={<FootSoldiers />} />
         </Routes>
         <Footer />
       </ContextWrapper>

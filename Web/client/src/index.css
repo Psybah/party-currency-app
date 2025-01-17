@@ -39,6 +39,7 @@ html, body {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+  
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -74,4 +75,21 @@ html, body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Add these new styles */
+.auth-input-label {
+  @apply text-left block mb-2 text-sm font-medium;
+}
+
+.auth-input {
+  @apply w-full text-left;
+}
+
+.page-container {
+  @apply px-4 md:px-6 lg:px-8 mx-auto max-w-7xl;
+}
+
+.section-padding {
+  @apply py-12 md:py-16 lg:py-20;
 }
