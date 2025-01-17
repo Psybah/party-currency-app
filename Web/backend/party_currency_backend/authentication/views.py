@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes,throttle_classes
-from .utils import generate_code,validate_code,invalidate_code
+from .utils import PasswordResetCodeManager as prcm
 from django.core.mail import send_mail
 from rest_framework.throttling import AnonRateThrottle
 from .utils import PasswordResetCodeManager as prcm
@@ -110,10 +110,10 @@ def generate_password_reset_code(request):
         user = CUser.objects.get(email=email)
         code = prcm.generate_code(email)
         send_mail(
-            'Password Reset Code',
-            f'Your password reset code is: {code}',
-            'from@partycurrency.com',
-            [email],
+            subject='Password Reset Code',
+            message=f'Your password reset code is: {code}',
+            from_email='from@partycurrency.com',
+            recipient_list=[email],
             fail_silently=False,
         )
 
@@ -129,7 +129,7 @@ def generate_password_reset_code(request):
         )
     except Exception as e:
         return Response(
-            {"message": "An error occurred"},
+            {"message": f"An error occurred {e}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
@@ -204,3 +204,26 @@ def reset_password(request):
             {"message": "An error occurred"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+
+@api_view(['POST'])
+def change_password(request):
+    user = request.user
+    if not request.data['confirmpassword'] ==  request.data['newpassword']:
+        return Response ({
+            "message":"passwords don't match"
+        },status=status.HTTP_400_BAD_REQUEST)
+    if not user.check_password(request.data['oldpassword']):
+        return Response ({
+            "message":"incorrect password"
+        },status=status.HTTP_400_BAD_REQUEST)
+    if not (len(request.data['newpassword']) >= 8 and any(c.isdigit() for c in request.data['newpassword'])):
+        return Response({
+            "message": "Password must be at least 8 characters and contain at least one number"
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    user.set_password(request.data['confirmpassword'])
+    user.save()
+    return Response ({
+            "message":"password changed successfully"
+        },status=status.HTTP_200_OK)
