@@ -3,6 +3,7 @@ import half_bg from "../assets/features/half_bg.png";
 import currency from "../assets/features/currency.svg";
 import AppleIcon from "../assets/app-icons/apple-icon.svg";
 import AndroidIcon from "../assets/app-icons/android-icon.svg";
+import { LazyImage } from "../components/LazyImage";
 
 const CustomCurrency = () => {
   return (
@@ -41,7 +42,7 @@ const CustomCurrency = () => {
         <div className="container mx-auto px-6">
           {/* Currency Image */}
           <div className="mb-8">
-            <img
+            <LazyImage
               src={currency}
               alt="Custom Currency"
               className="w-full max-w-[700px] mx-auto rounded-md shadow-md"
@@ -89,9 +90,11 @@ const CustomCurrency = () => {
             <button className="flex items-center gap-2 px-2 py-1 sm:px-3 sm:py-2 
             md:px-5 md:py-2 bg-gold text-white text-xs sm:text-sm md:text-lg 
             rounded-lg hover:bg-yellow-500 transition">
-              <img src={AppleIcon} 
-              className="size-6 md:size-10 lg:size-12" 
-              alt="Apple icon" />
+              <LazyImage
+                src={AppleIcon}
+                alt="Apple icon"
+                className="size-6 md:size-10 lg:size-12"
+              />
               <div className="flex flex-col items-start leading-tight">
                 <span className="text-[10px] sm:text-xs md:text-sm 
                 lg:text-base font-playfair">
@@ -106,10 +109,11 @@ const CustomCurrency = () => {
             <button className="flex items-center gap-2 px-2 py-1 sm:px-3 sm:py-2 
             md:px-5 md:py-2 bg-gold text-white text-xs sm:text-sm md:text-lg 
             rounded-lg hover:bg-yellow-500 transition">
-              <img src={AndroidIcon} 
-                    alt="google icon"
-                    className="size-6 md:size-10 lg:size-12"  />
-
+              <LazyImage
+                src={AndroidIcon}
+                alt="google icon"
+                className="size-6 md:size-10 lg:size-12"
+              />
               <div className="flex flex-col items-start leading-tight">
                 <span className="text-[10px] sm:text-xs md:text-sm 
                 lg:text-base font-playfair">

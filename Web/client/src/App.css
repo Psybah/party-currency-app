@@ -65,3 +65,14 @@
     transform: rotate(1turn);
   }
 }
+
+/* Add these new styles */
+.mobile-safe-bottom {
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding-bottom: 4rem;
+  }
+}

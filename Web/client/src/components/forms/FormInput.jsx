@@ -1,6 +1,5 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 import {
   FormControl,
@@ -25,14 +24,14 @@ export function FormInput({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className="space-y-2">
+        <FormItem className="space-y-2 text-left">
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <div className="relative">
               <Input
                 type={showPasswordToggle ? (showPassword ? "text" : "password") : type}
                 placeholder={placeholder}
-                className="border-lightgray"
+                className="border-lightgray w-full"
                 {...field}
               />
               {showPasswordToggle && (
