@@ -12,8 +12,10 @@ export function useAuthenticated(timeout = 5000) {
   useEffect(() => {
     let Timeout = null;
     const { accessToken } = getAuth();
-
-    if (!accessToken && !userProfile) {
+    if (!accessToken) {
+      setAuthenticated(false);
+      navigate("/login");
+    } else if (!userProfile) {
       Timeout = setTimeout(() => {
         setAuthenticated(false);
         navigate("/login");
