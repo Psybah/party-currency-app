@@ -25,7 +25,6 @@ export default function LoginPage() {
 
     try {
       const response = await loginCustomerApi(email, password);
-
       const data = await response.json();
 
       if (response.ok) {
@@ -40,7 +39,7 @@ export default function LoginPage() {
           const userProfileData = await userProfileResponse.json();
           setUserProfile(userProfileData); // Update user profile context
           console.log("User profile fetched:", userProfileData);
-          navigate("/dashboard"); // Redirect to dashboard
+          navigate("/dashboard"); // Changed from { replace: true } to ensure proper navigation
         } else {
           throw new Error("Failed to fetch user profile.");
         }
@@ -94,7 +93,7 @@ export default function LoginPage() {
         </div>
 
         <form className="space-y-6" onSubmit={handleLogin}>
-          <div className="space-y-2">
+          <div className="space-y-2 text-left">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -106,7 +105,7 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 text-left">
             <Label htmlFor="password">Password</Label>
             <div className="relative">
               <Input
