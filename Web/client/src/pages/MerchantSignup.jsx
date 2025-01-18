@@ -16,7 +16,7 @@ import { FormInput } from "@/components/forms/FormInput";
 import { SocialAuthButtons } from "@/components/forms/SocialAuthButtons";
 import { merchantSignupSchema } from "@/lib/validations/auth";
 import { USER_PROFILE_CONTEXT } from "@/context";
-import { getProfileApi, signupMerchantApi } from "@/services/apiAuth";
+import { getProfileApi, signupMerchantApi } from "@/api/authApi";
 import { storeAuth } from "@/lib/util";
 import { LoadingDisplay } from "@/components/LoadingDisplay";
 
@@ -47,7 +47,7 @@ export default function MerchantSignup() {
   async function onSubmit(values) {
     setLoading(true);
     setErrorMessage("");
-    
+
     try {
       const response = await signupMerchantApi(values);
       const data = await response.json();
@@ -90,12 +90,12 @@ export default function MerchantSignup() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {errorMessage && (
-            <div className="p-3 text-sm text-red-500 bg-red-50 rounded-md">
+            <div className="bg-red-50 p-3 rounded-md text-red-500 text-sm">
               {errorMessage}
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="gap-4 grid grid-cols-2">
             <FormInput
               label="First Name"
               name="firstName"
@@ -133,7 +133,9 @@ export default function MerchantSignup() {
             control={form.control}
             showPasswordToggle
             showPassword={showConfirmPassword}
-            onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+            onTogglePassword={() =>
+              setShowConfirmPassword(!showConfirmPassword)
+            }
           />
 
           <div className="space-y-4">
@@ -178,7 +180,7 @@ export default function MerchantSignup() {
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="gap-4 grid grid-cols-2">
               <FormInput
                 label="State"
                 name="state"
@@ -232,7 +234,7 @@ export default function MerchantSignup() {
 
           <Button
             type="submit"
-            className="w-full bg-footer hover:bg-[#2D2D2D]"
+            className="bg-footer hover:bg-[#2D2D2D] w-full"
             disabled={loading}
           >
             Create an account
