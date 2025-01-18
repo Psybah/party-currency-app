@@ -8,28 +8,30 @@ import { Form } from "@/components/ui/form";
 import { AuthFormWrapper } from "@/components/forms/AuthFormWrapper";
 import { FormInput } from "@/components/forms/FormInput";
 import { SocialAuthButtons } from "@/components/forms/SocialAuthButtons";
-import { signupCelebrantApi, getProfileApi } from "@/services/apiAuth";
+import { signupCelebrantApi, getProfileApi } from "@/api/authApi";
 import { storeAuth } from "@/lib/util";
 import { USER_PROFILE_CONTEXT } from "@/context";
 
-const formSchema = z.object({
-  firstName: z.string().min(2, "First name is required"),
-  lastName: z.string().min(2, "Last name is required"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string(),
-  phone: z.string().min(10, "Invalid phone number"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const formSchema = z
+  .object({
+    firstName: z.string().min(2, "First name is required"),
+    lastName: z.string().min(2, "Last name is required"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+    phone: z.string().min(10, "Invalid phone number"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export default function CelebrantSignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { setUserProfile } = useContext(USER_PROFILE_CONTEXT);
   const navigate = useNavigate();
-  
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -71,8 +73,8 @@ export default function CelebrantSignupPage() {
       }
     } catch (error) {
       console.error("Signup error:", error);
-      form.setError("root", { 
-        message: "An error occurred during signup. Please try again." 
+      form.setError("root", {
+        message: "An error occurred during signup. Please try again.",
       });
     }
   };
@@ -126,7 +128,9 @@ export default function CelebrantSignupPage() {
             control={form.control}
             showPasswordToggle
             showPassword={showConfirmPassword}
-            onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+            onTogglePassword={() =>
+              setShowConfirmPassword(!showConfirmPassword)
+            }
           />
 
           <FormInput
@@ -148,7 +152,9 @@ export default function CelebrantSignupPage() {
             className="bg-footer hover:bg-[#2D2D2D] w-full"
             disabled={form.formState.isSubmitting}
           >
-            {form.formState.isSubmitting ? "Creating account..." : "Create an account"}
+            {form.formState.isSubmitting
+              ? "Creating account..."
+              : "Create an account"}
           </Button>
         </form>
       </Form>
@@ -156,8 +162,8 @@ export default function CelebrantSignupPage() {
       <SocialAuthButtons />
 
       <div className="text-center text-sm">
-        By clicking "Create an Account" above, you acknowledge that you have read,
-        understood, and agree to Party Currency's{" "}
+        By clicking "Create an Account" above, you acknowledge that you have
+        read, understood, and agree to Party Currency's{" "}
         <a href="/terms" className="text-gold hover:underline">
           Terms of Service
         </a>{" "}

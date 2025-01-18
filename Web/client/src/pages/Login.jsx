@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import { getProfileApi, loginCustomerApi } from "@/services/apiAuth";
+import { getProfileApi, loginCustomerApi } from "@/api/authApi";
 import { storeAuth } from "@/lib/util";
 import { USER_PROFILE_CONTEXT, SIGNUP_CONTEXT } from "@/context";
 
@@ -57,7 +57,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col justify-center items-center p-4 min-h-screen">
       {/* Back Button */}
-      <div className="absolute top-4 left-4 md:left-8">
+      <div className="top-4 left-4 md:left-8 absolute">
         <button
           onClick={() => navigate("/")}
           className="flex items-center text-gray-600 hover:text-black transition"
@@ -118,9 +118,13 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="top-1/2 right-3 absolute text-gray-400 -translate-y-1/2"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
               </button>
             </div>
           </div>

@@ -4,20 +4,21 @@ import { Link } from "react-router-dom";
 import DashboardSidebar from "../components/DashboardSidebar";
 import DashboardHeader from "../components/DashboardHeader";
 import StatsCard from "../components/StatsCard";
-import { useAuthenticated } from "../lib/hooks";
 import { LoadingDisplay } from "@/components/LoadingDisplay";
 
 export default function Dashboard() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const authenticated = useAuthenticated();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  return authenticated ? (
+  return (
     <div className="bg-white min-h-screen">
-      <DashboardSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <DashboardSidebar
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+      />
 
       {/* Main Content */}
       <div className="md:pl-64">
@@ -56,7 +57,5 @@ export default function Dashboard() {
         </main>
       </div>
     </div>
-  ) : (
-    <LoadingDisplay />
   );
 }
