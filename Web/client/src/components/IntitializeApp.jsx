@@ -1,6 +1,6 @@
 import { useEffect, useContext } from "react";
 import { USER_PROFILE_CONTEXT } from "@/context";
-import { getProfileApi } from "@/services/apiAuth";
+import { getProfileApi } from "@/api/authApi";
 import { getAuth } from "@/lib/util";
 
 export function InitializeApp({ children }) {
