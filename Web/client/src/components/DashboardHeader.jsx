@@ -8,16 +8,16 @@ export default function DashboardHeader({ toggleMobileMenu }) {
   const handleMenuClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("Menu clicked"); // Debug log
+    console.log("Menu clicked");
     toggleMobileMenu();
   };
 
   return (
-    <header className="h-20 border-b flex items-center justify-between px-4 md:px-6">
+    <header className="h-20 border-b flex items-center justify-between px-4 md:px-6 bg-white">
       <div className="flex items-center gap-4">
         <button
           onClick={handleMenuClick}
-          className="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bluePrimary"
+          className="md:hidden text-bluePrimary hover:text-blueSecondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bluePrimary"
           aria-label="Toggle mobile menu"
         >
           <Menu className="w-6 h-6" />
@@ -25,7 +25,7 @@ export default function DashboardHeader({ toggleMobileMenu }) {
         <div className="relative">
           <button
             onClick={() => setIsSearchOpen(!isSearchOpen)}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-bluePrimary hover:text-blueSecondary"
             aria-label="Toggle search"
           >
             <Search className="w-5 h-5" />
