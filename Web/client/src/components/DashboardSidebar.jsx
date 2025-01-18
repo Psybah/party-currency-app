@@ -43,7 +43,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
         <SidebarNavLinks isCollapsed={isCollapsed} />
 
-        <div className="px-3 mb-6">
+        <div className="mt-auto px-3 mb-6">
           <button
             onClick={() => setIsPopupOpen(true)}
             className="flex items-center gap-3 hover:bg-white/10 px-3 py-2 rounded-lg w-full text-left transition-colors"
@@ -62,7 +62,7 @@ export default function Sidebar({ isOpen, onClose }) {
         onClick={onClose}
       >
         <div
-          className={`fixed top-0 left-0 h-screen w-64 bg-bluePrimary text-white transform transition-transform duration-300 ${
+          className={`fixed top-0 left-0 h-screen w-64 bg-bluePrimary text-white transform transition-transform duration-300 flex flex-col ${
             isOpen ? "translate-x-0" : "-translate-x-full"
           }`}
           onClick={(e) => e.stopPropagation()}
@@ -76,7 +76,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
           <SidebarNavLinks isCollapsed={false} onLinkClick={onClose} />
 
-          <div className="px-4">
+          <div className="mt-auto px-4 mb-6">
             <button
               onClick={() => {
                 onClose();

@@ -26,7 +26,7 @@ export default function Dashboard() {
         {/* Main Section */}
         <main className="p-6">
           {/* Stats Cards */}
-          <div className="gap-6 grid grid-cols-1 md:grid-cols-2 mb-8">
+          <div className="gap-6 text-left grid grid-cols-1 md:grid-cols-2 mb-8">
             <StatsCard
               label="Total Transaction Amount"
               value="₦500,000.00"
