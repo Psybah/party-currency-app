@@ -1,11 +1,14 @@
 from django.db import models
-class Event(models.Model):
+from datetime import date
+
+class Events(models.Model):
     event_id = models.CharField(max_length=255, unique=True, primary_key=True)
     event_name = models.CharField(max_length=255)  # Reduced from 2552
     event_author = models.CharField(max_length=255, default="user")
     address = models.TextField(default="Nigeria")  # Fixed - was missing parentheses
     event_description = models.TextField(default="owanbe")
-    event_date = models.DateField()
+    start_date = models.DateField()
+    end_date = models.DateField()
     delivery_address = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)  # Changed to proper timestamp
     updated_at = models.DateTimeField(auto_now=True)      # Changed to proper timestamp
