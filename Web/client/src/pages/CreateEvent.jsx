@@ -1,41 +1,75 @@
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { toast } from "react-hot-toast";
+import toast from "react-hot-toast";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import DashboardHeader from "@/components/DashboardHeader";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+import { FormInput } from "@/components/forms/FormInput";
 import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { eventSchema } from "@/lib/validations/event";
 import { useAuthenticated } from "@/lib/hooks";
 import { LoadingDisplay } from "@/components/LoadingDisplay";
-import { createEventApi } from "@/api/eventApi";
+import { EventSuccessModal } from "@/components/events/EventSuccessModal";
+import { createEvent } from "@/services/eventService";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const eventTypes = [
+  "Birthday",
+  "Wedding",
+  "Anniversary",
+  "Corporate Event",
+  "Burial",
+  "Other",
+];
+
+const cities = ["Lagos", "Ibadan", "Abuja", "Port Harcourt", "Kano"];
+const countries = ["Nigeria"];
+const lgas = ["Ibadan North", "Ibadan South", "Akinyele", "Egbeda"];
 
 export default function CreateEvent() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [eventId, setEventId] = useState("");
   const navigate = useNavigate();
   const authenticated = useAuthenticated();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const form = useForm({
+    resolver: zodResolver(eventSchema),
+    defaultValues: {
+      event_name: "",
+      event_description: "",
+      event_date: "",
+      address: "",
+      delivery_address: "",
+    },
+  });
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
-      const response = await createEventApi(data);
-      if (!response.ok) {
-        throw new Error("Failed to create event");
-      }
-      const result = await response.json();
-      toast.success(`Event created successfully! Event ID: ${result.event_id}`);
-      navigate("/templates");
-    } catch (err) {
-      toast.error(err.message || "Failed to create event");
+      const result = await createEvent({
+        event_name: data.event_name,
+        event_description: data.event_description || "",
+        event_date: data.event_date,
+        address: data.address,
+        delivery_address: data.delivery_address || data.address,
+      });
+
+      setEventId(result.event_id);
+      setShowSuccessModal(true);
+      toast.success("Event created successfully!");
+    } catch (error) {
+      console.error("Error creating event:", error);
+      toast.error(error.message || "Failed to create event. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -46,225 +80,103 @@ export default function CreateEvent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradientWhite1">
-      <DashboardSidebar
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-      />
+    <div className="min-h-screen bg-white">
+      <DashboardSidebar />
+      <div className="md:pl-64 flex flex-col min-h-screen">
+        <DashboardHeader />
+        <main className="flex-1 p-4 md:p-8 max-w-4xl mx-auto w-full">
+          <h1 className="text-2xl font-semibold mb-8 text-left">Event Details</h1>
 
-      <div className="md:pl-64">
-        <DashboardHeader toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
-
-        <main className="p-6 md:p-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-lg shadow-sm p-6 md:p-8">
-              <h1 className="text-2xl font-playfair font-semibold text-bluePrimary mb-8 text-left">
-                Event Details
-              </h1>
-
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-bluePrimary text-left">
-                    Event Name
-                  </label>
-                  <Input
-                    {...register("event_name", { required: "Event name is required" })}
-                    placeholder="Enter the event name"
-                    className="w-full border-lightgray"
-                  />
-                  {errors.event_name && (
-                    <p className="text-red-500 text-sm text-left">{errors.event_name.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-bluePrimary text-left">
-                    Event Type
-                  </label>
-                  <Select {...register("event_type", { required: "Event type is required" })}>
-                    <SelectTrigger className="w-full border-lightgray">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 md:space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+                <FormInput
+                  control={form.control}
+                  name="event_name"
+                  label="Event Name"
+                  placeholder="Enter the event name"
+                />
+                <div className="space-y-2 text-left">
+                  <label className="text-sm font-medium">Event Type</label>
+                  <Select
+                    onValueChange={(value) =>
+                      form.setValue("event_type", value, { shouldValidate: true })
+                    }
+                  >
+                    <SelectTrigger>
                       <SelectValue placeholder="Select event type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="wedding">Wedding</SelectItem>
-                      <SelectItem value="birthday">Birthday</SelectItem>
-                      <SelectItem value="corporate">Corporate Event</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      {eventTypes.map((type) => (
+                        <SelectItem key={type} value={type.toLowerCase()}>
+                          {type}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  {errors.event_type && (
-                    <p className="text-red-500 text-sm text-left">{errors.event_type.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-bluePrimary text-left">
-                    Event Starting Date
-                  </label>
-                  <div className="relative">
-                    <Input
-                      type="date"
-                      {...register("start_date", { required: "Start date is required" })}
-                      className="w-full border-lightgray pr-10"
-                    />
-                    <Calendar className="absolute right-3 top-2.5 h-5 w-5 text-blueSecondary pointer-events-none" />
-                  </div>
-                  {errors.start_date && (
-                    <p className="text-red-500 text-sm text-left">{errors.start_date.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-bluePrimary text-left">
-                    Event Ending Date
-                  </label>
-                  <div className="relative">
-                    <Input
-                      type="date"
-                      {...register("end_date", { required: "End date is required" })}
-                      className="w-full border-lightgray pr-10"
-                    />
-                    <Calendar className="absolute right-3 top-2.5 h-5 w-5 text-blueSecondary pointer-events-none" />
-                  </div>
-                  {errors.end_date && (
-                    <p className="text-red-500 text-sm text-left">{errors.end_date.message}</p>
-                  )}
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-bluePrimary text-left">
-                  Street Address
-                </label>
-                <Input
-                  {...register("street_address", { required: "Street address is required" })}
-                  placeholder="Enter street address"
-                  className="w-full border-lightgray"
+              <div className="space-y-2 text-left">
+                <FormInput
+                  control={form.control}
+                  name="event_description"
+                  label="Event Description"
+                  placeholder="Enter event description"
                 />
-                {errors.street_address && (
-                  <p className="text-red-500 text-sm text-left">{errors.street_address.message}</p>
-                )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-bluePrimary text-left">
-                    Post Code
-                  </label>
-                  <Input
-                    {...register("post_code", { required: "Post code is required" })}
-                    placeholder="Enter post code"
-                    className="w-full border-lightgray"
-                  />
-                  {errors.post_code && (
-                    <p className="text-red-500 text-sm text-left">{errors.post_code.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-bluePrimary text-left">
-                    City
-                  </label>
-                  <Select {...register("city", { required: "City is required" })}>
-                    <SelectTrigger className="w-full border-lightgray">
-                      <SelectValue placeholder="Select city" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="lagos">Lagos</SelectItem>
-                      <SelectItem value="abuja">Abuja</SelectItem>
-                      <SelectItem value="port-harcourt">Port Harcourt</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.city && (
-                    <p className="text-red-500 text-sm text-left">{errors.city.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-bluePrimary text-left">
-                    Country
-                  </label>
-                  <Select {...register("country", { required: "Country is required" })}>
-                    <SelectTrigger className="w-full border-lightgray">
-                      <SelectValue placeholder="Select country" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="nigeria">Nigeria</SelectItem>
-                      <SelectItem value="ghana">Ghana</SelectItem>
-                      <SelectItem value="kenya">Kenya</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.country && (
-                    <p className="text-red-500 text-sm text-left">{errors.country.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-bluePrimary text-left">
-                    LGA
-                  </label>
-                  <Select {...register("lga", { required: "LGA is required" })}>
-                    <SelectTrigger className="w-full border-lightgray">
-                      <SelectValue placeholder="Select LGA" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ikeja">Ikeja</SelectItem>
-                      <SelectItem value="lekki">Lekki</SelectItem>
-                      <SelectItem value="victoria-island">Victoria Island</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.lga && (
-                    <p className="text-red-500 text-sm text-left">{errors.lga.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-bluePrimary text-left">
-                  Reconciliation Service
-                </label>
-                <div className="flex gap-6">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      {...register("reconciliation_service")}
-                      value="true"
-                      className="text-gold focus:ring-gold"
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+                <div className="space-y-2 text-left">
+                  <label className="text-sm font-medium">Event Date</label>
+                  <div className="relative">
+                    <FormInput
+                      control={form.control}
+                      name="event_date"
+                      type="date"
                     />
-                    <span className="text-sm text-gray-600">Yes</span>
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      {...register("reconciliation_service")}
-                      value="false"
-                      className="text-gold focus:ring-gold"
-                    />
-                    <span className="text-sm text-gray-600">No</span>
-                  </label>
+                    <Calendar className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+                  </div>
                 </div>
-                {errors.reconciliation_service && (
-                  <p className="text-red-500 text-sm text-left">
-                    {errors.reconciliation_service.message}
-                  </p>
-                )}
               </div>
 
-                <div className="flex justify-end pt-6">
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="bg-gold hover:bg-gold/90 text-white font-medium py-2 px-6 rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    {isSubmitting ? "Creating Event..." : "Create Event"}
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </div>
+              <div className="space-y-2 text-left">
+                <FormInput
+                  control={form.control}
+                  name="address"
+                  label="Event Address"
+                  placeholder="Enter event address"
+                />
+              </div>
+
+              <div className="space-y-2 text-left">
+                <FormInput
+                  control={form.control}
+                  name="delivery_address"
+                  label="Delivery Address (optional)"
+                  placeholder="Enter delivery address if different from event address"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full md:w-auto px-8 bg-bluePrimary hover:bg-bluePrimary/90 text-white"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Creating Event..." : "Create Event"}
+              </Button>
+            </form>
+          </Form>
         </main>
       </div>
+
+      {showSuccessModal && (
+        <EventSuccessModal
+          eventId={eventId}
+          onClose={() => setShowSuccessModal(false)}
+          onNavigate={() => navigate("/templates")}
+        />
+      )}
     </div>
   );
 }
