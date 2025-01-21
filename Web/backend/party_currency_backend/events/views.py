@@ -28,7 +28,7 @@ def EventCreate(request):
             start_date=start_date,
             end_date=end_date,
             event_author=request.user.username,
-            address=f"{request.data["street_address"]} ,{request.data["city"]},{request.data["country"]} postal code :{request.data["post_code"]}",
+            address=f"{request.data["street_address"]} ,{request.data["city"]},{request.data["state"]} postal code :{request.data["post_code"]}",
             delivery_address=request.data["street_address"],
             event_id=f"event_{request.user.username}_{int(current_time.timestamp())}",
             created_at=current_time,
