@@ -37,7 +37,7 @@ function App() {
           <Route path="/reconciliation-service" element={<ReconciliationService />} />
           <Route path="/vendor-kiosk-system" element={<VendorKiosk />} />
           <Route path="/foot-soldiers" element={<FootSoldiers />} />
-
+          
           {/* Protected Routes */}
           <Route
             path="/dashboard"

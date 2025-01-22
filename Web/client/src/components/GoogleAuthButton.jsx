@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { USER_PROFILE_CONTEXT } from "@/context";
 import { storeAuth } from "@/lib/util";
 import { BASE_URL } from "@/config";
+import { GOOGLE_CLIENT_ID } from "@/config/google-auth";
 import toast from "react-hot-toast";
 
 export function GoogleAuthButton() {
@@ -37,15 +38,29 @@ export function GoogleAuthButton() {
     }
   };
 
+  const initializeGoogleAuth = () => {
+    if (!window.google) {
+      console.error("Google API not loaded");
+      return;
+    }
+
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleLogin,
+    });
+
+    window.google.accounts.id.prompt((notification) => {
+      if (notification.isNotDisplayed()) {
+        console.error("Google Sign-In prompt not displayed:", notification.getNotDisplayedReason());
+      } else if (notification.isSkippedMoment()) {
+        console.log("User skipped Google Sign-In");
+      }
+    });
+  };
+
   return (
     <button
-      onClick={() => {
-        window.google.accounts.id.initialize({
-          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-          callback: handleGoogleLogin,
-        });
-        window.google.accounts.id.prompt();
-      }}
+      onClick={initializeGoogleAuth}
       type="button"
       className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2"
     >
