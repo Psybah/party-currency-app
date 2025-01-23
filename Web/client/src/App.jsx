@@ -16,6 +16,9 @@ import ReconciliationService from "./pages/ReconciliationService";
 import VendorKiosk from "./pages/VendorKiosk";
 import FootSoldiers from "./pages/FootSoldiers";
 import PrivateRoute from "./components/PrivateRoute";
+import Customize200 from "./pages/Customize200";
+import Customize500 from "./pages/Customize500";
+import Customize1000 from "./pages/Customize1000";
 
 function App() {
   console.log("App component rendering"); // Debug log
@@ -37,6 +40,11 @@ function App() {
           <Route path="/reconciliation-service" element={<ReconciliationService />} />
           <Route path="/vendor-kiosk-system" element={<VendorKiosk />} />
           <Route path="/foot-soldiers" element={<FootSoldiers />} />
+          
+          {/* Customization Routes */}
+          <Route path="/customize-200" element={<Customize200 />} />
+          <Route path="/customize-500" element={<Customize500 />} />
+          <Route path="/customize-1000" element={<Customize1000 />} />
           
           {/* Protected Routes */}
           <Route
