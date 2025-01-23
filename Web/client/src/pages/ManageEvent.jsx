@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Eye, Info } from "lucide-react";
+import { Eye, Info, Wallet } from "lucide-react";
 import { Link } from "react-router-dom";
 import DashboardSidebar from "../components/DashboardSidebar";
 import DashboardHeader from "../components/DashboardHeader";
@@ -7,7 +7,6 @@ import { Button } from "../components/ui/button";
 import { useAuthenticated } from "../lib/hooks";
 import { LoadingDisplay } from "../components/LoadingDisplay";
 
-// Demo data - replace with API fetch later
 const demoOngoingEvents = [
   {
     id: "EVT001",
@@ -34,18 +33,27 @@ const demoConcludedEvents = [
 
 const EventCard = ({ event }) => (
   <div className="bg-softbg rounded-lg p-4 mb-4 shadow-sm">
-    <div className="flex items-left">
-      <div>
+    <div className="flex items-center justify-between">
+      <div className="text-left">
         <h3 className="text-lg font-semibold">{event.name}</h3>
         <p className="text-sm text-gray-600">{event.date}</p>
       </div>
-      <Button
-        variant="outline"
-        className="text-white bg-gold hover:bg-gold/10"
-      >
-        <Eye className="mr-2 h-4 w-4" />
-        View
-      </Button>
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          className="bg-gold hover:bg-gold/90 text-white md:px-6"
+        >
+          <Eye className="h-4 w-4 md:mr-2" />
+          <span className="hidden md:inline">View</span>
+        </Button>
+        <Button
+          variant="outline"
+          className="bg-gray-800 hover:bg-gray-700 text-white md:px-6"
+        >
+          <Wallet className="h-4 w-4 md:mr-2" />
+          <span className="hidden md:inline">Wallet</span>
+        </Button>
+      </div>
     </div>
   </div>
 );
@@ -80,12 +88,11 @@ export default function ManageEvent() {
         onClose={() => setIsMobileMenuOpen(false)}
       />
 
-      <div className="md:pl-64">
+      <div className="md:pl-[var(--sidebar-width)] transition-all duration-300 ease-in-out">
         <DashboardHeader toggleMobileMenu={toggleMobileMenu} />
 
         <main className="p-6">
           <div className="max-w-7xl mx-auto">
-            {/* Tab Navigation */}
             <div className="flex space-x-4 mb-6 border-b">
               <button
                 className={`pb-2 px-4 ${
@@ -108,8 +115,7 @@ export default function ManageEvent() {
                 Concluded Events
               </button>
             </div>
-
-            {/* Events Display */}
+            
             <div className="mt-6">
               {activeTab === "ongoing" && (
                 <div>

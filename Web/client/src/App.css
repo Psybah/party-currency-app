@@ -67,8 +67,13 @@
 }
 
 /* Add these new styles */
-.mobile-safe-bottom {
-  padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+:root {
+  --sidebar-width: 256px;
+  --collapsed-sidebar-width: 80px;
+}
+
+.sidebar-collapsed {
+  --sidebar-width: var(--collapsed-sidebar-width);
 }
 
 @media (max-width: 768px) {
