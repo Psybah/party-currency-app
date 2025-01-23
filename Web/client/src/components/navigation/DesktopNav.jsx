@@ -58,30 +58,30 @@ export const DesktopNav = ({
 
         {isDropdownOpen && (
           <div className="top-full left-0 absolute bg-bluePrimary bg-opacity-50 shadow-md backdrop-blur-xl mt-4 rounded-md w-60 text-white">
-            <button
+            <Link
+              to="/custom-currency"
               className="block hover:bg-gray-100 px-4 py-4 w-full text-left hover:text-gold"
-              onClick={() => scrollToSection("custom-currency")}
             >
               Custom Currency
-            </button>
-            <button
+            </Link>
+            <Link
+              to="/reconciliation-service"
               className="block hover:bg-gray-100 px-4 py-4 w-full text-left hover:text-gold"
-              onClick={() => scrollToSection("reconciliation-service")}
             >
               Reconciliation Service
-            </button>
-            <button
+            </Link>
+            <Link
+              to="/vendor-kiosk-system"
               className="block hover:bg-gray-100 px-4 py-4 w-full text-left hover:text-gold"
-              onClick={() => scrollToSection("vendor-kiosk-system")}
             >
               Vendor Kiosk System
-            </button>
-            <button
+            </Link>
+            <Link
+              to="/foot-soldiers"
               className="block hover:bg-gray-100 px-4 py-4 w-full text-left hover:text-gold"
-              onClick={() => scrollToSection("foot-soldiers")}
             >
               Foot Soldiers
-            </button>
+            </Link>
           </div>
         )}
       </div>

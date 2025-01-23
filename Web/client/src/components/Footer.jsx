@@ -24,13 +24,12 @@ const WithoutFooter = [
 const Footer = () => {
   const { pathname } = useLocation();
 
-  // Remove feature pages from WithoutFooter check
   if (WithoutFooter.includes(pathname)) return null;
 
   return (
     <footer className="bg-footer text-white py-10 px-6 md:px-20">
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
-        <div>
+        <div className="text-left">
           <h3 className="font-playfair font-semibold text-2xl mb-4">Company</h3>
           <ul className="space-y-2">
             <li>
@@ -56,33 +55,33 @@ const Footer = () => {
           </ul>
         </div>
 
-        <div>
+        <div className="text-left">
           <h3 className="font-playfair font-semibold text-2xl mb-4">Features</h3>
           <ul className="space-y-2">
             <li>
-              <a href="#" className="hover:text-gold">
+              <a href="/custom-currency" className="hover:text-gold">
                 Custom Currency
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-gold">
+              <a href="/vendor-kiosk-system" className="hover:text-gold">
                 Vendor Kiosk System
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-gold">
+              <a href="/reconciliation-service" className="hover:text-gold">
                 Reconciliation Service
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-gold">
+              <a href="/foot-soldiers" className="hover:text-gold">
                 Foot Soldiers
               </a>
             </li>
           </ul>
         </div>
 
-        <div>
+        <div className="text-left">
           <h3 className="font-playfair font-semibold text-2xl mb-4">Contact</h3>
           <ul className="space-y-2">
             <li>partycurrency@gmail.com</li>
@@ -115,11 +114,11 @@ const Footer = () => {
         />
       </div>
 
-      <div className="mt-10 text-center">
+      <div className="mt-10 text-left">
         <p className="font-playfair font-semibold text-2xl mb-4">
           Party Currency: Effortless Management for Your Event Finances
         </p>
-        <p className="max-w-3xl mx-auto">
+        <p className="max-w-3xl">
           Simplify, streamline, and secure your party transactions with Party
           Currency. Focus on celebrating while we take care of your financial
           management. Protecting your data is our top priority; we implement
