@@ -6,10 +6,12 @@ import { useAuthenticated } from "../lib/hooks";
 import { LoadingDisplay } from "@/components/LoadingDisplay";
 import { Button } from "@/components/ui/button";
 import { CurrencyEditor } from "@/components/CurrencyEditor";
+import CurrencyBreakdown from "@/components/CurrencyBreakdown";
 
 export default function Templates() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
+  const [isCustomized, setIsCustomized] = useState(false);
   const navigate = useNavigate();
   const authenticated = useAuthenticated();
 
@@ -39,6 +41,11 @@ export default function Templates() {
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleCustomize = (path) => {
+    setIsCustomized(true);
+    navigate(path);
   };
 
   if (!authenticated) {
@@ -87,6 +94,9 @@ export default function Templates() {
                   </div>
                 </div>
               ))}
+            </div>
+            <div className="mt-8">
+              <CurrencyBreakdown isEnabled={isCustomized} />
             </div>
           </div>
         </main>
