@@ -11,6 +11,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { formatErrorMessage } from "../utils/errorUtils";
 
 const emailSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -59,10 +60,10 @@ export default function ForgotPasswordPage() {
         setStep(2);
         toast.success("Verification code sent to your email!");
       } else {
-        throw new Error(data.message || "Failed to send verification code");
+        throw new Error(formatErrorMessage(data));
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(formatErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -78,10 +79,10 @@ export default function ForgotPasswordPage() {
         setStep(3);
         toast.success("Code verified successfully!");
       } else {
-        throw new Error(data.message || "Invalid verification code");
+        throw new Error(formatErrorMessage(data));
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(formatErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -97,10 +98,10 @@ export default function ForgotPasswordPage() {
         toast.success("Password reset successfully! Please login with your new password.");
         setTimeout(() => window.location.href = "/login", 2000);
       } else {
-        throw new Error(data.message || "Failed to reset password");
+        throw new Error(formatErrorMessage(data));
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(formatErrorMessage(error));
     } finally {
       setLoading(false);
     }

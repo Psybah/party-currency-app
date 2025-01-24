@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const MobileMenu = ({
   isOpen,
@@ -10,6 +10,17 @@ export const MobileMenu = ({
   handlePopUpToggle,
   location,
 }) => {
+  const navigate = useNavigate();
+
+  const handleHomeClick = () => {
+    if (location.pathname === "/") {
+      scrollToSection("hero-section");
+    } else {
+      navigate("/");
+    }
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -37,40 +48,36 @@ export const MobileMenu = ({
       </div>
 
       <div className="flex flex-col gap-6 mt-10 px-6">
+        <button
+          className="text-left text-lg text-white hover:text-gold"
+          onClick={handleHomeClick}
+        >
+          Home
+        </button>
+
         {location.pathname === "/" ? (
           <button
-            className="block text-left text-lg text-white"
-            onClick={() => scrollToSection("hero-section")}
-          >
-            Home
-          </button>
-        ) : (
-          <button
-            className="block text-lg text-white"
-            onClick={() => scrollToSection("hero-section")}
-          >
-            Home
-          </button>
-        )}
-        {location.pathname === "/" ? (
-          <button
-            className="block text-left text-lg text-white"
-            onClick={() => scrollToSection("about")}
+            className="text-left text-lg text-white hover:text-gold"
+            onClick={() => {
+              scrollToSection("about");
+              onClose();
+            }}
           >
             About Us
           </button>
         ) : (
           <Link
             to="/#about"
-            className="block text-lg text-white"
+            className="text-left text-lg text-white hover:text-gold"
             onClick={onClose}
           >
             About Us
           </Link>
         )}
+
         <div>
           <button
-            className="flex items-center gap-2 w-full text-left text-lg text-white"
+            className="flex items-center gap-2 w-full text-left text-lg text-white hover:text-gold"
             onClick={() => scrollToSection("features")}
           >
             Features
@@ -98,61 +105,71 @@ export const MobileMenu = ({
 
           {isMobileDropdownOpen && (
             <div className="flex flex-col gap-4 mt-2 ml-2">
-              <button
-                className="text-left text-sm text-white"
-                onClick={() => scrollToSection("custom-currency")}
+              <Link
+                to="/custom-currency"
+                className="text-left text-sm text-white hover:text-gold"
+                onClick={onClose}
               >
                 Custom Currency
-              </button>
-              <button
-                className="text-left text-sm text-white"
-                onClick={() => scrollToSection("reconciliation-service")}
+              </Link>
+              <Link
+                to="/reconciliation-service"
+                className="text-left text-sm text-white hover:text-gold"
+                onClick={onClose}
               >
                 Reconciliation Service
-              </button>
-              <button
-                className="text-left text-sm text-white"
-                onClick={() => scrollToSection("vendor-kiosk-system")}
+              </Link>
+              <Link
+                to="/vendor-kiosk-system"
+                className="text-left text-sm text-white hover:text-gold"
+                onClick={onClose}
               >
                 Vendor Kiosk System
-              </button>
-              <button
-                className="text-left text-sm text-white"
-                onClick={() => scrollToSection("foot-soldiers")}
+              </Link>
+              <Link
+                to="/foot-soldiers"
+                className="text-left text-sm text-white hover:text-gold"
+                onClick={onClose}
               >
                 Foot Soldiers
-              </button>
+              </Link>
             </div>
           )}
         </div>
 
         {location.pathname === "/" ? (
           <button
-            className="flex items-center gap-2 text-left text-lg text-white"
-            onClick={() => scrollToSection("contact")}
+            className="text-left text-lg text-white hover:text-gold"
+            onClick={() => {
+              scrollToSection("contact");
+              onClose();
+            }}
           >
             Contact Us
           </button>
         ) : (
           <Link
             to="/#contact"
-            className="block text-lg text-white"
+            className="text-left text-lg text-white hover:text-gold"
             onClick={onClose}
           >
             Contact Us
           </Link>
         )}
 
-        <div className="right-6 bottom-6 left-6 absolute">
+        <div className="absolute right-6 bottom-6 left-6">
           <button
-            className="block mb-8 text-gold text-xl"
-            onClick={handlePopUpToggle}
+            className="block mb-8 text-gold text-xl text-left w-full hover:text-yellow-400"
+            onClick={() => {
+              handlePopUpToggle();
+              onClose();
+            }}
           >
             Sign Up
           </button>
           <Link
             to="/login"
-            className="block mb-12 text-lg text-white"
+            className="block mb-11 text-lg text-white text-left hover:text-gold"
             onClick={onClose}
           >
             Login

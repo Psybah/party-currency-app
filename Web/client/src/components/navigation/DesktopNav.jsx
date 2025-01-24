@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const DesktopNav = ({
   location,
@@ -7,11 +7,21 @@ export const DesktopNav = ({
   isDropdownOpen,
   setIsDropdownOpen,
 }) => {
+  const navigate = useNavigate();
+
+  const handleHomeClick = () => {
+    if (location.pathname === "/") {
+      scrollToSection("hero-section");
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <nav className="md:flex items-center gap-8 hidden font-montserrat text-lg">
       <button
         className="hover:text-gold"
-        onClick={() => scrollToSection("hero-section")}
+        onClick={handleHomeClick}
       >
         Home
       </button>

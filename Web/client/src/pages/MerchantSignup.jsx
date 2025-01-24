@@ -19,6 +19,7 @@ import { USER_PROFILE_CONTEXT } from "@/context";
 import { getProfileApi, signupMerchantApi } from "@/api/authApi";
 import { storeAuth } from "@/lib/util";
 import { LoadingDisplay } from "@/components/LoadingDisplay";
+import { formatErrorMessage } from "../utils/errorUtils";
 
 export default function MerchantSignup() {
   const [showPassword, setShowPassword] = useState(false);
@@ -66,11 +67,11 @@ export default function MerchantSignup() {
           throw new Error("Failed to fetch user profile");
         }
       } else {
-        setErrorMessage(data.message || "Unable to signup");
+        setErrorMessage(formatErrorMessage(data));
       }
     } catch (error) {
       console.error("Signup error:", error);
-      setErrorMessage("An error occurred during signup. Please try again.");
+      setErrorMessage(formatErrorMessage(error) || "An error occurred during signup. Please try again.");
     } finally {
       setLoading(false);
     }

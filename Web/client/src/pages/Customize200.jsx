@@ -41,10 +41,10 @@ const Customize200 = () => {
                 className="w-full rounded-lg shadow-md"
               />
               <div className="flex flex-wrap gap-4">
-                <button className="px-4 md:px-6 py-3 border border-bluePrimary rounded-lg hover:bg-gray-50 transition-colors">
+                <button className="px-4 md:px-6 py-3 border border-bluePrimary text-bluePrimary rounded-lg hover:bg-bluePrimary hover:text-white transition-colors">
                   Edit Front Text
                 </button>
-                <button className="px-4 md:px-6 py-3 border border-bluePrimary rounded-lg hover:bg-gray-50 transition-colors">
+                <button className="px-4 md:px-6 py-3 border border-bluePrimary text-bluePrimary rounded-lg hover:bg-bluePrimary hover:text-white transition-colors">
                   Change Image
                 </button>
               </div>
@@ -58,10 +58,10 @@ const Customize200 = () => {
                 className="w-full rounded-lg shadow-md"
               />
               <div className="flex flex-wrap gap-4">
-                <button className="px-4 md:px-6 py-3 border border-bluePrimary rounded-lg hover:bg-gray-50 transition-colors">
+                <button className="px-4 md:px-6 py-3 border border-bluePrimary text-bluePrimary rounded-lg hover:bg-bluePrimary hover:text-white transition-colors">
                   Edit Back Text
                 </button>
-                <button className="px-4 md:px-6 py-3 border border-bluePrimary rounded-lg hover:bg-gray-50 transition-colors">
+                <button className="px-4 md:px-6 py-3 border border-bluePrimary text-bluePrimary rounded-lg hover:bg-bluePrimary hover:text-white transition-colors">
                   Change Image
                 </button>
               </div>

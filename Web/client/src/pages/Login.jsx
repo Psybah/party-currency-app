@@ -7,6 +7,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { getProfileApi, loginCustomerApi } from "@/api/authApi";
 import { storeAuth } from "@/lib/util";
 import { USER_PROFILE_CONTEXT, SIGNUP_CONTEXT } from "@/context";
+import { formatErrorMessage } from "../utils/errorUtils";
 
 export default function LoginPage() {
   const { setSignupOpen } = useContext(SIGNUP_CONTEXT); // Handles opening the signup modal
@@ -44,11 +45,11 @@ export default function LoginPage() {
           throw new Error("Failed to fetch user profile.");
         }
       } else {
-        setErrorMessage(data.message || "Invalid email or password.");
+        setErrorMessage(formatErrorMessage(data));
       }
     } catch (error) {
       console.error("Login error:", error);
-      setErrorMessage("An error occurred. Please try again later.");
+      setErrorMessage(formatErrorMessage(error) || "An error occurred. Please try again later.");
     } finally {
       setLoading(false); // Reset loading state
     }

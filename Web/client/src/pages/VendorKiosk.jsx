@@ -3,10 +3,16 @@ import half_bg from "../assets/features/half_bg.png";
 import Kiosk from "../assets/features/kiosk-image.png";
 import AppleIcon from "../assets/app-icons/apple-icon.svg";
 import AndroidIcon from "../assets/app-icons/android-icon.svg";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import FloatingContactButton from "../components/FloatingContactButton";
 
 const VendorKiosk = () => {
   return (
     <div>
+      {/* Header */}
+      <Header />
+      
       {/* Hero Section */}
       <section
         id="vendor-kiosk-system"
@@ -120,6 +126,11 @@ const VendorKiosk = () => {
           </div>
         </div>
       </section>
+
+      <FloatingContactButton />
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

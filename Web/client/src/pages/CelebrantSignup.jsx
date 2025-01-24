@@ -11,6 +11,7 @@ import { SocialAuthButtons } from "@/components/forms/SocialAuthButtons";
 import { signupCelebrantApi, getProfileApi } from "@/api/authApi";
 import { storeAuth } from "@/lib/util";
 import { USER_PROFILE_CONTEXT } from "@/context";
+import { formatErrorMessage } from "@/utils/errorUtils";
 
 const formSchema = z
   .object({
@@ -56,8 +57,8 @@ export default function CelebrantSignupPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        const message = JSON.stringify(Object.values(errorData)[0]);
-        form.setError("root", { message });
+        const formattedError = formatErrorMessage(errorData);
+        form.setError("root", { message: formattedError });
         return;
       }
 
@@ -74,7 +75,7 @@ export default function CelebrantSignupPage() {
     } catch (error) {
       console.error("Signup error:", error);
       form.setError("root", {
-        message: "An error occurred during signup. Please try again.",
+        message: formatErrorMessage(error) || "An error occurred during signup. Please try again.",
       });
     }
   };

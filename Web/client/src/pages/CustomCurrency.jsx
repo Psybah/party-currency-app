@@ -4,10 +4,15 @@ import currency from "../assets/features/currency.svg";
 import AppleIcon from "../assets/app-icons/apple-icon.svg";
 import AndroidIcon from "../assets/app-icons/android-icon.svg";
 import { LazyImage } from "../components/LazyImage";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import FloatingContactButton from "../components/FloatingContactButton";
 
 const CustomCurrency = () => {
   return (
     <div>
+      <Header />
+      <FloatingContactButton />
       {/* Hero Section */}
       <section
         id="custom-currency"
@@ -127,6 +132,9 @@ const CustomCurrency = () => {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
