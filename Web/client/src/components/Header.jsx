@@ -79,26 +79,6 @@ const Header = () => {
           <img src={logo} alt="Party Currency Logo" />
         </Link>
 
-        <div
-          className="md:hidden cursor-pointer"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-8 h-8"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3.75 5.25h16.5M3.75 12h16.5m-16.5 6.75h16.5"
-            />
-          </svg>
-        </div>
-
         <DesktopNav
           location={location}
           scrollToSection={scrollToSection}
@@ -106,7 +86,38 @@ const Header = () => {
           setIsDropdownOpen={setIsDropdownOpen}
         />
 
-        <UserAvatar auth={true} showName={true} />
+        <div className="flex items-center gap-4">
+          {/* Mobile Menu Toggle */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3.75 5.25h16.5M3.75 12h16.5m-16.5 6.75h16.5"
+                />
+              </svg>
+            </button>
+          </div>
+
+          {/* Auth Buttons and User Avatar */}
+          <div className="hidden md:flex items-center gap-4">
+            <UserAvatar auth={true} showName={true} />
+          </div>
+          <div className="md:hidden">
+            <UserAvatar auth={true} showName={false} />
+          </div>
+        </div>
       </div>
 
       <MobileMenu

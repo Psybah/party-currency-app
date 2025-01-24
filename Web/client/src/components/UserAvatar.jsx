@@ -61,13 +61,17 @@ export default function UserAvatar({ showName, auth }) {
         mouseLeaveDelay={0.5}
       >
         <div className="flex items-center gap-2 font-semibold cursor-pointer">
-          <span className="text-paragraph">Hello,</span>
-          <span className="text-paragraph">{name}</span>
+          {showName && (
+            <>
+              <span className="text-paragraph hidden md:inline">Hello,</span>
+              <span className="text-paragraph hidden md:inline">{name}</span>
+            </>
+          )}
           <Avatar
             style={{ backgroundColor: "bluePrimary", verticalAlign: "middle" }}
             size="default"
           >
-            <span className="font-semibold text-white">{name[0]}</span>
+            <span className="font-semibold text-white">{name?.[0]}</span>
           </Avatar>
         </div>
       </Popover>
