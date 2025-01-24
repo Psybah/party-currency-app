@@ -3,9 +3,13 @@ from datetime import date
 
 class Events(models.Model):
     event_id = models.CharField(max_length=255, unique=True, primary_key=True)
-    event_name = models.CharField(max_length=255)  # Reduced from 2552
+    event_name = models.CharField(max_length=255)  
     event_author = models.CharField(max_length=255, default="user")
-    address = models.TextField(default="Nigeria")  # Fixed - was missing parentheses
+    street_address = models.TextField(default="Nigeria") 
+    city = models.CharField(max_length=255 , default ="")
+    state = models.CharField(max_length=255 , default=" ")
+    LGA = models.CharField(max_length=255 , default=" ")
+    postal_code = models.IntegerField( default=100001)
     event_description = models.TextField(default="owanbe")
     start_date = models.DateField()
     end_date = models.DateField()
