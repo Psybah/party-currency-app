@@ -50,7 +50,7 @@ def EventCreate(request):
         }, status=status.HTTP_204_NO_CONTENT)
 @api_view(["GET"])
 def EventList(request):
-    events = Events.objects.filter(event_author=request.user.username)
+    events = Events.objects.filter(event_author=request.user.email)
     serializer = EventSerializer(events, many=True)
     return Response({"message":"Event list retrieved successfully","events": serializer.data}, status=status.HTTP_200_OK)
 
