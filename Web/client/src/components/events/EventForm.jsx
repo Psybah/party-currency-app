@@ -1,9 +1,15 @@
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { LocationSelect } from "./LocationSelect";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function EventForm({ formData, handleInputChange, handleSubmit, isSubmitting }) {
   const eventTypes = [
@@ -14,6 +20,15 @@ export function EventForm({ formData, handleInputChange, handleSubmit, isSubmitt
     "Burial",
     "Other",
   ];
+
+  const handleEventTypeChange = (value) => {
+    handleInputChange({
+      target: {
+        name: "event_type",
+        value,
+      },
+    });
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -33,20 +48,22 @@ export function EventForm({ formData, handleInputChange, handleSubmit, isSubmitt
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-left block">Event Type</label>
-          <select
-            required
-            name="event_type"
+          <Select
             value={formData.event_type}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border rounded-md"
+            onValueChange={handleEventTypeChange}
+            required
           >
-            <option value="">Select event type</option>
-            {eventTypes.map((type) => (
-              <option key={type} value={type.toLowerCase()}>
-                {type}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select event type" />
+            </SelectTrigger>
+            <SelectContent>
+              {eventTypes.map((type) => (
+                <SelectItem key={type} value={type.toLowerCase()}>
+                  {type}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">
@@ -81,6 +98,17 @@ export function EventForm({ formData, handleInputChange, handleSubmit, isSubmitt
             value={formData.street_address}
             onChange={handleInputChange}
             placeholder="Enter street address"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-left block">Post Code</label>
+          <Input
+            required
+            name="post_code"
+            value={formData.post_code}
+            onChange={handleInputChange}
+            placeholder="Enter post code"
           />
         </div>
 

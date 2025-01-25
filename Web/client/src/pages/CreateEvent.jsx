@@ -25,6 +25,8 @@ export default function CreateEvent() {
     end_date: "",
     street_address: "",
     state: "",
+    city: "",
+    post_code: "",
     lga: "",
     reconciliation_service: false,
   });
@@ -37,33 +39,27 @@ export default function CreateEvent() {
     }));
   };
 
-  const validateDates = () => {
-    const start = new Date(formData.start_date);
-    const end = new Date(formData.end_date);
-    if (end < start) {
-      toast.error("End date must be after start date");
-      return false;
-    }
-    return true;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validateDates()) {
-      return;
-    }
-
     setIsSubmitting(true);
     try {
       const { accessToken } = getAuth();
+      
+      // Transform the data to match API expectations
+      const requestData = {
+        ...formData,
+        LGA: formData.lga.toUpperCase(), // Fix case sensitivity
+        reconciliation_service: Boolean(formData.reconciliation_service),
+      };
+
       const response = await fetch(`${BASE_URL}/events/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${accessToken}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(requestData),
       });
 
       const data = await response.json();

@@ -3,13 +3,22 @@ import * as fabric from "fabric";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { X } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 export function CurrencyEditor({ currencyImage, onClose }) {
   const canvasRef = useRef(null);
   const [canvas, setCanvas] = useState(null);
-  const [text, setText] = useState("Celebration of Life");
-  const [primaryColor, setPrimaryColor] = useState("#9b87f5");
+  const [celebrationText, setCelebrationText] = useState("Happy Birthday!");
+  const [currencyName, setCurrencyName] = useState("Party Currency");
+  const [eventId, setEventId] = useState("1A3Bc5674F89djfnk");
+
+  // Text position configurations
+  const textPositions = {
+    celebration: { x: 400, y: 150 },
+    currency: { x: 400, y: 300 },
+    eventId: { x: 400, y: 350 }
+  };
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -17,18 +26,35 @@ export function CurrencyEditor({ currencyImage, onClose }) {
     const fabricCanvas = new fabric.fabric.Canvas(canvasRef.current, {
       width: 800,
       height: 400,
+      backgroundColor: '#ffffff'
     });
 
-    // Load the base currency template
+    // Scale canvas for mobile responsiveness
+    const scaleCanvas = () => {
+      const container = document.querySelector('.canvas-container');
+      if (!container) return;
+      
+      const containerWidth = container.offsetWidth;
+      const scale = containerWidth / 800;
+      
+      fabricCanvas.setZoom(scale);
+      fabricCanvas.setWidth(containerWidth);
+      fabricCanvas.setHeight(400 * scale);
+    };
+
+    // Load the template image
     fabric.fabric.Image.fromURL(currencyImage, (img) => {
       img.scaleToWidth(fabricCanvas.width);
       fabricCanvas.setBackgroundImage(img, fabricCanvas.renderAll.bind(fabricCanvas));
     });
 
     setCanvas(fabricCanvas);
+    scaleCanvas();
+    window.addEventListener('resize', scaleCanvas);
 
     return () => {
       fabricCanvas.dispose();
+      window.removeEventListener('resize', scaleCanvas);
     };
   }, [currencyImage]);
 
@@ -39,7 +65,6 @@ export function CurrencyEditor({ currencyImage, onClose }) {
     const reader = new FileReader();
     reader.onload = (event) => {
       fabric.fabric.Image.fromURL(event.target.result, (img) => {
-        // Create oval clip path
         const clipPath = new fabric.fabric.Ellipse({
           rx: 100,
           ry: 120,
@@ -53,9 +78,7 @@ export function CurrencyEditor({ currencyImage, onClose }) {
           clipPath: clipPath
         });
         
-        // Scale image to fit within clip path
         img.scaleToWidth(200);
-        
         canvas.add(img);
         canvas.renderAll();
       });
@@ -63,50 +86,36 @@ export function CurrencyEditor({ currencyImage, onClose }) {
     reader.readAsDataURL(file);
   };
 
-  const handleColorChange = (e) => {
-    const color = e.target.value;
-    setPrimaryColor(color);
-    
-    // Apply color overlay
-    const overlay = new fabric.fabric.Rect({
-      width: canvas.width,
-      height: canvas.height,
-      fill: color,
-      opacity: 0.2,
-      globalCompositeOperation: 'color'
-    });
-    
-    // Remove previous overlays
-    const objects = canvas.getObjects();
-    objects.forEach(obj => {
-      if (obj.globalCompositeOperation === 'color') {
-        canvas.remove(obj);
-      }
-    });
-    
-    canvas.add(overlay);
-    canvas.renderAll();
-  };
+  const updateText = (type, value) => {
+    if (!canvas) return;
 
-  const handleTextChange = (e) => {
-    const newText = e.target.value;
-    setText(newText);
-    
-    // Update or create text object
     const objects = canvas.getObjects();
-    const existingText = objects.find(obj => obj.type === 'text');
+    const existingText = objects.find(obj => obj.type === 'text' && obj.textType === type);
+    
+    const position = textPositions[type];
+    const fontFamily = type === 'celebration' ? 'Playfair Display' : 
+                      type === 'currency' ? 'Montserrat' : 'Montserrat';
+    const fontSize = type === 'celebration' ? 40 : 24;
     
     if (existingText) {
-      existingText.set('text', newText);
+      existingText.set({
+        text: value,
+        fill: '#000000', // Black text color
+        left: position.x,
+        top: position.y,
+        fontFamily: fontFamily,
+        fontSize: fontSize
+      });
     } else {
-      const textObject = new fabric.fabric.Text(newText, {
-        left: 400,
-        top: 300,
-        fontFamily: 'Arial',
-        fontSize: 40,
-        fill: 'black',
+      const textObject = new fabric.fabric.Text(value, {
+        left: position.x,
+        top: position.y,
+        fontFamily: fontFamily,
+        fontSize: fontSize,
+        fill: '#000000', // Black text color
         originX: 'center',
-        originY: 'center'
+        originY: 'center',
+        textType: type
       });
       canvas.add(textObject);
     }
@@ -122,62 +131,92 @@ export function CurrencyEditor({ currencyImage, onClose }) {
       quality: 1
     });
     
-    // Here you would typically send this to your backend
-    // For now, let's just show a success message
     toast.success("Currency customization saved!");
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg max-w-4xl w-full mx-4">
-        <h2 className="text-2xl font-bold mb-4">Customize Currency</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <canvas ref={canvasRef} className="border border-gray-200 rounded-lg" />
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white rounded-lg w-full max-w-4xl">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-left">Customize Currency</h2>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+              <X className="h-6 w-6" />
+            </button>
           </div>
           
-          <div className="space-y-6">
-            <div>
-              <Label htmlFor="image">Upload Portrait Image</Label>
-              <Input
-                id="image"
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="mt-1"
-              />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="canvas-container w-full overflow-hidden border border-gray-200 rounded-lg">
+              <canvas ref={canvasRef} />
             </div>
             
-            <div>
-              <Label htmlFor="color">Primary Color</Label>
-              <Input
-                id="color"
-                type="color"
-                value={primaryColor}
-                onChange={handleColorChange}
-                className="h-10 w-full"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="text">Celebration Text</Label>
-              <Input
-                id="text"
-                type="text"
-                value={text}
-                onChange={handleTextChange}
-                className="mt-1"
-              />
-            </div>
-            
-            <div className="flex gap-4">
-              <Button onClick={handleSave} className="bg-bluePrimary hover:bg-bluePrimary/90 text-white">
+            <div className="space-y-6">
+              <div className="text-left">
+                <Label htmlFor="celebration" className="block mb-2">
+                  Celebration Text
+                </Label>
+                <Input
+                  id="celebration"
+                  value={celebrationText}
+                  onChange={(e) => {
+                    setCelebrationText(e.target.value);
+                    updateText('celebration', e.target.value);
+                  }}
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Position: Top center (x: {textPositions.celebration.x}, y: {textPositions.celebration.y})
+                </p>
+              </div>
+              
+              <div className="text-left">
+                <Label htmlFor="currency" className="block mb-2">
+                  Currency Name
+                </Label>
+                <Input
+                  id="currency"
+                  value={currencyName}
+                  onChange={(e) => {
+                    setCurrencyName(e.target.value);
+                    updateText('currency', e.target.value);
+                  }}
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Position: Bottom center (x: {textPositions.currency.x}, y: {textPositions.currency.y})
+                </p>
+              </div>
+              
+              <div className="text-left">
+                <Label htmlFor="eventId" className="block mb-2">
+                  Event ID*
+                </Label>
+                <Input
+                  id="eventId"
+                  value={eventId}
+                  onChange={(e) => {
+                    setEventId(e.target.value);
+                    updateText('eventId', e.target.value);
+                  }}
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Position: Bottom right (x: {textPositions.eventId.x}, y: {textPositions.eventId.y})
+                </p>
+              </div>
+
+              <div className="text-left">
+                <Label htmlFor="image" className="block mb-2">
+                  Upload Portrait Image
+                </Label>
+                <Input
+                  id="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                />
+              </div>
+              
+              <Button onClick={handleSave} className="w-full bg-green-500 hover:bg-green-600 text-white">
                 Save Changes
-              </Button>
-              <Button onClick={onClose} variant="outline">
-                Cancel
               </Button>
             </div>
           </div>
