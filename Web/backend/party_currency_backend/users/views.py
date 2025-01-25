@@ -41,4 +41,23 @@ def fetchUser(request):
 def editUser(request):
      user = request.user
      
-
+@api_view(["PUT"])
+def update_picture(request):
+     user = request.user
+     if 'profile_picture' not in request.FILES:
+          return Response({"error": "No profile picture provided"}, status=400)
+     
+     profile_picture = request.FILES['profile_picture']
+     user.profile_picture.save(profile_picture.name, profile_picture)
+     user.save()
+     
+     return Response({"message": "Profile picture updated successfully"})
+@api_view(["GET"])
+def get_picture(request):
+    user = request.user
+    if not user.profile_picture:
+        return Response({"error": "No profile picture"}, status=404)
+    
+    return Response({
+        "profile_picture_url": user.profile_picture.url
+    })
