@@ -1,9 +1,6 @@
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
-import PropTypes from 'prop-types';
-import { useQuery } from '@tanstack/react-query';
-import { Input } from '@/components/ui/input';
 import {
 	Select,
 	SelectContent,
