@@ -9,7 +9,7 @@ export default function EventCard({ event }) {
       <div className="flex justify-between items-center">
         <div className="text-left">
           <h3 className="text-xl font-semibold mb-2">{event.name}</h3>
-          <p className="text-gray-600">Date: {formatDate(event.date)}</p>
+          <p className="text-gray-600">Date: {formatDate(event.start_date || event.date)}</p>
         </div>
         <div className="flex gap-2">
           <Button 

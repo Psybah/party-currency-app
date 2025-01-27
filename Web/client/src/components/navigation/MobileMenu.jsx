@@ -137,26 +137,6 @@ export const MobileMenu = ({
           )}
         </div>
 
-        {location.pathname === "/" ? (
-          <button
-            className="text-left text-lg text-white hover:text-gold"
-            onClick={() => {
-              scrollToSection("contact");
-              onClose();
-            }}
-          >
-            Contact Us
-          </button>
-        ) : (
-          <Link
-            to="/#contact"
-            className="text-left text-lg text-white hover:text-gold"
-            onClick={onClose}
-          >
-            Contact Us
-          </Link>
-        )}
-
         <div className="absolute right-6 bottom-6 left-6">
           <button
             className="block mb-8 text-gold text-xl text-left w-full hover:text-yellow-400"

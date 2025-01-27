@@ -12,7 +12,7 @@ export default function Dashboard() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: events = [], isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["events"],
     queryFn: getEvents,
     onError: (error) => {
@@ -20,15 +20,22 @@ export default function Dashboard() {
     },
   });
 
-  // Calculate total stats
-  const totalAmount = events.reduce((sum, event) => sum + (event.amount || 0), 0);
+  // Ensure events is always an array
+  const events = Array.isArray(data) ? data : [];
+
+  // Calculate total stats with safeguards
+  const totalAmount = events.reduce((sum, event) => {
+    const amount = typeof event.amount === 'number' ? event.amount : 0;
+    return sum + amount;
+  }, 0);
+  
   const totalEvents = events.length;
 
-  // Mock transactions data (replace with real API call when available)
+  // Mock transactions data with safeguards
   const transactions = events.map(event => ({
-    id: event.id,
-    amount: event.amount || 0,
-    date: event.event_date,
+    id: event.id || 'N/A',
+    amount: typeof event.amount === 'number' ? event.amount : 0,
+    date: event.event_date || new Date().toISOString(),
     status: event.status || "pending",
     invoiceUrl: `/api/invoices/${event.id}` // Replace with real invoice URL
   }));
