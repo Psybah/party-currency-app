@@ -46,10 +46,9 @@ export default function CreateEvent() {
     try {
       const { accessToken } = getAuth();
       
-      // Transform the data to match API expectations
       const requestData = {
         ...formData,
-        LGA: formData.lga.toUpperCase(), // Fix case sensitivity
+        LGA: formData.lga.toUpperCase(),
         reconciliation_service: Boolean(formData.reconciliation_service),
       };
 

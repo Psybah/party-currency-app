@@ -1,6 +1,5 @@
 import { BASE_URL } from "@/config";
 import { getAuth } from "@/lib/util";
-import toast from "react-hot-toast";
 
 export async function createEvent(eventData) {
   try {
@@ -32,27 +31,25 @@ export async function createEvent(eventData) {
 }
 
 export async function getEvents() {
-  try {
-    const { accessToken } = getAuth();
-    if (!accessToken) {
-      throw new Error("No authentication token found");
-    }
-
-    const response = await fetch(`${BASE_URL}/events/list`, {
-      headers: {
-        Authorization: `Token ${accessToken}`,
-      },
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to fetch events");
-    }
-
-    return data;
-  } catch (error) {
-    console.error("Fetch events error:", error);
-    throw error;
+  const { accessToken } = getAuth();
+  
+  if (!accessToken) {
+    throw new Error("Please log in to view your events");
   }
+
+  const response = await fetch(`${BASE_URL}/events/list`, {
+    headers: {
+      Authorization: `Token ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Your session has expired. Please log in again.");
+    }
+    throw new Error("Failed to fetch events. Please try again later.");
+  }
+
+  return response.json();
 }
