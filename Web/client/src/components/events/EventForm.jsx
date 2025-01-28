@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader } from "lucide-react";
+import { Loader, ChevronDown, ChevronUp } from "lucide-react";
 import { LocationSelect } from "./LocationSelect";
 import {
   Select,
@@ -11,7 +11,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function EventForm({ formData, handleInputChange, handleSubmit, isSubmitting }) {
+export const EventForm = ({ formData, handleInputChange, handleSubmit, isSubmitting }) => {
+  const [showReconciliationInfo, setShowReconciliationInfo] = useState(false);
+  const [customEventType, setCustomEventType] = useState("");
+
   const eventTypes = [
     "Birthday",
     "Wedding",
@@ -26,6 +29,21 @@ export function EventForm({ formData, handleInputChange, handleSubmit, isSubmitt
       target: {
         name: "event_type",
         value,
+      },
+    });
+
+    // Reset custom event type if not "Other"
+    if (value !== "other") {
+      setCustomEventType("");
+    }
+  };
+
+  const handleCustomEventTypeChange = (e) => {
+    setCustomEventType(e.target.value);
+    handleInputChange({
+      target: {
+        name: "event_type",
+        value: e.target.value,
       },
     });
   };
@@ -64,6 +82,21 @@ export function EventForm({ formData, handleInputChange, handleSubmit, isSubmitt
               ))}
             </SelectContent>
           </Select>
+
+          {formData.event_type === "other" && (
+            <div className="mt-2">
+              <label className="text-sm font-medium text-left block">
+                Specify Event Type
+              </label>
+              <Input
+                required
+                name="custom_event_type"
+                value={customEventType}
+                onChange={handleCustomEventTypeChange}
+                placeholder="Enter custom event type"
+              />
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -118,20 +151,52 @@ export function EventForm({ formData, handleInputChange, handleSubmit, isSubmitt
         />
       </div>
 
-      <div className="flex items-center space-x-2">
-        <input
-          type="checkbox"
-          id="reconciliation_service"
-          name="reconciliation_service"
-          checked={formData.reconciliation_service}
-          onChange={handleInputChange}
-          className="w-4 h-4 text-blue-600"
-        />
-        <label htmlFor="reconciliation_service" className="text-sm font-medium text-left">
-          Enable Reconciliation Service
-        </label>
+      {/* Reconciliation Service Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          {/* Reconciliation Service Toggle */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="reconciliation_service"
+              name="reconciliation_service"
+              checked={formData.reconciliation_service}
+              onChange={handleInputChange}
+              className="w-4 h-4 text-blue-600"
+            />
+            <label htmlFor="reconciliation_service" className="text-sm font-medium text-left">
+              Enable Reconciliation Service
+            </label>
+          </div>
+
+          {/* Toggle Info Button */}
+          <button
+            type="button"
+            onClick={() => setShowReconciliationInfo(!showReconciliationInfo)}
+            className="text-sm text-blue-600 hover:underline flex items-center space-x-1"
+          >
+            <span>{showReconciliationInfo ? "Hide Info" : "What is this?"}</span>
+            {showReconciliationInfo ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
+        </div>
+
+        {/* Reconciliation Info */}
+        {showReconciliationInfo && (
+          <div
+            className="bg-gray-50 p-4 rounded-lg border border-gray-200 transition-all duration-500 ease-in-out"
+          >
+            <p className="text-sm text-gray-600 text-left">
+              Party currency reconciliation service streamlines event management by providing
+              foot soldiers to assist with currency transfers, a kiosk operator to convert party
+              currency to real cash for guest artists, and an event wallet for hosts to monitor
+              balances and transactions effortlessly, ensuring a stress-free experience with no
+              risk of theft or fraud.
+            </p>
+          </div>
+        )}
       </div>
 
+      {/* Submit Button */}
       <Button
         type="submit"
         className="w-full md:w-auto px-8 bg-gold hover:bg-gold/90 text-white"
@@ -148,4 +213,4 @@ export function EventForm({ formData, handleInputChange, handleSubmit, isSubmitt
       </Button>
     </form>
   );
-}
+};
