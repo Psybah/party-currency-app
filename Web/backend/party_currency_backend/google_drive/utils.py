@@ -5,8 +5,8 @@ from googleapiclient.http import MediaFileUpload
 import json
 
 # Path to your service account JSON key file
-SERVICE_ACCOUNT_FILE = 'keys.json'
 
+SERVICE_ACCOUNT_FILE = os.path.join(os.path.dirname(__file__), 'keys.json')
 
 # Define the scopes for Google Drive API
 SCOPES = ['https://www.googleapis.com/auth/drive']
