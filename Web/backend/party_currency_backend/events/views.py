@@ -8,6 +8,14 @@ from .models import Events  # Fix the import
 from django.utils import timezone
 from datetime import datetime
 import pytz
+from google_drive.models import GoogleDriveFile
+from google_drive.utils import upload_file_to_drive
+from authentication.models import CustomUser
+from django.core.files.storage import default_storage
+import os
+from django.core.files.base import ContentFile
+from rest_framework import status
+from dotenv import load_dotenv
 
 # Create your views here.
 @api_view(["POST"])
@@ -115,3 +123,27 @@ def EventDelete(request, id):
 
 
 #TODO  view archived event by admin or superuser
+
+
+@api_view(["PUT"])
+def save_currency(request):
+    event = Events.objects.get(event_id=request.data["event_id"])
+    user=request.user
+    if 'image' not in request.FILES:
+        return Response({"error": "No currency image provided"}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        currency_image = request.FILES['image']
+        file_name = f"{user.email}_event_picture{os.path.splitext(profile_picture.name)[1]}"
+        file_path = default_storage.save(f'tmp/{file_name}', ContentFile(profile_picture.read()))
+        # Upload the file to Google Drive
+        folder_id = '1xg-UFjBtNMUeX3RbLsyOsBsmDOJzj2Sk'  # Replace with your folder ID
+        file_id = upload_file_to_drive(file_path, file_name, folder_id)
+        # Update the user's profile picture field
+        event = file_id
+        user.save()
+        # Clean up the temporary file
+        default_storage.delete(file_path)
+        return Response({"message": "Profile picture updated successfully", "file_id": file_id}, status=status.HTTP_200_OK)
+    except Exception as e:
+        # Handle any errors during the process
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

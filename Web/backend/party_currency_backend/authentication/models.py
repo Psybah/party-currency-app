@@ -11,12 +11,7 @@ class CustomUser(AbstractUser):
     state = models.CharField(max_length=100, blank=True, null=True)
     business_type = models.CharField(max_length=100, blank=True, null=True)
     type = models.CharField(max_length=50, default="user")
-    profile_picture = models.ImageField(
-        upload_to='profile_pictures/', 
-        null=True, 
-        blank=True,
-        validators=[FileExtensionValidator(['png', 'jpg', 'jpeg', 'gif'])]
-    )
+    
     groups = models.ManyToManyField(
         Group,
         related_name='custom_user_groups',  # Changed related_name
