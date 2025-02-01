@@ -41,14 +41,15 @@ export default function CreateEvent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     setIsSubmitting(true);
+
     try {
       const { accessToken } = getAuth();
       
+      // Transform the data for the API
       const requestData = {
         ...formData,
-        LGA: formData.lga.toUpperCase(),
+        lga: formData.lga.toUpperCase(),
         reconciliation_service: Boolean(formData.reconciliation_service),
       };
 

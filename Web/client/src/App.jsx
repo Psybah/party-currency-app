@@ -7,6 +7,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import CreateEvent from "./pages/CreateEvent";
 import ManageEvent from "./pages/ManageEvent";
+import EventDetails from "./pages/EventDetails";
 import Templates from "./pages/Templates";
 import Settings from "./pages/Settings";
 import CelebrantSignup from "./pages/CelebrantSignup";
@@ -68,6 +69,14 @@ function App() {
             element={
               <PrivateRoute>
                 <ManageEvent />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/event/:eventId"
+            element={
+              <PrivateRoute>
+                <EventDetails />
               </PrivateRoute>
             }
           />

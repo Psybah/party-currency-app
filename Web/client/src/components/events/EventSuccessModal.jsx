@@ -6,12 +6,9 @@ import { toast } from "react-hot-toast";
 export function EventSuccessModal({ eventId, onClose, onNavigate }) {
   const [copied, setCopied] = useState(false);
 
-  // Extract only the numerical part after the last underscore
-  const cleanEventId = eventId.split("_").pop();
-
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(cleanEventId);
+      await navigator.clipboard.writeText(eventId);
       setCopied(true);
       toast.success("Event ID copied to clipboard!");
       setTimeout(() => setCopied(false), 2000);
@@ -39,7 +36,7 @@ export function EventSuccessModal({ eventId, onClose, onNavigate }) {
           Below is your unique Event ID. You can copy it for future reference.
         </p>
         <div className="bg-gray-100 p-3 rounded mb-4 flex items-center justify-between">
-          <code className="text-lg font-mono">{cleanEventId}</code>
+          <code className="text-lg font-mono">{eventId}</code>
           <Button
             variant="ghost"
             size="sm"
@@ -55,7 +52,10 @@ export function EventSuccessModal({ eventId, onClose, onNavigate }) {
         </div>
         <Button
           className="w-full bg-bluePrimary hover:bg-bluePrimary/90 text-white"
-          onClick={onNavigate}
+          onClick={() => {
+            onClose();
+            onNavigate();
+          }}
         >
           Choose Currency Template
         </Button>
