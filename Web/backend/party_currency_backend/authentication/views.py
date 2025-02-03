@@ -27,7 +27,7 @@ def login(request):
         return Response({"message":"user not found or incorrect password"},status.HTTP_404_NOT_FOUND)
     token, _ = Token.objects.get_or_create(user=user)
     return Response({
-                    "Message":"Signup successful. use api/users/profile to get userdetails passing this token as an authorization, ",
+                    "Message":"Login successful. use api/users/profile to get userdetails passing this token as an authorization, ",
             "token": token.key
         }, status=status.HTTP_202_ACCEPTED)
 
