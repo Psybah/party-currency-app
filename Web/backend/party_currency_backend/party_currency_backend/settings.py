@@ -8,7 +8,7 @@ load_dotenv()
 WSGI_APPLICATION = 'party_currency_backend.wsgi.application'
 AUTH_USER_MODEL = 'authentication.CustomUser'# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+test=1
 # Security Settings
 SECURE_SSL_REDIRECT = False  # Set to False for development
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
