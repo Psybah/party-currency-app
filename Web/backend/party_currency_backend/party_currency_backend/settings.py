@@ -15,6 +15,9 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
+GOOGLE_OAUTH2_CLIENT_ID = os.getenv('GOOGLE_OAUTH2_CLIENT_ID')
+GOOGLE_OAUTH2_CLIENT_SECRET = os.getenv('GOOGLE_OAUTH2_CLIENT_SECRET')
+GOOGLE_OAUTH2_REDIRECT_URI = 'http://localhost:8000/oauth2callback'
 # Session Settings
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
@@ -72,7 +75,7 @@ CORS_ALLOW_HEADERS = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('PGDATABASE', 'party currency'),
+        'NAME': os.getenv('PGDATABASE', 'party'),
         'USER': os.getenv('PGUSER', 'postgres'),
         'PASSWORD': os.getenv('PGPASSWORD', '2377'),
         'HOST': os.getenv('PGHOST', 'localhost'),
@@ -135,6 +138,7 @@ INSTALLED_APPS = [
     'dj_rest_auth',
     'events',
     'payment',
+    'google_drive'
     ]
 
 MIDDLEWARE = [

@@ -1,17 +1,17 @@
 from rest_framework import serializers
-from .models import Event
+from .models import Events
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Event
+        model = Events
         fields = ['event_id','event_name']
 
 class EventSerializerFull(serializers.ModelSerializer):
     class Meta:
-        model=Event
+        model=Events
         fields =[
-            'event_id','event_name','event_author','address'
-            ,'event_date','delivery_address',"created_at",'updated_at',
+            'event_id','event_name','event_description','event_author','street_address','city',"LGA",'state','postal_code'
+            ,'start_date','end_date','delivery_address',"created_at",'updated_at',
             'currency_image','reconciliation','transaction_id',
             'delivery_status'
         ]

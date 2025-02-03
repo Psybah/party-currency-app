@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
 from .serializers import TransactionSerializer
+from rest_framework.decorators import api_view
 
 class InitializeTransactionView(APIView):
     def post(self, request):
@@ -54,3 +55,10 @@ class InitializeTransactionView(APIView):
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(["POST"])
+def generate_transcation_ID(request):
+    return Response({
+        "message":"hi"
+    })

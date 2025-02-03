@@ -1,15 +1,22 @@
 from django.db import models
-class Event(models.Model):
+from datetime import date
+
+class Events(models.Model):
     event_id = models.CharField(max_length=255, unique=True, primary_key=True)
-    event_name = models.CharField(max_length=255)  # Reduced from 2552
+    event_name = models.CharField(max_length=255)  
     event_author = models.CharField(max_length=255, default="user")
-    address = models.TextField(default="Nigeria")  # Fixed - was missing parentheses
+    street_address = models.TextField(default="Nigeria") 
+    city = models.CharField(max_length=255 , default ="")
+    state = models.CharField(max_length=255 , default=" ")
+    LGA = models.CharField(max_length=255 , default=" ")
+    postal_code = models.IntegerField( default=100001)
     event_description = models.TextField(default="owanbe")
-    event_date = models.DateField()
+    start_date = models.DateField()
+    end_date = models.DateField()
     delivery_address = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)  # Changed to proper timestamp
     updated_at = models.DateTimeField(auto_now=True)      # Changed to proper timestamp
-    currency_image = models.ImageField(upload_to='currency_images', blank=True, null=True)
+    currency_image = models.TextField( null=True)
     reconciliation = models.BooleanField(default=False)
     transaction_id = models.CharField(max_length=255, blank=True, null=True)  # Fixed typo
     delivery_status = models.CharField(
