@@ -3,18 +3,21 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 import json
+from dotenv import load_dotenv
 
+load_dotenv()
 # Path to your service account JSON key file
 
-SERVICE_ACCOUNT_FILE = os.path.join(os.path.dirname(__file__), 'key.json')
+# Load the service account info from environment variable
+service_account_info = json.loads(os.getenv('GOOGLE_SERVICE_ACCOUNT').replace("'", '"'))
 
 # Define the scopes for Google Drive API
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
 # Authenticate using the service account
 def authenticate():
-    creds = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE, scopes=SCOPES
+    creds = service_account.Credentials.from_service_account_info(
+        service_account_info, scopes=SCOPES
     )
     return creds
 
