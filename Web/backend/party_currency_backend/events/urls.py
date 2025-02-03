@@ -7,5 +7,6 @@ urlpatterns = [
     path("get/<str:id>", EventDetail, name="eventDetail"),
     path("update/<str:id>", EventUpdate, name="eventUpdate"),
     path("delete/<str:id>", EventDelete, name="eventDelete"),
+
     
 ]
