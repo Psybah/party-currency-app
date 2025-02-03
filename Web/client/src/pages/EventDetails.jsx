@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { formatDate } from "@/lib/utils";
+import { toast } from "react-hot-toast";
 
 export default function EventDetails() {
   const { eventId } = useParams();
@@ -12,12 +13,19 @@ export default function EventDetails() {
   const { data: event, isLoading } = useQuery({
     queryKey: ['event', eventId],
     queryFn: async () => {
+      console.log("Fetching event details for ID:", eventId);
       const response = await fetch(`https://party-currency-app-production.up.railway.app/events/get/${eventId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch event details');
       }
-      return response.json();
+      const data = await response.json();
+      console.log("Event details response:", data);
+      return data;
     },
+    onError: (error) => {
+      console.error("Error fetching event details:", error);
+      toast.error("Failed to load event details");
+    }
   });
 
   if (isLoading) {
@@ -35,59 +43,87 @@ export default function EventDetails() {
         Back to Events
       </Button>
 
-      <h1 className="text-2xl font-semibold text-center mb-8">EVENT DETAILS</h1>
+      <h1 className="text-2xl font-semibold mb-8">EVENT DETAILS</h1>
 
       <div className="max-w-3xl mx-auto bg-softbg rounded-lg p-8">
-        <div className="grid grid-cols-2 gap-6">
-          <div className="text-gray-600">Event Name:</div>
-          <div>{event?.event_name}</div>
-
-          <div className="text-gray-600">Creation Date:</div>
-          <div>{formatDate(event?.created_at || new Date())}</div>
-
-          <div className="text-gray-600">Event Date:</div>
-          <div>{formatDate(event?.event_date)}</div>
-
-          <div className="text-gray-600">Event Address:</div>
-          <div>{event?.address}</div>
-
-          <div className="text-gray-600">Delivery Date:</div>
-          <div>{formatDate(event?.delivery_date || new Date())}</div>
-
-          <div className="text-gray-600">Delivery Status:</div>
-          <div>{event?.delivery_status || 'Pending'}</div>
-
-          <div className="text-gray-600">Amount Paid:</div>
-          <div>₦{event?.amount_paid || '0'}</div>
-
-          <div className="text-gray-600">Delivery Address:</div>
-          <div>{event?.delivery_address}</div>
-
-          <div className="text-gray-600">Event ID:</div>
-          <div>{event?.event_id}</div>
-
-          <div className="text-gray-600">Reconciliation Service:</div>
-          <div>{event?.reconciliation_service ? 'Enabled' : 'Disabled'}</div>
-
-          <div className="text-gray-600">Transaction Details:</div>
-          <div className="flex gap-4">
-            <Button variant="link" className="p-0 h-auto text-bluePrimary">
-              Download
-            </Button>
-            <Button variant="link" className="p-0 h-auto text-bluePrimary">
-              View receipt
-            </Button>
+        <div className="space-y-6">
+          {/* Event Details Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <DetailItem 
+              label="Event Name" 
+              value={event?.event_name || 'N/A'} 
+            />
+            <DetailItem 
+              label="Creation Date" 
+              value={event?.created_at ? formatDate(event.created_at) : 'N/A'} 
+            />
+            <DetailItem 
+              label="Event Date" 
+              value={event?.event_date ? formatDate(event.event_date) : 'N/A'} 
+            />
+            <DetailItem 
+              label="Event Address" 
+              value={event?.address || 'N/A'} 
+            />
+            <DetailItem 
+              label="Delivery Date" 
+              value={event?.delivery_date ? formatDate(event.delivery_date) : 'N/A'} 
+            />
+            <DetailItem 
+              label="Delivery Status" 
+              value={event?.delivery_status || 'Pending'} 
+            />
+            <DetailItem 
+              label="Amount Paid" 
+              value={`₦${event?.amount_paid?.toLocaleString() || '0'}`} 
+            />
+            <DetailItem 
+              label="Delivery Address" 
+              value={event?.delivery_address || 'N/A'} 
+            />
+            <DetailItem 
+              label="Event ID" 
+              value={event?.event_id || eventId || 'N/A'} 
+            />
+            <DetailItem 
+              label="Reconciliation Service" 
+              value={event?.reconciliation_service ? 'Enabled' : 'Disabled'} 
+            />
           </div>
 
-          <div className="text-gray-600">Currency Template:</div>
-          <div className="flex gap-4">
-            <div className="w-24 h-12 bg-gray-200 rounded"></div>
-            <Button variant="link" className="p-0 h-auto text-bluePrimary">
-              View template
-            </Button>
+          {/* Transaction Details */}
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold mb-4 text-left">Transaction Details</h2>
+            <div className="flex gap-4">
+              <Button variant="link" className="p-0 h-auto text-bluePrimary">
+                Download
+              </Button>
+              <Button variant="link" className="p-0 h-auto text-bluePrimary">
+                View receipt
+              </Button>
+            </div>
+          </div>
+
+          {/* Currency Template */}
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold mb-4 text-left">Currency Template</h2>
+            <div className="flex gap-4">
+              <div className="w-24 h-12 bg-gray-200 rounded"></div>
+              <Button variant="link" className="p-0 h-auto text-bluePrimary">
+                View template
+              </Button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+// Helper component for consistent detail item display
+const DetailItem = ({ label, value }) => (
+  <div className="text-left">
+    <div className="text-gray-600 mb-1">{label}:</div>
+    <div className="font-medium">{value}</div>
+  </div>
+);

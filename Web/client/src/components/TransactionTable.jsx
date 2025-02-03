@@ -8,6 +8,12 @@ const statusIcons = {
   cancelled: <XCircle className="text-red-500 w-4 h-4" />,
 };
 
+// Helper function to extract numeric ID from full event ID
+const extractNumericId = (fullId) => {
+  const parts = fullId.split('_');
+  return parts[parts.length - 1];
+};
+
 export default function TransactionTable({ transactions, onSearch }) {
   return (
     <div className="bg-white rounded-lg shadow-sm">
@@ -27,19 +33,19 @@ export default function TransactionTable({ transactions, onSearch }) {
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Transaction ID
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Amount
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Date
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Invoice
               </th>
             </tr>
@@ -47,25 +53,29 @@ export default function TransactionTable({ transactions, onSearch }) {
           <tbody className="bg-white divide-y divide-gray-200">
             {transactions.map((transaction) => (
               <tr key={transaction.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {transaction.id}
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                  {extractNumericId(transaction.id)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                   ₦{transaction.amount.toLocaleString()}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {new Date(transaction.date).toLocaleDateString()}
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  {new Date(transaction.date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                  })}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  <div className="flex items-center gap-2">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  <div className="flex items-center justify-center gap-2">
                     {statusIcons[transaction.status]}
                     <span className="capitalize">{transaction.status}</span>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   <button
                     onClick={() => window.open(transaction.invoiceUrl, '_blank')}
-                    className="text-blue-600 hover:text-blue-800"
+                    className="text-blue-600 hover:text-blue-800 mx-auto"
                   >
                     <Download className="w-4 h-4" />
                   </button>

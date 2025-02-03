@@ -6,6 +6,7 @@ import DashboardHeader from "../components/DashboardHeader";
 import StatsCard from "../components/StatsCard";
 import TransactionTable from "../components/TransactionTable";
 import { LoadingDisplay } from "../components/LoadingDisplay";
+import EmptyState from "../components/events/EmptyState";
 import { getEvents } from "../services/eventService";
 
 export default function Dashboard() {
@@ -16,12 +17,15 @@ export default function Dashboard() {
     queryKey: ["events"],
     queryFn: getEvents,
     onError: (error) => {
+      console.error("Error fetching events:", error);
       toast.error(error.message || "Failed to fetch events");
     },
   });
 
+  console.log("Dashboard data:", data); // Debug log
+
   // Ensure events is always an array
-  const events = Array.isArray(data) ? data : [];
+  const events = data?.events || [];
 
   // Calculate total stats with safeguards
   const totalAmount = events.reduce((sum, event) => {
@@ -31,14 +35,16 @@ export default function Dashboard() {
   
   const totalEvents = events.length;
 
-  // Mock transactions data with safeguards
+  // Transform events into transaction format with actual data
   const transactions = events.map(event => ({
-    id: event.id || 'N/A',
+    id: event.event_id || 'N/A',
     amount: typeof event.amount === 'number' ? event.amount : 0,
-    date: event.event_date || new Date().toISOString(),
-    status: event.status || "pending",
-    invoiceUrl: `/api/invoices/${event.id}` // Replace with real invoice URL
+    date: event.created_at || new Date().toISOString(),
+    status: event.status?.toLowerCase() || "pending",
+    invoiceUrl: `/api/invoices/${event.event_id}` // Replace with real invoice URL
   }));
+
+  console.log("Transformed transactions:", transactions); // Debug log
 
   // Filter transactions based on search
   const filteredTransactions = transactions.filter(transaction =>
@@ -75,7 +81,9 @@ export default function Dashboard() {
       />
 
       <div className="md:pl-64">
-        <DashboardHeader toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
+        <DashboardHeader 
+          toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+        />
 
         <main className="p-6">
           {isLoading ? (
@@ -96,10 +104,14 @@ export default function Dashboard() {
 
               <section>
                 <h2 className="mb-6 font-semibold text-xl">Transaction History</h2>
-                <TransactionTable
-                  transactions={filteredTransactions}
-                  onSearch={setSearchTerm}
-                />
+                {events.length === 0 ? (
+                  <EmptyState type="ongoing" />
+                ) : (
+                  <TransactionTable
+                    transactions={filteredTransactions}
+                    onSearch={setSearchTerm}
+                  />
+                )}
               </section>
             </>
           )}
