@@ -52,7 +52,7 @@ def editUser(request):
      })
      
 @api_view(["PUT"])
-def update_picture(request):
+def upload_picture(request):
     user = request.user
     # Check if a file is provided in the request
     if 'profile_picture' not in request.FILES:

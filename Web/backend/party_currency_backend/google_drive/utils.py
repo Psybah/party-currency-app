@@ -9,7 +9,13 @@ load_dotenv()
 # Path to your service account JSON key file
 
 # Load the service account info from environment variable
-service_account_info = json.loads(os.getenv('GOOGLE_SERVICE_ACCOUNT').replace("'", '"'))
+service_account_str = os.getenv('GOOGLE_SERVICE_ACCOUNT')
+print(f"GOOGLE_SERVICE_ACCOUNT: {service_account_str}")
+
+try:
+    service_account_info = json.loads(service_account_str)
+except json.JSONDecodeError as e:
+    print(f"Error decoding JSON: {e}")
 
 # Define the scopes for Google Drive API
 SCOPES = ['https://www.googleapis.com/auth/drive']
