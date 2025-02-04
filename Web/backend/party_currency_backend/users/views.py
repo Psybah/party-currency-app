@@ -64,11 +64,9 @@ def upload_picture(request):
         file_path = default_storage.save(f'tmp/{file_name}', ContentFile(profile_picture.read()))
         # Upload the file to Google Drive
         folder_id = '1xg-UFjBtNMUeX3RbLsyOsBsmDOJzj2Sk'  # Replace with your folder ID
-        response = upload_file_to_drive(file_path, file_name, folder_id)
-        if not isinstance(response, dict) or 'file_id' not in response:
-            raise ValueError("Invalid response from upload_file_to_drive")
+        file_id = upload_file_to_drive(file_path, file_name, folder_id)
         # Update the user's profile picture field
-        user.profile_picture = response['file_id']
+        user.profile_picture = file_id
         user.save()
         # Clean up the temporary file
         default_storage.delete(file_path)
