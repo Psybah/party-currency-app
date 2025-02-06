@@ -6,21 +6,25 @@ from rest_framework import status
 from django.conf import settings
 from .serializers import TransactionSerializer
 from rest_framework.decorators import api_view
+from .models import Transaction
+import time
+import os
+from dotenv import load_dotenv
+from .utils import MonnifyAuth
 
+
+load_dotenv()
 class InitializeTransactionView(APIView):
     def post(self, request):
-        serializer = TransactionSerializer(data=request.data)
-        if serializer.is_valid():
-            # Save transaction to database
-            transaction = serializer.save()
-            
+        transaction = Transaction.objects.get(payment_reference=request.data['payment_reference'])
+        
             # Prepare the request to Monnify API
-            headers = {
-                'Authorization': f'Token {settings.MONNIFY_API_KEY}',
+        headers = {
+                'Authorization': f"Bearer {MonnifyAuth.get_access_token()['token']}",
                 'Content-Type': 'application/json'
             }
-            
-            payload = {
+        print(headers)
+        payload = {
                 'amount': float(transaction.amount),
                 'customerName': transaction.customer_name,
                 'customerEmail': transaction.customer_email,
@@ -28,37 +32,59 @@ class InitializeTransactionView(APIView):
                 'paymentDescription': transaction.payment_description,
                 'currencyCode': transaction.currency_code,
                 'contractCode': transaction.contract_code,
-                'redirectUrl': transaction.redirect_url,
-                'paymentMethods': serializer.validated_data.get('payment_methods', ['CARD', 'ACCOUNT_TRANSFER'])
+                'redirectUrl': "http://google.com",
+                'paymentMethods': ['CARD', 'ACCOUNT_TRANSFER']
             }
-            
-            try:
-                response = requests.post(
-                    f'{settings.MONNIFY_BASE_URL}/api/v1/merchant/transactions/init-transaction',
+
+        try:
+            response = requests.post(
+                    f'{os.getenv('MONIFY_BASE_URL')}/merchant/transactions/init-transaction',
                     json=payload,
                     headers=headers
                 )
-                
-                response_data = response.json()
-                
-                if response_data['requestSuccessful']:
+
+            response_data = response.json()
+
+            if response_data['requestSuccessful']:
                     # Update transaction with reference from Monnify
                     transaction.transaction_reference = response_data['responseBody']['transactionReference']
                     transaction.save()
-                
-                return Response(response_data, status=status.HTTP_200_OK)
-            
-            except requests.exceptions.RequestException as e:
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except requests.exceptions.RequestException as e:
                 return Response({
                     'error': 'Failed to initialize transaction',
                     'detail': str(e)
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
+def calculate_amount():
+    return {
+        "printing": 1000,
+        "delivery": 500,
+        "reconciliation": 200
+        
+    }
 @api_view(["POST"])
 def generate_transcation_ID(request):
+    amount=calculate_amount()
+    transcation = Transaction.objects.create(
+                    amount=sum(amount.values()),    
+                    customer_name=f"{request.user.first_name} {request.user.last_name}",
+                    customer_email=request.user.email,
+                    payment_reference=f"party{int(time.time())}",
+                    payment_description=f"Payment for services {request.data['event_id']}",
+                    currency_code="NGN",
+                    contract_code=os.getenv("MONIFY_CONTRACT_CODE")
+        
+                        )
+
     return Response({
-        "message":"hi"
+        "amount": amount,
+        "total": sum(calculate_amount().values()),
+        "currency_code": "NGN",
+        "payment_reference":transcation.payment_reference
+
     })

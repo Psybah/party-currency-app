@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import InitializeTransactionView,generate_transcation_ID
 urlpatterns = [
-    path("pay",InitializeTransactionView.post,name="make payment "),
-    path("gen_transcation",generate_transcation_ID)
+    path("pay",InitializeTransactionView.as_view(),name="make payment "),
+    path("create-transcation",generate_transcation_ID)
 
 ]
