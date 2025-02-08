@@ -16,47 +16,92 @@ import os
 from django.core.files.base import ContentFile
 from rest_framework import status
 from dotenv import load_dotenv
+import random
+import string
 
 # Create your views here.
+
+def generate_short_event_id(username):
+    timestamp = int(timezone.now().timestamp())
+    # Take last 4 digits of timestamp
+    timestamp_short = str(timestamp)[-4:]
+    # Generate 3 random characters
+    random_chars = ''.join(random.choices(string.ascii_lowercase + string.digits, k=3))
+    # Combine first 3 chars of username, timestamp and random chars
+    return f"{username[:3]}{timestamp_short}{random_chars}"
+
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def EventCreate(request):
+    required_fields = [
+        'event_name', 'event_type', 'start_date', 'end_date',
+        'city', 'street_address', 'LGA', 'state', 'reconciliation_service'
+    ]
+
+    # Validate required fields
+    for field in required_fields:
+        if field not in request.data:
+            return Response(
+                {"error": f"Missing required field: {field}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
     try:
         current_time = timezone.now()
-        start_date = timezone.datetime.strptime(
-            request.data["start_date"], 
-            '%Y-%m-%d'
-        ).replace(tzinfo=pytz.UTC)
-        end_date = timezone.datetime.strptime(
-            request.data["end_date"], 
-            '%Y-%m-%d'
-        ).replace(tzinfo=pytz.UTC)
+        
+        # Parse and validate dates
+        try:
+            start_date = timezone.datetime.strptime(
+                request.data["start_date"], 
+                '%Y-%m-%d'
+            ).replace(tzinfo=pytz.UTC)
+            
+            end_date = timezone.datetime.strptime(
+                request.data["end_date"], 
+                '%Y-%m-%d'
+            ).replace(tzinfo=pytz.UTC)
+
+            if end_date < start_date:
+                return Response(
+                    {"error": "End date cannot be before start date"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except ValueError:
+            return Response(
+                {"error": "Invalid date format. Use YYYY-MM-DD"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Create event with shorter ID
         event = Events.objects.create(
-        event_name=request.data["event_name"],
-        event_description=request.data["event_type"],
-        event_author=request.user.username,
-        start_date=start_date,
-        end_date=end_date,
-        city=request.data["city"],
-        street_address=request.data["street_address"],
-        LGA=request.data["LGA"],
-        state=request.data["state"],
-        event_id=f"event_{request.user.username}_{int(current_time.timestamp())}",
-        created_at=current_time,
-        reconciliation=request.data["reconciliation_service"],
+            event_name=request.data["event_name"],
+            event_description=request.data["event_type"],
+            event_author=request.user.username,
+            start_date=start_date,
+            end_date=end_date,
+            city=request.data["city"],
+            street_address=request.data["street_address"],
+            LGA=request.data["LGA"],
+            state=request.data["state"],
+            event_id=generate_short_event_id(request.user.username),
+            created_at=current_time,
+            reconciliation=request.data["reconciliation_service"],
         )
         
         return Response({
             "message": f"Event {event.event_name} created successfully",
             "event": {
                 "event_id": event.event_id,
-                "event_name": event.event_name
+                "event_name": event.event_name,
+                "start_date": start_date.date().isoformat(),
+                "end_date": end_date.date().isoformat()
             }
         }, status=status.HTTP_201_CREATED)
         
     except Exception as e:
         return Response({
-            "error": str(e)
-        }, status=status.HTTP_204_NO_CONTENT)
+            "error": f"Failed to create event: {str(e)}"
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 @api_view(["GET"])
 def EventList(request):
     events = Events.objects.filter(event_author=request.user.username)
