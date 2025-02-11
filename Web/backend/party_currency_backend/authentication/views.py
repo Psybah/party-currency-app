@@ -22,14 +22,24 @@ class PasswordResetThrottle(AnonRateThrottle):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def login(request):
-    user = get_object_or_404(CUser, username=request.data["email"].strip().lower())
-    if not user.check_password(request.data["password"]):
-        return Response({"message":"user not found or incorrect password"},status.HTTP_404_NOT_FOUND)
-    token, _ = Token.objects.get_or_create(user=user)
-    return Response({
-                    "Message":"Login successful. use api/users/profile to get userdetails passing this token as an authorization, ",
+    email = request.data.get("email", "").strip().lower()
+    password = request.data.get("password", "")
+    
+    if not email or not password:
+        return Response({"message": "Email and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = CUser.objects.get(username=email)
+        if not user.check_password(password):
+            return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({
+            "message": "Login successful. Use api/users/profile to get user details passing this token as authorization",
             "token": token.key
-        }, status=status.HTTP_202_ACCEPTED)
+        }, status=status.HTTP_200_OK)
+    except CUser.DoesNotExist:
+        return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 
