@@ -32,11 +32,16 @@ def login(request):
         user = CUser.objects.get(username=email)
         if not user.check_password(password):
             return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
-        
         token, _ = Token.objects.get_or_create(user=user)
+        if user.is_superuser:
+            return Response({"message": "Admin Login, Use api/users/profile to get user details passing this token as authorization, use api/admin for admin operations",
+                             "token": token.key,
+                             "user":"Admin"}, status=status.HTTP_200_OK)
+       
         return Response({
             "message": "Login successful. Use api/users/profile to get user details passing this token as authorization",
-            "token": token.key
+            "token": token.key,
+            "user":"User"
         }, status=status.HTTP_200_OK)
     except CUser.DoesNotExist:
         return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
