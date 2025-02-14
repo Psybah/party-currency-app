@@ -62,16 +62,16 @@ export default function MerchantSignup() {
         if (userProfileResponse.ok) {
           const userProfileData = await userProfileResponse.json();
           setUserProfile(userProfileData);
-          navigate("/dashboard");
+          navigate("/merchant/dashboard");
         } else {
           throw new Error("Failed to fetch user profile");
         }
       } else {
-        setErrorMessage(formatErrorMessage(data));
+        setErrorMessage(data.message || "Signup failed. Please try again.");
       }
     } catch (error) {
       console.error("Signup error:", error);
-      setErrorMessage(formatErrorMessage(error) || "An error occurred during signup. Please try again.");
+      setErrorMessage("An error occurred during signup. Please try again.");
     } finally {
       setLoading(false);
     }

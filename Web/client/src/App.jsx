@@ -21,6 +21,7 @@ import Customize200 from "./pages/Customize200";
 import Customize500 from "./pages/Customize500";
 import Customize1000 from "./pages/Customize1000";
 import TermsOfService from "./pages/TermsOfService";
+import MerchantDashboard from "./pages/MerchantDashboard";
 
 function App() {
   console.log("App component rendering"); // Debug log
@@ -95,6 +96,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Settings />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/merchant/dashboard"
+            element={
+              <PrivateRoute>
+                <MerchantDashboard />
               </PrivateRoute>
             }
           />
