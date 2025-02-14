@@ -38,7 +38,7 @@ export default function MerchantSignup() {
       password: "",
       confirmPassword: "",
       businessType: "",
-      country: "",
+      country: "Nigeria",
       state: "",
       city: "",
       phoneNumber: "",
@@ -140,46 +140,41 @@ export default function MerchantSignup() {
           />
 
           <div className="space-y-4">
-            <FormInput
-              label="Business Type"
-              name="businessType"
-              control={form.control}
-              render={({ field }) => (
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select business type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="kiosk">Kiosk operator</SelectItem>
-                    <SelectItem value="foot-soldier">Foot soldier</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="space-y-2">
+              <label htmlFor="businessType" className="text-sm text-left font-medium text-gray-700">
+                Business Type
+              </label>
+              <Select
+                onValueChange={(value) => form.setValue("businessType", value)}
+                defaultValue={form.getValues("businessType")}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select business type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="kiosk">Kiosk operator</SelectItem>
+                  <SelectItem value="foot-soldier">Foot soldier</SelectItem>
+                </SelectContent>
+              </Select>
+              {form.formState.errors.businessType && (
+                <p className="text-sm text-red-500">
+                  {form.formState.errors.businessType.message}
+                </p>
               )}
-            />
+            </div>
 
-            <FormInput
-              label="Country"
-              name="country"
-              control={form.control}
-              render={({ field }) => (
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select country" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ng">Nigeria</SelectItem>
-                    <SelectItem value="gh">Ghana</SelectItem>
-                    <SelectItem value="ke">Kenya</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            />
+            <div className="space-y-2">
+              <label htmlFor="country" className="text-sm text-left font-medium text-gray-700">
+                Country
+              </label>
+              <input
+                type="text"
+                id="country"
+                value="Nigeria"
+                disabled
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
+              />
+            </div>
 
             <div className="gap-4 grid grid-cols-2">
               <FormInput
@@ -242,6 +237,19 @@ export default function MerchantSignup() {
           </Button>
 
           <SocialAuthButtons />
+
+          <div className="text-center text-sm">
+            By clicking "Create an Account" above, you acknowledge that you have
+            read, understood, and agree to Party Currency's{" "}
+            <a href="/terms" className="text-gold hover:underline">
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a href="/privacy" className="text-gold hover:underline">
+              Privacy Policy
+            </a>
+            .
+          </div>
         </form>
       </Form>
     </AuthFormWrapper>

@@ -1,27 +1,72 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Avatar } from "antd";
 import { Upload, Camera } from "lucide-react";
+import { profileService } from "../../services/profileService";
+import toast from "react-hot-toast";
 
 export function PhotoSection({ onUpdatePhoto }) {
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result);
-        onUpdatePhoto(file);
-      };
-      reader.readAsDataURL(file);
+  useEffect(() => {
+    fetchProfilePicture();
+  }, []);
+
+  const fetchProfilePicture = async () => {
+    try {
+      const data = await profileService.getProfilePicture();
+      if (data && data.url) {
+        setPreviewUrl(data.url);
+      }
+    } catch (error) {
+      console.error("Error fetching profile picture:", error);
     }
   };
 
-  const handleDelete = () => {
-    setPreviewUrl(null);
-    onUpdatePhoto(null);
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast.error("File size should be less than 5MB");
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviewUrl(reader.result);
+        };
+        reader.readAsDataURL(file);
+
+        await profileService.uploadProfilePicture(file);
+        toast.success("Profile picture updated successfully");
+        onUpdatePhoto && onUpdatePhoto(file);
+      } catch (error) {
+        console.error("Error uploading profile picture:", error);
+        toast.error("Failed to update profile picture");
+        setPreviewUrl(null);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsLoading(true);
+    try {
+      await profileService.uploadProfilePicture(null);
+      setPreviewUrl(null);
+      onUpdatePhoto && onUpdatePhoto(null);
+      toast.success("Profile picture removed successfully");
+    } catch (error) {
+      console.error("Error removing profile picture:", error);
+      toast.error("Failed to remove profile picture");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -47,20 +92,21 @@ export function PhotoSection({ onUpdatePhoto }) {
             className="hidden"
             accept="image/*"
             onChange={handleFileChange}
+            disabled={isLoading}
           />
         </div>
         <div className="space-y-2">
-          <p className="text-sm text-left text-gray-600">
-            Upload a new profile photo or delete the existing one.
+          <p className="text-sm text-gray-500">
+            Recommended: Square image, less than 5MB
           </p>
           {previewUrl && (
             <Button
-              variant="destructive"
-              size="sm"
+              variant="outline"
               onClick={handleDelete}
-              className="mt-2"
+              disabled={isLoading}
+              className="text-red-600 hover:text-red-700"
             >
-              Delete Photo
+              Remove Photo
             </Button>
           )}
         </div>

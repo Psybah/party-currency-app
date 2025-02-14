@@ -36,9 +36,9 @@ export default function Settings() {
 
   const handlePhotoUpdate = async (file) => {
     try {
-      // API call to update photo would go here
-      console.log("Updating photo with:", file);
-      toast.success("Photo updated successfully");
+      // The actual API call is now handled in the PhotoSection component
+      // This is just for any additional state updates or UI feedback
+      console.log("Photo update completed");
     } catch (error) {
       console.error("Photo update error:", error);
       toast.error("Failed to update photo");

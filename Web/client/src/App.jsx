@@ -20,6 +20,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import Customize200 from "./pages/Customize200";
 import Customize500 from "./pages/Customize500";
 import Customize1000 from "./pages/Customize1000";
+import TermsOfService from "./pages/TermsOfService";
 
 function App() {
   console.log("App component rendering"); // Debug log
@@ -35,6 +36,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/celebrant-signup" element={<CelebrantSignup />} />
           <Route path="/merchant-signup" element={<MerchantSignup />} />
+          <Route path="/terms" element={<TermsOfService />} />
           
           {/* Feature Pages */}
           <Route path="/custom-currency" element={<CustomCurrency />} />
