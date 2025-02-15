@@ -54,24 +54,16 @@ export default function MerchantSignup() {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("Merchant signup successful:", data);
         const accessToken = data.token;
         storeAuth(accessToken, "merchant", true);
-
-        const userProfileResponse = await getProfileApi();
-        if (userProfileResponse.ok) {
-          const userProfileData = await userProfileResponse.json();
-          setUserProfile(userProfileData);
-          navigate("/merchant/dashboard");
-        } else {
-          throw new Error("Failed to fetch user profile");
-        }
+        setUserProfile(data.user);
+        navigate("/merchant/transactions");
       } else {
-        setErrorMessage(data.message || "Signup failed. Please try again.");
+        setErrorMessage(data.message || "Signup failed");
       }
     } catch (error) {
+      setErrorMessage("An error occurred during signup");
       console.error("Signup error:", error);
-      setErrorMessage("An error occurred during signup. Please try again.");
     } finally {
       setLoading(false);
     }

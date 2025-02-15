@@ -1,7 +1,11 @@
 import React from "react";
+import { useContext } from "react";
+import { SIGNUP_CONTEXT } from "../context";
 import heroBg from "../assets/bg_image.png";
 
 const HeroSection = () => {
+  const { setSignupOpen } = useContext(SIGNUP_CONTEXT);
+
   return (
     <section
       id="hero-section"
@@ -33,7 +37,10 @@ const HeroSection = () => {
         </h2>
 
         {/* Button */}
-        <button className="mt-8 sm:mt-10 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-lg bg-gold text-white rounded-lg sm:rounded-xl shadow-md hover:bg-yellow-500 transition-all">
+        <button 
+          onClick={() => setSignupOpen(true)}
+          className="mt-8 sm:mt-10 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-lg bg-gold text-white rounded-lg sm:rounded-xl shadow-md hover:bg-yellow-500 transition-all"
+        >
           Get Party Currency
         </button>
       </div>
