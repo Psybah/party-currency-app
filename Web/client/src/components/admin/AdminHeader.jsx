@@ -5,23 +5,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 export function AdminHeader({ toggleMobileMenu }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  const handleMenuClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleMobileMenu();
-  };
-
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
-
   return (
     <header className="h-20 border-b flex items-center justify-between px-4 md:px-6 bg-white">
       <div className="flex items-center gap-4">
         <button
-          onClick={handleMenuClick}
+          onClick={toggleMobileMenu}
           className="md:hidden text-bluePrimary hover:text-blueSecondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bluePrimary"
           aria-label="Toggle mobile menu"
         >

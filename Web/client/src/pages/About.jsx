@@ -19,8 +19,8 @@ const About = () => {
             receiving and spraying money should be the least of your worries.
             With Party Currency, when your guests shower you with cash, you
             won’t waste a moment fretting about theft or manual counting while
-            also adding color and excitement to your events. We guarantee that
-            every kobo goes directly into your account before you even leave
+            also adding colour and excitement to your events. We guarantee that
+            every "kobo" goes directly into your account before you even leave
             the party.
           </p>
         </div>
