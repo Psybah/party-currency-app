@@ -6,41 +6,52 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { getProfileApi, loginCustomerApi } from "@/api/authApi";
 import { storeAuth } from "@/lib/util";
+import { validateAdminCredentials, setAdminAuth } from '@/lib/admin-auth';
 import { USER_PROFILE_CONTEXT, SIGNUP_CONTEXT } from "@/context";
 import { formatErrorMessage } from "../utils/errorUtils";
 
 export default function LoginPage() {
-  const { setSignupOpen } = useContext(SIGNUP_CONTEXT); // Handles opening the signup modal
-  const { setUserProfile } = useContext(USER_PROFILE_CONTEXT); // Updates user profile context
-  const [email, setEmail] = useState(""); // State for email input
-  const [password, setPassword] = useState(""); // State for password input
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
-  const [errorMessage, setErrorMessage] = useState(""); // State for error messages
-  const [loading, setLoading] = useState(false); // State for loading indicator
-  const navigate = useNavigate(); // React Router navigation hook
+  const { setSignupOpen } = useContext(SIGNUP_CONTEXT);
+  const { setUserProfile } = useContext(USER_PROFILE_CONTEXT);
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Prevent page reload
+    e.preventDefault();
     setLoading(true);
     setErrorMessage("");
 
+    if (validateAdminCredentials(identifier, password)) {
+      setAdminAuth(identifier);
+      navigate("/admin/dashboard");
+      return;
+    }
+
+    if (!identifier.includes('@')) {
+      setErrorMessage("Please enter a valid email address for customer login");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await loginCustomerApi(email, password);
+      const response = await loginCustomerApi(identifier, password);
       const data = await response.json();
 
       if (response.ok) {
         console.log("Login successful:", data);
-        const accessToken = data.token; // Get the token from API response
-        // Store token in cookies and user type in local storage
+        const accessToken = data.token;
         storeAuth(accessToken, "customer", true);
 
-        // Fetch user profile using the access token
         const userProfileResponse = await getProfileApi();
         if (userProfileResponse.ok) {
           const userProfileData = await userProfileResponse.json();
-          setUserProfile(userProfileData); // Update user profile context
+          setUserProfile(userProfileData);
           console.log("User profile fetched:", userProfileData);
-          navigate("/dashboard"); // Changed from { replace: true } to ensure proper navigation
+          navigate("/dashboard");
         } else {
           throw new Error("Failed to fetch user profile.");
         }
@@ -51,13 +62,12 @@ export default function LoginPage() {
       console.error("Login error:", error);
       setErrorMessage(formatErrorMessage(error) || "An error occurred. Please try again later.");
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
   };
 
   return (
     <div className="flex flex-col justify-center items-center p-4 min-h-screen">
-      {/* Back Button */}
       <div className="top-4 left-4 md:left-8 absolute">
         <button
           onClick={() => navigate("/")}
@@ -95,14 +105,15 @@ export default function LoginPage() {
 
         <form className="space-y-6" onSubmit={handleLogin}>
           <div className="space-y-2 text-left">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="identifier">Email or Username</Label>
             <Input
-              id="email"
-              type="email"
-              placeholder="example@gmail.com"
+              id="identifier"
+              type="text"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              required
               className="border-lightgray"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email or username"
             />
           </div>
 
@@ -112,14 +123,16 @@ export default function LoginPage() {
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                className="border-lightgray"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
+                className="border-lightgray"
+                placeholder="Enter your password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="top-1/2 right-3 absolute text-gray-400 -translate-y-1/2"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
               >
                 {showPassword ? (
                   <EyeOff className="w-5 h-5" />
@@ -143,7 +156,6 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        {/* Alternative Login Options */}
         <div className="space-y-4">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -168,7 +180,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Sign-up and Forgot Password Links */}
         <div className="space-y-2 text-center">
           <Link
             to="/forgot-password"
@@ -177,13 +188,14 @@ export default function LoginPage() {
             Forgotten password?
           </Link>
           <div className="text-sm">
-            New to Party Currency?{" "}
-            <p
-              onClick={() => setSignupOpen(true)} // Open signup modal
-              className="text-gold hover:underline cursor-pointer"
+            <span>New to Party Currency? </span>
+            <button
+              type="button"
+              onClick={() => setSignupOpen(true)}
+              className="text-gold hover:underline"
             >
               Sign up
-            </p>
+            </button>
           </div>
         </div>
       </div>

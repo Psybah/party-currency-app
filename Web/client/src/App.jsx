@@ -25,6 +25,8 @@ import MerchantDashboard from "./pages/MerchantDashboard";
 import MerchantTransactionHistory from "./pages/merchant/TransactionHistory";
 import MerchantEventHistory from "./pages/merchant/EventHistory";
 import MerchantSettings from "./pages/merchant/Settings";
+import AdminDashboard from "./pages/admin/Dashboard";
+import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
 
 function App() {
   console.log("App component rendering"); // Debug log
@@ -53,6 +55,16 @@ function App() {
           <Route path="/customize-500" element={<Customize500 />} />
           <Route path="/customize-1000" element={<Customize1000 />} />
 
+          {/* Admin Routes */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminProtectedRoute>
+                <AdminDashboard />
+              </AdminProtectedRoute>
+            }
+          />
+          
           {/* Merchant Routes */}
           <Route
             path="/merchant/transactions"
