@@ -27,7 +27,7 @@ export default function SidebarNavLinks({ isCollapsed, onLinkClick }) {
             onClick={onLinkClick}
             className="flex items-center gap-3 hover:bg-white/10 px-3 py-3 mb-4 rounded-lg transition-colors"
           >
-            <item.icon className="w-5 h-5 min-w-[20px]" />
+            <item.icon className="w-5 h-5 min-w-[10px]" />
             {!isCollapsed && <span>{item.label}</span>}
           </Link>
         ))}

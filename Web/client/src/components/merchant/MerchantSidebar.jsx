@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { LogOut, ChevronsLeft, ChevronsRight, X, History, FileText, Settings } from "lucide-react";
+import { LogOut, PanelRightOpen, PanelLeftOpen, X, History, FileText, Settings } from "lucide-react";
 import { USER_PROFILE_CONTEXT } from "@/context";
 import { deleteAuth } from "@/lib/util";
 import SidebarLogo from "../sidebar/SidebarLogo";
@@ -54,9 +54,9 @@ export function MerchantSidebar({ isOpen, onClose }) {
             className="text-white hover:text-gray-300"
           >
             {isCollapsed ? (
-              <ChevronsRight className="w-5 h-5" />
+              <PanelLeftOpen className="w-5 h-5" />
             ) : (
-              <ChevronsLeft className="w-5 h-5" />
+              <PanelRightOpen className="w-5 h-5" />
             )}
           </button>
         </div>

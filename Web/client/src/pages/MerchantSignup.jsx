@@ -59,10 +59,10 @@ export default function MerchantSignup() {
         setUserProfile(data.user);
         navigate("/merchant/transactions");
       } else {
-        setErrorMessage(data.message || "Signup failed");
+        setErrorMessage(formatErrorMessage(data.message) || "Signup failed. Please check your information and try again.");
       }
     } catch (error) {
-      setErrorMessage("An error occurred during signup");
+      setErrorMessage("Network error occurred. Please check your connection and try again.");
       console.error("Signup error:", error);
     } finally {
       setLoading(false);
@@ -83,7 +83,7 @@ export default function MerchantSignup() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {errorMessage && (
-            <div className="bg-red-50 p-3 rounded-md text-red-500 text-sm">
+            <div className="bg-red-50 border border-red-200 p-4 rounded-md text-red-600 text-sm">
               {errorMessage}
             </div>
           )}
@@ -94,12 +94,14 @@ export default function MerchantSignup() {
               name="firstName"
               control={form.control}
               placeholder="John"
+              labelClassName="text-left"
             />
             <FormInput
               label="Last Name"
               name="lastName"
               control={form.control}
               placeholder="Doe"
+              labelClassName="text-left"
             />
           </div>
 
@@ -108,32 +110,41 @@ export default function MerchantSignup() {
             name="email"
             type="email"
             control={form.control}
-            placeholder="example@gmail.com"
+            placeholder="john@example.com"
+            labelClassName="text-left"
+          />
+
+          <FormInput
+            label="Phone Number"
+            name="phoneNumber"
+            control={form.control}
+            placeholder="+234..."
+            labelClassName="text-left"
           />
 
           <FormInput
             label="Password"
             name="password"
+            type={showPassword ? "text" : "password"}
             control={form.control}
             showPasswordToggle
-            showPassword={showPassword}
             onTogglePassword={() => setShowPassword(!showPassword)}
+            labelClassName="text-left"
           />
 
           <FormInput
             label="Confirm Password"
             name="confirmPassword"
+            type={showConfirmPassword ? "text" : "password"}
             control={form.control}
             showPasswordToggle
-            showPassword={showConfirmPassword}
-            onTogglePassword={() =>
-              setShowConfirmPassword(!showConfirmPassword)
-            }
+            onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+            labelClassName="text-left"
           />
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="businessType" className="text-sm text-left font-medium text-gray-700">
+              <label htmlFor="businessType" className="block text-sm font-medium text-gray-700 text-left">
                 Business Type
               </label>
               <Select
@@ -149,14 +160,14 @@ export default function MerchantSignup() {
                 </SelectContent>
               </Select>
               {form.formState.errors.businessType && (
-                <p className="text-sm text-red-500">
+                <p className="text-sm text-red-600">
                   {form.formState.errors.businessType.message}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="country" className="text-sm text-left font-medium text-gray-700">
+              <label htmlFor="country" className="block text-sm font-medium text-gray-700 text-left">
                 Country
               </label>
               <input
@@ -169,79 +180,67 @@ export default function MerchantSignup() {
             </div>
 
             <div className="gap-4 grid grid-cols-2">
-              <FormInput
-                label="State"
-                name="state"
-                control={form.control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select state" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="lagos">Lagos</SelectItem>
-                      <SelectItem value="abuja">Abuja</SelectItem>
-                      <SelectItem value="ph">Port Harcourt</SelectItem>
-                    </SelectContent>
-                  </Select>
+              <div className="space-y-2">
+                <label htmlFor="state" className="block text-sm font-medium text-gray-700 text-left">
+                  State
+                </label>
+                <FormInput
+                  name="state"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select state" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="lagos">Lagos</SelectItem>
+                        <SelectItem value="abuja">Abuja</SelectItem>
+                        <SelectItem value="ph">Port Harcourt</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {form.formState.errors.state && (
+                  <p className="text-sm text-red-600">
+                    {form.formState.errors.state.message}
+                  </p>
                 )}
-              />
+              </div>
 
-              <FormInput
-                label="City"
-                name="city"
-                control={form.control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select city" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ikeja">Ikeja</SelectItem>
-                      <SelectItem value="lekki">Lekki</SelectItem>
-                      <SelectItem value="vi">Victoria Island</SelectItem>
-                    </SelectContent>
-                  </Select>
+              <div className="space-y-2">
+                <label htmlFor="city" className="block text-sm font-medium text-gray-700 text-left">
+                  City
+                </label>
+                <FormInput
+                  name="city"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select city" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ikeja">Ikeja</SelectItem>
+                        <SelectItem value="lekki">Lekki</SelectItem>
+                        <SelectItem value="vi">Victoria Island</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {form.formState.errors.city && (
+                  <p className="text-sm text-red-600">
+                    {form.formState.errors.city.message}
+                  </p>
                 )}
-              />
+              </div>
             </div>
-
-            <FormInput
-              label="Phone number"
-              name="phoneNumber"
-              control={form.control}
-              placeholder="+234..."
-            />
           </div>
 
-          <Button
-            type="submit"
-            className="bg-footer hover:bg-[#2D2D2D] w-full"
-            disabled={loading}
-          >
-            Create an account
+          <Button type="submit" className="w-full bg-paragraph" disabled={loading}>
+            {loading ? "Creating account..." : "Create account"}
           </Button>
 
           <SocialAuthButtons />
-
-          <div className="text-center text-sm">
-            By clicking "Create an Account" above, you acknowledge that you have
-            read, understood, and agree to Party Currency's{" "}
-            <a href="/terms" className="text-gold hover:underline">
-              Terms of Service
-            </a>{" "}
-            and{" "}
-            <a href="/privacy" className="text-gold hover:underline">
-              Privacy Policy
-            </a>
-            .
-          </div>
         </form>
       </Form>
     </AuthFormWrapper>

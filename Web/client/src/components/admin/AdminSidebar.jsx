@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Settings, LogOut, ChevronsLeft, ChevronsRight, X } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, LogOut, PanelRightOpen, PanelLeftOpen, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import SidebarLogo from '../sidebar/SidebarLogo';
 
@@ -32,7 +32,7 @@ export function AdminSidebar({ isOpen, onClose }) {
     <>
       {/* Desktop Sidebar */}
       <div
-        className={`hidden md:fixed md:flex flex-col left-0 top-0 h-screen bg-bluePrimary text-white transition-all duration-300 ${
+        className={`hidden lg:fixed lg:flex flex-col left-0 top-0 h-screen bg-bluePrimary text-white transition-all duration-300 ${
           isCollapsed ? "w-20" : "w-64"
         }`}
       >
@@ -43,9 +43,9 @@ export function AdminSidebar({ isOpen, onClose }) {
             className="text-white hover:text-gray-300"
           >
             {isCollapsed ? (
-              <ChevronsRight className="w-5 h-5" />
+              <PanelLeftOpen className="w-5 h-5" />
             ) : (
-              <ChevronsLeft className="w-5 h-5" />
+              <PanelRightOpen className="w-5 h-5" />
             )}
           </button>
         </div>
@@ -81,9 +81,9 @@ export function AdminSidebar({ isOpen, onClose }) {
 
       {/* Mobile Sidebar */}
       {isOpen && (
-        <div className="md:hidden fixed inset-0 z-40">
+        <div className="lg:hidden fixed inset-0 z-40">
           <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-          <div className="fixed inset-y-0 left-0 w-64 bg-bluePrimary">
+          <div className="fixed inset-y-0 left-0 w-64 bg-bluePrimary flex flex-col h-full">
             <div className="flex justify-between items-center border-b border-white/10 px-4 py-6">
               <SidebarLogo isCollapsed={false} />
               <button onClick={onClose} className="text-white">
@@ -110,7 +110,7 @@ export function AdminSidebar({ isOpen, onClose }) {
               ))}
             </nav>
 
-            <div className="p-4 mt-auto">
+            <div className="border-t border-white/10 p-4">
               <Link
                 to="/admin/logout"
                 className="flex items-center gap-3 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"

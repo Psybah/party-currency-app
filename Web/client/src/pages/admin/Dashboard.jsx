@@ -9,6 +9,99 @@ import { Users, ShoppingBag, ArrowRightLeft, Users2, User2 } from 'lucide-react'
 
 export default function AdminDashboard() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [dashboardData, setDashboardData] = useState(null);
+
+  const LoadingCard = () => (
+    <div className="animate-pulse space-y-4 p-6 rounded-lg bg-white shadow">
+      <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+      <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+      <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+    </div>
+  );
+
+  const ErrorState = ({ message, onRetry }) => (
+    <div className="text-center p-6 bg-white rounded-lg shadow">
+      <User2 className="w-12 h-12 text-red-500 mx-auto mb-4" />
+      <h3 className="text-lg font-medium text-gray-900 mb-2">Unable to load dashboard</h3>
+      <p className="text-gray-500 mb-4">{message}</p>
+      <button
+        onClick={onRetry}
+        className="text-sm px-4 py-2 bg-bluePrimary text-white rounded-md hover:bg-bluePrimary/90"
+      >
+        Try Again
+      </button>
+    </div>
+  );
+
+  const EmptyMetricCard = ({ icon: Icon, title }) => (
+    <Card className="p-6">
+      <div className="flex items-center gap-4">
+        <div className="p-3 bg-gray-100 rounded-full">
+          <Icon className="w-6 h-6 text-gray-400" />
+        </div>
+        <div>
+          <p className="text-sm text-gray-500">{title}</p>
+          <p className="text-2xl font-semibold mt-1">--</p>
+        </div>
+      </div>
+      <div className="mt-4 flex items-center text-gray-400 text-sm">
+        <span>No data available</span>
+      </div>
+    </Card>
+  );
+
+  const EmptyChart = () => (
+    <Card className="p-6">
+      <h3 className="text-lg font-medium mb-6">Transaction Overview</h3>
+      <div className="h-[300px] flex items-center justify-center bg-gray-50 rounded-lg border border-dashed">
+        <div className="text-center">
+          <User2 className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+          <p className="text-gray-500">No transaction data available</p>
+        </div>
+      </div>
+    </Card>
+  );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <AdminSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+        <div className="md:pl-64">
+          <AdminHeader toggleMobileMenu={() => setIsMobileMenuOpen(true)} />
+          <main className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[...Array(4)].map((_, i) => (
+                <LoadingCard key={i} />
+              ))}
+            </div>
+            <LoadingCard />
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <AdminSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+        <div className="md:pl-64">
+          <AdminHeader toggleMobileMenu={() => setIsMobileMenuOpen(true)} />
+          <main className="p-6">
+            <ErrorState 
+              message={error} 
+              onRetry={() => {
+                setError(null);
+                // Implement retry logic
+              }} 
+            />
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   const currentDate = new Date().toLocaleDateString('en-US', {
     day: 'numeric',
@@ -68,7 +161,7 @@ export default function AdminDashboard() {
         
         <main className="p-6 space-y-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-semibold">Hello, Admin</h1>
+            <h1 className="text-2xl font-semibold font-playfair">Hello, Admin</h1>
             <p className="text-sm text-gray-500">{currentDate}</p>
           </div>
 

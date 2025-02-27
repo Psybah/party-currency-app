@@ -26,6 +26,7 @@ import MerchantTransactionHistory from "./pages/merchant/TransactionHistory";
 import MerchantEventHistory from "./pages/merchant/EventHistory";
 import MerchantSettings from "./pages/merchant/Settings";
 import AdminDashboard from "./pages/admin/Dashboard";
+import UserManagement from "./pages/admin/UserManagement";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
 
 function App() {
@@ -61,6 +62,14 @@ function App() {
             element={
               <AdminProtectedRoute>
                 <AdminDashboard />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/user-management"
+            element={
+              <AdminProtectedRoute>
+                <UserManagement />
               </AdminProtectedRoute>
             }
           />
