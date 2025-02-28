@@ -16,18 +16,16 @@ Including another URLconf
 """
 
 from django.urls import path,include
+from django.contrib import admin
 
 urlpatterns = [
-    path('auth/',include("authentication.urls") ),
-     path('test/',include("testapp.urls") ),
-      path("users/",include("users.urls")),
-       path("accounts/",include("allauth.urls")),
-       path('dj-rest-auth/', include('dj_rest_auth.urls')),
+    path('admin/', include('party_currency_admin.urls')),
+    path('auth/', include("authentication.urls")),
+    path('test/', include("testapp.urls")),
+    path("users/", include("users.urls")),
+    path("accounts/", include("allauth.urls")),
+    path('dj-rest-auth/', include('dj_rest_auth.urls')),
     path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
-    path('events/',include("events.urls")),
-        path('payments/',include("payment.urls")),
-        path('admin/',include("party_currency_admin.urls")),
-
-
-      
+    path('events/', include("events.urls")),
+    path('payments/', include("payment.urls")),
 ]
