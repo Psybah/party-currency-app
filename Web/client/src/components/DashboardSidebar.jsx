@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, ChevronsLeft, ChevronsRight, X } from "lucide-react";
+import { LogOut, PanelRightOpen, PanelLeftOpen, X } from "lucide-react";
 import { USER_PROFILE_CONTEXT } from "@/context";
 import { deleteAuth } from "@/lib/util";
 import SidebarLogo from "./sidebar/SidebarLogo";
@@ -27,16 +27,16 @@ export default function Sidebar({ isOpen, onClose }) {
           isCollapsed ? "w-20" : "w-64"
         }`}
       >
-        <div className="flex justify-between items-center border-b border-white/10 px-3 py-2 h-20">
+        <div className="flex justify-between items-center border-b border-white/10 px-8 py-2 h-20">
           <SidebarLogo isCollapsed={isCollapsed} />
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="text-white hover:text-gray-300"
           >
             {isCollapsed ? (
-              <ChevronsRight className="w-5 h-5" />
+              <PanelLeftOpen className="w-5 h-5" />
             ) : (
-              <ChevronsLeft className="w-5 h-5" />
+              <PanelRightOpen className="w-5 h-5" />
             )}
           </button>
         </div>

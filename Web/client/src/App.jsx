@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { ContextWrapper } from "./context";
 import { Toaster } from "react-hot-toast";
 import Home from "./pages/Home";
@@ -20,6 +20,14 @@ import PrivateRoute from "./components/PrivateRoute";
 import Customize200 from "./pages/Customize200";
 import Customize500 from "./pages/Customize500";
 import Customize1000 from "./pages/Customize1000";
+import TermsOfService from "./pages/TermsOfService";
+import MerchantDashboard from "./pages/MerchantDashboard";
+import MerchantTransactionHistory from "./pages/merchant/TransactionHistory";
+import MerchantEventHistory from "./pages/merchant/EventHistory";
+import MerchantSettings from "./pages/merchant/Settings";
+import AdminDashboard from "./pages/admin/Dashboard";
+import UserManagement from "./pages/admin/UserManagement";
+import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
 
 function App() {
   console.log("App component rendering"); // Debug log
@@ -35,6 +43,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/celebrant-signup" element={<CelebrantSignup />} />
           <Route path="/merchant-signup" element={<MerchantSignup />} />
+          <Route path="/terms" element={<TermsOfService />} />
           
           {/* Feature Pages */}
           <Route path="/custom-currency" element={<CustomCurrency />} />
@@ -46,12 +55,64 @@ function App() {
           <Route path="/customize-200" element={<Customize200 />} />
           <Route path="/customize-500" element={<Customize500 />} />
           <Route path="/customize-1000" element={<Customize1000 />} />
+
+          {/* Admin Routes */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminProtectedRoute>
+                <AdminDashboard />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/user-management"
+            element={
+              <AdminProtectedRoute>
+                <UserManagement />
+              </AdminProtectedRoute>
+            }
+          />
           
-          {/* Protected Routes */}
+          {/* Merchant Routes */}
+          <Route
+            path="/merchant/transactions"
+            element={
+              <PrivateRoute userType="merchant">
+                <MerchantTransactionHistory />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/merchant/events"
+            element={
+              <PrivateRoute userType="merchant">
+                <MerchantEventHistory />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/merchant/settings"
+            element={
+              <PrivateRoute userType="merchant">
+                <MerchantSettings />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/merchant/dashboard"
+            element={
+              <PrivateRoute userType="merchant">
+                <MerchantDashboard />
+              </PrivateRoute>
+            }
+          />
+          
+          {/* Celebrant Routes */}
           <Route
             path="/dashboard"
             element={
-              <PrivateRoute>
+              <PrivateRoute userType="customer">
                 <Dashboard />
               </PrivateRoute>
             }
@@ -59,7 +120,7 @@ function App() {
           <Route
             path="/create-event"
             element={
-              <PrivateRoute>
+              <PrivateRoute userType="customer">
                 <CreateEvent />
               </PrivateRoute>
             }
@@ -67,7 +128,7 @@ function App() {
           <Route
             path="/manage-event"
             element={
-              <PrivateRoute>
+              <PrivateRoute userType="customer">
                 <ManageEvent />
               </PrivateRoute>
             }
@@ -75,7 +136,7 @@ function App() {
           <Route
             path="/event/:eventId"
             element={
-              <PrivateRoute>
+              <PrivateRoute userType="customer">
                 <EventDetails />
               </PrivateRoute>
             }
@@ -83,7 +144,7 @@ function App() {
           <Route
             path="/templates"
             element={
-              <PrivateRoute>
+              <PrivateRoute userType="customer">
                 <Templates />
               </PrivateRoute>
             }
@@ -91,7 +152,7 @@ function App() {
           <Route
             path="/settings"
             element={
-              <PrivateRoute>
+              <PrivateRoute userType="customer">
                 <Settings />
               </PrivateRoute>
             }

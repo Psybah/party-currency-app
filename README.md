@@ -102,3 +102,4 @@ party-currency-app/
 - React.js: Frontend library for building user interfaces
 - Node.js: JavaScript runtime for package management
 - Python (Django/Flask): Backend server framework
+- Cypress.js: Software testing framework
