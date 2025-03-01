@@ -110,68 +110,75 @@ def get_admin_statistics(request):
         # Get current date and time
         now = timezone.now()
         
-        # Calculate the start of the current week (Monday)
-        start_of_current_week = now - timedelta(days=now.weekday())
-        start_of_current_week = start_of_current_week.replace(hour=0, minute=0, second=0, microsecond=0)
-        
-        # Calculate the start of the previous week
-        start_of_previous_week = start_of_current_week - timedelta(days=7)
+        # Define periods: last 7 days and previous 7 days
+        start_of_this_period = now - timedelta(days=7)
+        start_of_previous_period = start_of_this_period - timedelta(days=7)
         
         # Get total active users count
         total_active_users = CustomUser.objects.filter(is_active=True).count()
-        #Get total events
+        # Get total events
         total_events = Event.objects.all().count()
-        #Get total transactions completed
+        # Get total transactions completed
         total_completed_transactions = Transaction.objects.filter(status='successful').count()
-        #Get total transactions pending
+        # Get total transactions pending
         total_pending_transactions = Transaction.objects.filter(status='pending').count()
         
-        # Get users who joined this week and are active
+        # Get new active users in this period (last 7 days)
         new_users_this_week = CustomUser.objects.filter(
             is_active=True,
-            date_joined__gte=start_of_current_week
+            date_joined__gte=start_of_this_period,
+            date_joined__lt=now
         ).count()
-        # Get Transactions this week
-        transactions_this_week = Transaction.objects.filter(
-            created_at__gte=start_of_current_week
-        ).count()
-        #Get events created this week
-        events_this_week = Event.objects.filter(
-            created_at__gte=start_of_current_week
-        ).count()
-        
-        # Get users who joined previous week and are active
+        # Get new active users in previous period (previous 7 days)
         new_users_previous_week = CustomUser.objects.filter(
             is_active=True,
-            date_joined__gte=start_of_previous_week,
-            date_joined__lt=start_of_current_week
+            date_joined__gte=start_of_previous_period,
+            date_joined__lt=start_of_this_period
         ).count()
         
-        # Calculate percentage increase for user
+        # Get transactions in this period (last 7 days)
+        transactions_this_week = Transaction.objects.filter(
+            created_at__gte=start_of_this_period,
+            created_at__lt=now
+        ).count()
+        # Get transactions in previous period (previous 7 days)
+        transactions_previous_week = Transaction.objects.filter(
+            created_at__gte=start_of_previous_period,
+            created_at__lt=start_of_this_period
+        ).count()
+        
+        # Get events in this period (last 7 days)
+        events_this_week = Event.objects.filter(
+            created_at__gte=start_of_this_period,
+            created_at__lt=now
+        ).count()
+        # Get events in previous period (previous 7 days)
+        events_previous_week = Event.objects.filter(
+            created_at__gte=start_of_previous_period,
+            created_at__lt=start_of_this_period
+        ).count()
+        
+        # Calculate percentage increase for users
         if new_users_previous_week > 0:
             percentage_increase = ((new_users_this_week - new_users_previous_week) / 
                                   new_users_previous_week) * 100
         else:
-            # If there were no new users last week, we can't calculate a percentage
-            # So we'll use a special value or just report the raw number
             percentage_increase = 100 if new_users_this_week > 0 else 0
-         # Calculate percentage increase for transactions
-        if total_pending_transactions > 0:
-            percentage_increase_transactions = ((transactions_this_week - total_pending_transactions) / 
-                                  total_pending_transactions) * 100
+            
+        # Calculate percentage increase for transactions
+        if transactions_previous_week > 0:
+            percentage_increase_transactions = ((transactions_this_week - transactions_previous_week) / 
+                                               transactions_previous_week) * 100
         else:
-            # If there were no new transactions last week, we can't calculate a percentage
-            # So we'll use a special value or just report the raw number
             percentage_increase_transactions = 100 if transactions_this_week > 0 else 0
-
+            
         # Calculate percentage increase for events
-        if total_events > 0:
-            percentage_increase_events = ((events_this_week - total_events) / 
-                                  total_events) * 100
+        if events_previous_week > 0:
+            percentage_increase_events = ((events_this_week - events_previous_week) / 
+                                         events_previous_week) * 100
         else:
-            # If there were no new events last week, we can't calculate a percentage
-            # So we'll use a special value or just report the raw number
             percentage_increase_events = 100 if events_this_week > 0 else 0
+        
         return Response({
             'total_active_users': total_active_users,
             'new_active_users_this_week': new_users_this_week,
@@ -184,7 +191,6 @@ def get_admin_statistics(request):
             'total_events': total_events,
             'events_this_week': events_this_week,
             'percentage_increase_events': round(percentage_increase_events, 2)
-
         }, status=200)
         
     except Exception as e:
