@@ -42,7 +42,7 @@ def suspend_user(request, user_id):
     if not request.user.is_superuser:
         return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
         
-    user = CustomUser.objects.get(id=user_id)
+    user = CustomUser.objects.get(username=user_id)
     user.is_active = False
     user.save()
     return Response({'message': 'User suspended successfully'}, status=200)
@@ -54,7 +54,7 @@ def activate_user(request, user_id):
     if not request.user.is_superuser:
         return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
         
-    user = CustomUser.objects.get(id=user_id)
+    user = CustomUser.objects.get(username=user_id)
     user.is_active = True
     user.save()
     return Response({'message': 'User activated successfully'}, status=200)
@@ -67,7 +67,7 @@ def delete_user(request, user_id):
     if not request.user.is_superuser:
         return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
         
-    user = CustomUser.objects.get(id=user_id)
+    user = CustomUser.objects.get(username=user_id)
     tran = Transaction.objects.filter(customer_email=request.user.email)
     for t in tran:
         t.customer_email = f"{user.username} deleted"
