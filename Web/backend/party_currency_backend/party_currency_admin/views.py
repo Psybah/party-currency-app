@@ -133,11 +133,11 @@ def get_admin_statistics(request):
         ).count()
         # Get Transactions this week
         transactions_this_week = Transaction.objects.filter(
-            date__gte=start_of_current_week
+            created_at__gte=start_of_current_week
         ).count()
         #Get events created this week
         events_this_week = Event.objects.filter(
-            date__gte=start_of_current_week
+            created_at__gte=start_of_current_week
         ).count()
         
         # Get users who joined previous week and are active
