@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import get_users, suspend_user
+from .views import get_users, suspend_user, activate_user
 
 urlpatterns = [
     path('get-users', get_users, name='get_users'),
