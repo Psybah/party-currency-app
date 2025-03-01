@@ -18,7 +18,7 @@ export function ProfileSection({ onUpdate }) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl text-left font-semibold">Personal Information</h2>
+      <h2 className="text-2xl text-left font-playfair font-semibold">Personal Information</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="text-left space-y-2">

@@ -71,7 +71,7 @@ export function PhotoSection({ onUpdatePhoto }) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl text-left font-semibold">Profile Photo</h2>
+      <h2 className="text-2xl text-left font-playfair font-semibold">Profile Photo</h2>
       <div className="flex items-center gap-6">
         <div className="relative">
           <Avatar

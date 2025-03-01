@@ -12,6 +12,7 @@ import { signupCelebrantApi, getProfileApi } from "@/api/authApi";
 import { storeAuth } from "@/lib/util";
 import { USER_PROFILE_CONTEXT } from "@/context";
 import { formatErrorMessage } from "@/utils/errorUtils";
+import { LoadingDisplay } from "@/components/LoadingDisplay";
 
 const formSchema = z
   .object({
@@ -30,6 +31,8 @@ const formSchema = z
 export default function CelebrantSignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const { setUserProfile } = useContext(USER_PROFILE_CONTEXT);
   const navigate = useNavigate();
 
@@ -46,6 +49,9 @@ export default function CelebrantSignupPage() {
   });
 
   const onSubmit = async (values) => {
+    setLoading(true);
+    setErrorMessage("");
+
     try {
       const response = await signupCelebrantApi(
         values.firstName,
@@ -55,30 +61,27 @@ export default function CelebrantSignupPage() {
         values.phone
       );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        const formattedError = formatErrorMessage(errorData);
-        form.setError("root", { message: formattedError });
-        return;
-      }
+      const data = await response.json();
 
-      const responseData = await response.json();
-      const accessToken = responseData.token;
-      storeAuth(accessToken, "customer", true);
-
-      const userProfileResponse = await getProfileApi();
-      if (userProfileResponse.ok) {
-        const userProfileData = await userProfileResponse.json();
-        setUserProfile(userProfileData);
+      if (response.ok) {
+        const accessToken = data.token;
+        storeAuth(accessToken, "customer", true);
+        setUserProfile(data.user);
         navigate("/dashboard");
+      } else {
+        setErrorMessage(formatErrorMessage(data.message) || "Signup failed. Please check your information and try again.");
       }
     } catch (error) {
+      setErrorMessage("Network error occurred. Please check your connection and try again.");
       console.error("Signup error:", error);
-      form.setError("root", {
-        message: formatErrorMessage(error) || "An error occurred during signup. Please try again.",
-      });
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading) {
+    return <LoadingDisplay />;
+  }
 
   return (
     <AuthFormWrapper
@@ -89,18 +92,26 @@ export default function CelebrantSignupPage() {
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {errorMessage && (
+            <div className="bg-red-50 border border-red-200 p-4 rounded-md text-red-600 text-sm">
+              {errorMessage}
+            </div>
+          )}
+
           <div className="gap-4 grid grid-cols-2">
             <FormInput
               label="First Name"
               name="firstName"
               placeholder="John"
               control={form.control}
+              labelClassName="text-left"
             />
             <FormInput
               label="Last Name"
               name="lastName"
               placeholder="Doe"
               control={form.control}
+              labelClassName="text-left"
             />
           </div>
 
@@ -110,6 +121,7 @@ export default function CelebrantSignupPage() {
             type="email"
             placeholder="example@gmail.com"
             control={form.control}
+            labelClassName="text-left"
           />
 
           <FormInput
@@ -120,6 +132,7 @@ export default function CelebrantSignupPage() {
             showPasswordToggle
             showPassword={showPassword}
             onTogglePassword={() => setShowPassword(!showPassword)}
+            labelClassName="text-left"
           />
 
           <FormInput
@@ -132,6 +145,7 @@ export default function CelebrantSignupPage() {
             onTogglePassword={() =>
               setShowConfirmPassword(!showConfirmPassword)
             }
+            labelClassName="text-left"
           />
 
           <FormInput
@@ -140,22 +154,15 @@ export default function CelebrantSignupPage() {
             type="tel"
             placeholder="+234..."
             control={form.control}
+            labelClassName="text-left"
           />
-
-          {form.formState.errors.root && (
-            <div className="bg-red-50 border border-red-200 p-4 rounded-md text-red-600 text-sm">
-              {formatErrorMessage(form.formState.errors.root.message)}
-            </div>
-          )}
 
           <Button
             type="submit"
             className="bg-footer hover:bg-[#2D2D2D] w-full"
-            disabled={form.formState.isSubmitting}
+            disabled={loading}
           >
-            {form.formState.isSubmitting
-              ? "Creating account..."
-              : "Create an account"}
+            {loading ? "Creating account..." : "Create an account"}
           </Button>
         </form>
       </Form>

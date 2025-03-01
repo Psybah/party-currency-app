@@ -187,18 +187,6 @@ export default function MerchantSignup() {
                 <FormInput
                   name="state"
                   control={form.control}
-                  render={({ field }) => (
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select state" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="lagos">Lagos</SelectItem>
-                        <SelectItem value="abuja">Abuja</SelectItem>
-                        <SelectItem value="ph">Port Harcourt</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
                 />
                 {form.formState.errors.state && (
                   <p className="text-sm text-red-600">

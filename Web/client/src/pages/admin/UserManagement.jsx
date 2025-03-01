@@ -4,9 +4,9 @@ import { AdminHeader } from '@/components/admin/AdminHeader';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { UserCheck, UserMinus, Trash2, MoreVertical, Search, ChevronLeft, ChevronRight, Users2, AlertTriangle, CheckCircle } from 'lucide-react';
+import { UserCheck, UserMinus, Trash2, Search, ChevronLeft, ChevronRight, Users2 } from 'lucide-react';
+import { ActionMenu } from '@/components/admin/ActionMenu';
+import { DeleteDialog, ActivateDialog, DeactivateDialog } from '@/components/admin/ActionDialogs';
 
 export default function UserManagement() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -18,6 +18,8 @@ export default function UserManagement() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showActivateDialog, setShowActivateDialog] = useState(false);
   const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
+  const [loadingAction, setLoadingAction] = useState(null);
+  const [actionError, setActionError] = useState(null);
 
   // Mock data - will be replaced with API call later
   const [users] = useState([
@@ -32,6 +34,7 @@ export default function UserManagement() {
 
   const handleAction = (action, user) => {
     setSelectedUser(user);
+    setActionError(null);
     switch (action) {
       case 'delete':
         setShowDeleteDialog(true);
@@ -45,180 +48,67 @@ export default function UserManagement() {
     }
   };
 
-  const handleDelete = async () => {
+  const handleActionWithLoading = async (action, handler) => {
+    setLoadingAction(action);
+    setActionError(null);
+    try {
+      await handler();
+    } catch (error) {
+      setActionError(
+        error.response?.data?.message || 
+        "An error occurred while performing this action. Please try again."
+      );
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
+  const handleDelete = () => handleActionWithLoading('delete', async () => {
     // API call to delete user
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
     setShowDeleteDialog(false);
     setSelectedUser(null);
-  };
+  });
 
-  const handleActivate = async () => {
+  const handleActivate = () => handleActionWithLoading('activate', async () => {
     // API call to activate user
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
     setShowActivateDialog(false);
     setSelectedUser(null);
-  };
+  });
 
-  const handleDeactivate = async () => {
+  const handleDeactivate = () => handleActionWithLoading('deactivate', async () => {
     // API call to deactivate user
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
     setShowDeactivateDialog(false);
     setSelectedUser(null);
+  });
+
+  const getActions = (user) => {
+    const actions = [
+      {
+        id: 'delete',
+        label: 'Delete User',
+        icon: Trash2
+      }
+    ];
+
+    if (user.status === 'active' || user.status === 'Active') {
+      actions.push({
+        id: 'deactivate',
+        label: 'Deactivate User',
+        icon: UserMinus
+      });
+    } else {
+      actions.push({
+        id: 'activate',
+        label: 'Activate User',
+        icon: UserCheck
+      });
+    }
+
+    return actions;
   };
-
-  const DeleteDialog = () => (
-    <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-      <DialogContent className="sm:max-w-[425px] p-0">
-        <div className="p-6">
-          <div className="flex justify-end mb-2">
-            <button 
-              onClick={() => setShowDeleteDialog(false)} 
-              className="text-gray-400 hover:text-gray-500" >
-            </button>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <Trash2 className="h-5 w-5 text-red-600" />
-              </div>
-              <div>
-                <DialogTitle className="text-xl font-semibold mb-2">Delete User Account</DialogTitle>
-                <DialogDescription className="text-gray-600">
-                  Are you sure you want to delete this user? This action is permanent and cannot be undone.
-                </DialogDescription>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-red-600 text-sm">
-              <AlertTriangle className="h-4 w-4" />
-              <span>This action cannot be undone</span>
-            </div>
-          </div>
-        </div>
-        <div className="flex border-t">
-          <button 
-            onClick={() => setShowDeleteDialog(false)}
-            className="flex-1 px-5 py-3 text-sm font-medium border-r rounded-md hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button 
-            onClick={handleDelete}
-            className="flex-1 px-5 py-3 text-sm font-medium text-white rounded-md bg-[#6938EF] hover:bg-[#6938EF]/90"
-          >
-            Delete User
-          </button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-
-  const ActivateDialog = () => (
-    <Dialog open={showActivateDialog} onOpenChange={setShowActivateDialog}>
-      <DialogContent className="sm:max-w-[425px] p-0">
-        <div className="p-6">
-          <div className="flex justify-end mb-2">
-            <button 
-              onClick={() => setShowActivateDialog(false)} 
-              className="text-gray-400 hover:text-gray-500">
-            </button>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <DialogTitle className="text-xl font-semibold mb-2">Activate User</DialogTitle>
-                <DialogDescription className="text-gray-600">
-                  Are you sure you want to activate this user? They will regain full access.
-                </DialogDescription>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="flex border-t">
-          <button 
-            onClick={() => setShowActivateDialog(false)}
-            className="flex-1 px-5 py-3 text-sm font-medium border-r rounded-md hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button 
-            onClick={handleActivate}
-            className="flex-1 px-5 py-3 text-sm font-medium text-white rounded-md bg-[#6938EF] hover:bg-[#6938EF]/90"
-          >
-            Activate
-          </button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-
-  const DeactivateDialog = () => (
-    <Dialog open={showDeactivateDialog} onOpenChange={setShowDeactivateDialog}>
-      <DialogContent className="sm:max-w-[425px] p-0">
-        <div className="p-6">
-          <div className="flex justify-end mb-2">
-            <button 
-              onClick={() => setShowDeactivateDialog(false)} 
-              className="text-gray-400 hover:text-gray-500">
-            </button>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <UserMinus className="h-5 w-5 text-red-600" />
-              </div>
-              <div>
-                <DialogTitle className="text-xl font-semibold mb-2">Deactivate User</DialogTitle>
-                <DialogDescription className="text-gray-600">
-                  Are you sure you want to deactivate this user? They will lose access until reactivated.
-                </DialogDescription>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="flex border-t">
-          <button 
-            onClick={() => setShowDeactivateDialog(false)}
-            className="flex-1 px-5 py-3 text-sm font-medium border-r rounded-md hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button 
-            onClick={handleDeactivate}
-            className="flex-1 px-5 py-3 text-sm font-medium text-white rounded-md bg-[#6938EF] hover:bg-[#6938EF]/90"
-          >
-            Deactivate
-          </button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-
-  const ActionMenu = ({ user }) => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <MoreVertical className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[160px]">
-        {user.status === "Deactivated" ? (
-          <DropdownMenuItem className="cursor-pointer" onClick={() => handleAction('activate', user)}>
-            <UserCheck className="mr-2 h-4 w-4" />
-            <span>Activate User</span>
-          </DropdownMenuItem>
-        ) : (
-          <DropdownMenuItem className="cursor-pointer text-red-600" onClick={() => handleAction('deactivate', user)}>
-            <UserMinus className="mr-2 h-4 w-4" />
-            <span>Deactivate User</span>
-          </DropdownMenuItem>
-        )}
-        <DropdownMenuItem className="cursor-pointer text-red-600" onClick={() => handleAction('delete', user)}>
-          <Trash2 className="mr-2 h-4 w-4" />
-          <span>Delete User</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
 
   const totalPages = 3; // This would come from your API
 
@@ -280,7 +170,7 @@ export default function UserManagement() {
                     placeholder="User ID, Name, Role..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 pr-4 py-2 w-[300px]"
+                    className="pl-10 pr-4 py-2 w-[300px]"
                   />
                 </div>
               </div>
@@ -309,7 +199,7 @@ export default function UserManagement() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="text-left pl-6">User ID</TableHead>
+                      <TableHead className="text-left pl-10">User ID</TableHead>
                       <TableHead className="text-left">Name</TableHead>
                       <TableHead className="text-left">Role</TableHead>
                       <TableHead className="text-left">Status</TableHead>
@@ -321,22 +211,29 @@ export default function UserManagement() {
                   <TableBody>
                     {users.map((user, index) => (
                       <TableRow key={index}>
-                        <TableCell className="text-left pl-6">{user.id}</TableCell>
+                        <TableCell className="text-left pl-10">{user.id}</TableCell>
                         <TableCell className="text-left">{user.name}</TableCell>
                         <TableCell className="text-left">{user.role}</TableCell>
                         <TableCell className="text-left">
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            user.status === "Active" 
-                              ? "bg-green-100 text-green-800" 
-                              : "bg-red-100 text-red-800"
-                          }`}>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              user.status.toLowerCase() === "active"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                            }`}
+                          >
                             {user.status}
                           </span>
                         </TableCell>
                         <TableCell className="text-left">{user.lastActivity}</TableCell>
                         <TableCell className="text-left">{user.transaction}</TableCell>
-                        <TableCell className="text-left pr-6">
-                          <ActionMenu user={user} />
+                        <TableCell className="text-right pr-6">
+                          <ActionMenu
+                            actions={getActions(user)}
+                            onAction={(action) => handleAction(action, user)}
+                            loading={loadingAction !== null}
+                            loadingAction={loadingAction}
+                          />
                         </TableCell>
                       </TableRow>
                     ))}
@@ -388,9 +285,26 @@ export default function UserManagement() {
         </main>
       </div>
 
-      <DeleteDialog />
-      <ActivateDialog />
-      <DeactivateDialog />
+      <DeleteDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDelete}
+        error={actionError}
+      />
+
+      <ActivateDialog
+        open={showActivateDialog}
+        onOpenChange={setShowActivateDialog}
+        onConfirm={handleActivate}
+        error={actionError}
+      />
+
+      <DeactivateDialog
+        open={showDeactivateDialog}
+        onOpenChange={setShowDeactivateDialog}
+        onConfirm={handleDeactivate}
+        error={actionError}
+      />
     </div>
   );
 }

@@ -64,7 +64,7 @@ export default function Templates() {
 
         <main className="p-6">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-2xl font-semibold mb-2">Currency Template</h1>
+            <h1 className="text-2xl font-semibold font-playfair mb-2">Currency Template</h1>
             <p className="text-gray-600 mb-6">
               Select a currency template to preview and personalize.
             </p>

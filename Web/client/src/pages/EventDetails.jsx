@@ -43,7 +43,7 @@ export default function EventDetails() {
         Back to Events
       </Button>
 
-      <h1 className="text-2xl font-semibold mb-8">EVENT DETAILS</h1>
+      <h1 className="text-2xl font-semibold font-playfair mb-8">EVENT DETAILS</h1>
 
       <div className="max-w-3xl mx-auto bg-softbg rounded-lg p-8">
         <div className="space-y-6">

@@ -80,7 +80,7 @@ export default function Dashboard() {
         onClose={() => setIsMobileMenuOpen(false)}
       />
 
-      <div className="md:pl-64">
+      <div className="lg:pl-64">
         <DashboardHeader 
           toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
         />
@@ -103,7 +103,7 @@ export default function Dashboard() {
               </div>
 
               <section>
-                <h2 className="mb-6 font-semibold text-xl">Transaction History</h2>
+                <h2 className="mb-6 font-semibold font-playfair text-xl">Transaction History</h2>
                 {events.length === 0 ? (
                   <EmptyState type="ongoing" />
                 ) : (

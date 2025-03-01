@@ -3,15 +3,21 @@ import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { Users, ShoppingBag, ArrowRightLeft, Users2, User2 } from 'lucide-react';
+import { Users, ShoppingBag, ArrowRightLeft, Users2, User2, Trash2, UserCheck, UserMinus } from 'lucide-react';
+import { ActionMenu } from "@/components/admin/ActionMenu";
+import { DeleteDialog, ActivateDialog, DeactivateDialog } from "@/components/admin/ActionDialogs";
 
 export default function AdminDashboard() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [dashboardData, setDashboardData] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showActivateDialog, setShowActivateDialog] = useState(false);
+  const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
+  const [loadingAction, setLoadingAction] = useState(null);
+  const [actionError, setActionError] = useState(null);
 
   const LoadingCard = () => (
     <div className="animate-pulse space-y-4 p-6 rounded-lg bg-white shadow">
@@ -64,11 +70,89 @@ export default function AdminDashboard() {
     </Card>
   );
 
+  const handleActionWithLoading = async (action, handler) => {
+    setLoadingAction(action);
+    setActionError(null);
+    try {
+      await handler();
+    } catch (error) {
+      setActionError(
+        error.response?.data?.message || 
+        "An error occurred while performing this action. Please try again."
+      );
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
+  const handleAction = (action, user) => {
+    setSelectedUser(user);
+    setActionError(null);
+    switch (action) {
+      case 'delete':
+        setShowDeleteDialog(true);
+        break;
+      case 'activate':
+        setShowActivateDialog(true);
+        break;
+      case 'deactivate':
+        setShowDeactivateDialog(true);
+        break;
+    }
+  };
+
+  const handleDelete = () => handleActionWithLoading('delete', async () => {
+    // API call to delete user
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+    setShowDeleteDialog(false);
+    setSelectedUser(null);
+  });
+
+  const handleActivate = () => handleActionWithLoading('activate', async () => {
+    // API call to activate user
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+    setShowActivateDialog(false);
+    setSelectedUser(null);
+  });
+
+  const handleDeactivate = () => handleActionWithLoading('deactivate', async () => {
+    // API call to deactivate user
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+    setShowDeactivateDialog(false);
+    setSelectedUser(null);
+  });
+
+  const getActions = (user) => {
+    const actions = [
+      {
+        id: 'delete',
+        label: 'Delete User',
+        icon: Trash2
+      }
+    ];
+
+    if (user.status === 'Active') {
+      actions.push({
+        id: 'deactivate',
+        label: 'Deactivate User',
+        icon: UserMinus
+      });
+    } else {
+      actions.push({
+        id: 'activate',
+        label: 'Activate User',
+        icon: UserCheck
+      });
+    }
+
+    return actions;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <AdminSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
-        <div className="md:pl-64">
+        <div className="lg:pl-64">
           <AdminHeader toggleMobileMenu={() => setIsMobileMenuOpen(true)} />
           <main className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -87,7 +171,7 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen bg-gray-50">
         <AdminSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
-        <div className="md:pl-64">
+        <div className="lg:pl-64">
           <AdminHeader toggleMobileMenu={() => setIsMobileMenuOpen(true)} />
           <main className="p-6">
             <ErrorState 
@@ -156,7 +240,7 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
       
-      <div className="md:pl-64">
+      <div className="lg:pl-64">
         <AdminHeader toggleMobileMenu={() => setIsMobileMenuOpen(true)} />
         
         <main className="p-6 space-y-6">
@@ -205,12 +289,12 @@ export default function AdminDashboard() {
                   <TableHead className="text-center">Status</TableHead>
                   <TableHead className="text-center">Last Activity</TableHead>
                   <TableHead className="text-center">Total Transaction</TableHead>
-                  <TableHead></TableHead>
+                  <TableHead className="text-right pr-6">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((user, index) => (
-                  <TableRow key={index}>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
                     <TableCell className="text-center">{user.id}</TableCell>
                     <TableCell className="text-center">{user.name}</TableCell>
                     <TableCell className="text-center">{user.role}</TableCell>
@@ -223,8 +307,13 @@ export default function AdminDashboard() {
                     </TableCell>
                     <TableCell className="text-center">{user.lastActivity}</TableCell>
                     <TableCell className="text-center">{user.transaction}</TableCell>
-                    <TableCell className="text-center">
-                      <Button variant="ghost" size="sm">•••</Button>
+                    <TableCell className="text-right pr-6">
+                      <ActionMenu
+                        actions={getActions(user)}
+                        onAction={(action) => handleAction(action, user)}
+                        loading={loadingAction !== null}
+                        loadingAction={loadingAction}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -233,6 +322,27 @@ export default function AdminDashboard() {
           </div>
         </main>
       </div>
+
+      <DeleteDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDelete}
+        error={actionError}
+      />
+
+      <ActivateDialog
+        open={showActivateDialog}
+        onOpenChange={setShowActivateDialog}
+        onConfirm={handleActivate}
+        error={actionError}
+      />
+
+      <DeactivateDialog
+        open={showDeactivateDialog}
+        onOpenChange={setShowDeactivateDialog}
+        onConfirm={handleDeactivate}
+        error={actionError}
+      />
     </div>
   );
 }

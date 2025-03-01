@@ -23,7 +23,7 @@ export default function Sidebar({ isOpen, onClose }) {
     <>
       {/* Desktop Sidebar */}
       <div
-        className={`hidden md:fixed md:flex flex-col left-0 top-0 h-screen bg-bluePrimary text-white transition-all duration-300 ${
+        className={`hidden lg:fixed lg:flex flex-col left-0 top-0 h-screen bg-bluePrimary text-white transition-all duration-300 ${
           isCollapsed ? "w-20" : "w-64"
         }`}
       >
@@ -56,7 +56,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
       {/* Mobile Menu */}
       <div
-        className={`fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 md:hidden ${
+        className={`fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 lg:hidden ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}

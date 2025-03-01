@@ -93,7 +93,7 @@ export default function CreateEvent() {
           toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         />
         <main className="flex-1 p-4 md:p-8 max-w-4xl mx-auto w-full">
-          <h1 className="text-2xl font-semibold mb-8 text-left">Create Event</h1>
+          <h1 className="text-2xl font-semibold font-playfair mb-8 text-left">Create Event</h1>
           <EventForm
             formData={formData}
             handleInputChange={handleInputChange}

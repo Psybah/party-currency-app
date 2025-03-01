@@ -31,7 +31,7 @@ export function SecuritySection({ onUpdatePassword }) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-left text-2xl font-semibold">Security Settings</h2>
+      <h2 className="text-left text-2xl font-playfair font-semibold">Security Settings</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="text-left space-y-2">
           <Label htmlFor="currentPassword">Current Password</Label>
