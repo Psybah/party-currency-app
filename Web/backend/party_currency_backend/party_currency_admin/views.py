@@ -3,7 +3,7 @@ from  rest_framework.decorators import api_view,authentication_classes,permissio
 from rest_framework.response import Response
 from authentication.models import CustomUser
 from payment.models import Transaction
-from events.models import Event
+from events.models import Events as Event
 from rest_framework.authentication import TokenAuthentication,SessionAuthentication
 from rest_framework.permissions import IsAuthenticated,AllowAny
 
@@ -184,7 +184,7 @@ def get_admin_statistics(request):
             'total_events': total_events,
             'events_this_week': events_this_week,
             'percentage_increase_events': round(percentage_increase_events, 2)
-            
+
         }, status=200)
         
     except Exception as e:
