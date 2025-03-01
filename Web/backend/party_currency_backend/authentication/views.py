@@ -32,6 +32,11 @@ def login(request):
         user = CUser.objects.get(username=email)
         if not user.check_password(password):
             return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Update last login
+        user.last_login = timezone.now()
+        user.save()
+        
         token, _ = Token.objects.get_or_create(user=user)
         if user.is_superuser:
             return Response({"message": "Admin Login, Use api/users/profile to get user details passing this token as authorization, use api/admin for admin operations",
@@ -41,7 +46,7 @@ def login(request):
         return Response({
             "message": "Login successful. Use api/users/profile to get user details passing this token as authorization",
             "token": token.key,
-            "user":"User"
+            "user":user.type
         }, status=status.HTTP_200_OK)
     except CUser.DoesNotExist:
         return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -106,6 +111,7 @@ def signupMerchant(request):
 
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from dj_rest_auth.registration.views import SocialLoginView
+from django.utils import timezone
 
 class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter

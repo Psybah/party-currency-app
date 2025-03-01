@@ -10,7 +10,6 @@ load_dotenv()
 
 # Load the service account info from environment variable
 service_account_str = os.getenv('GOOGLE_SERVICE_ACCOUNT')
-print(f"GOOGLE_SERVICE_ACCOUNT: {service_account_str}")
 
 try:
     service_account_info = json.loads(service_account_str)
