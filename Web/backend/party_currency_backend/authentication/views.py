@@ -46,7 +46,7 @@ def login(request):
         return Response({
             "message": "Login successful. Use api/users/profile to get user details passing this token as authorization",
             "token": token.key,
-            "user":"User"
+            "user":user.type
         }, status=status.HTTP_200_OK)
     except CUser.DoesNotExist:
         return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)

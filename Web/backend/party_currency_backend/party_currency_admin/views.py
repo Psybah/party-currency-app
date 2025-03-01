@@ -36,7 +36,7 @@ def get_users(request):
     return Response({'users': user_data})
 
 
-@api_view(['GET'])
+@api_view(['PUT'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def suspend_user(request, user_id):
@@ -53,7 +53,7 @@ def suspend_user(request, user_id):
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=500)
 
-@api_view(['GET'])
+@api_view(['PUT'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def activate_user(request, user_id):
@@ -70,7 +70,7 @@ def activate_user(request, user_id):
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=500)
 
-@api_view(['GET'])
+@api_view(['DELETE'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def delete_user(request, user_id):
