@@ -48,6 +48,7 @@ class InitializeTransactionView(APIView):
             if response_data['requestSuccessful']:
                     # Update transaction with reference from Monnify
                     transaction.transaction_reference = response_data['responseBody']['transactionReference']
+                    transaction.status = response_data['responseBody']['transactionStatus']
                     transaction.save()
 
             return Response(response_data, status=status.HTTP_200_OK)
