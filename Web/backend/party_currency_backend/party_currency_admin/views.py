@@ -12,7 +12,7 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def get_users(request):
-    if not request.user.is_superuser2:
+    if not request.user.is_superuser:
         return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
         
     users = CustomUser.objects.all()
@@ -30,7 +30,7 @@ def get_users(request):
             'role': user.type,
             'isActive': user.is_active,
             "last_login": user.last_login,
-            "total_amount": f"#{total}"
+            "total_amount": f"₦{total}"
         })
     return Response({'users': user_data})
 
