@@ -1,3 +1,4 @@
+
 import { Navigate } from "react-router-dom";
 import { getAuth } from "@/lib/util";
 
@@ -10,7 +11,7 @@ export default function PrivateRoute({ children, userType }) {
 
   // Redirect to appropriate dashboard if user type doesn't match
   if (userType && userType !== currentUserType) {
-    return <Navigate to={currentUserType === "merchant" ? "/merchant/transactions" : "/dashboard"} />;
+    return <Navigate to={currentUserType === "merchant" ? "/merchant/dashboard" : "/dashboard"} />;
   }
 
   return children;

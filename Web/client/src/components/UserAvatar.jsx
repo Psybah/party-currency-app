@@ -1,3 +1,4 @@
+
 import React, { useContext, useEffect } from "react";
 import { Avatar, Popover } from "antd";
 import { useNavigate, Link } from "react-router-dom";
@@ -5,7 +6,7 @@ import { USER_PROFILE_CONTEXT } from "@/context";
 import { SIGNUP_CONTEXT } from "@/context";
 import { deleteAuth } from "@/lib/util";
 
-export default function UserAvatar({ showName, auth }) {
+export default function UserAvatar({ showName, auth, merchantLinks = false }) {
   const { userProfile, setUserProfile } = useContext(USER_PROFILE_CONTEXT);
   const { setSignupOpen } = useContext(SIGNUP_CONTEXT);
   const navigate = useNavigate();
@@ -22,7 +23,38 @@ export default function UserAvatar({ showName, auth }) {
 
   let name = userProfile && userProfile.firstname;
 
-  const options = (
+  // Different options for merchant dashboard
+  const merchantOptions = (
+    <div>
+      <ul className="space-y-2 mx-2 px-2 min-w-[10ch]">
+        <li
+          className="hover:font-semibold hover:text-Primary transition-colors cursor-pointer select-none"
+          onClick={() => {
+            navigate("/merchant/dashboard");
+          }}
+        >
+          Dashboard
+        </li>
+        <li
+          className="hover:font-semibold hover:text-Primary transition-colors cursor-pointer select-none"
+          onClick={() => {
+            navigate("/merchant/settings");
+          }}
+        >
+          Settings
+        </li>
+        <li
+          className="hover:font-semibold hover:text-Primary transition-colors cursor-pointer select-none"
+          onClick={handleLogout}
+        >
+          Sign out
+        </li>
+      </ul>
+    </div>
+  );
+
+  // Regular customer/celebrant options
+  const regularOptions = (
     <div>
       <ul className="space-y-2 mx-2 px-2 min-w-[10ch]">
         <li
@@ -51,6 +83,9 @@ export default function UserAvatar({ showName, auth }) {
     </div>
   );
 
+  // Select appropriate options based on whether this is for merchant or regular user
+  const options = merchantLinks ? merchantOptions : regularOptions;
+
   return userProfile ? (
     <span className="select-none">
       <Popover
@@ -68,7 +103,7 @@ export default function UserAvatar({ showName, auth }) {
             </>
           )}
           <Avatar
-            style={{ backgroundColor: "bluePrimary", verticalAlign: "middle" }}
+            style={{ backgroundColor: "#334495", verticalAlign: "middle" }}
             size="default"
           >
             <span className="font-semibold text-white">{name?.[0]}</span>

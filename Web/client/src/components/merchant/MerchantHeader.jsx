@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Search, Menu } from "lucide-react";
 import UserAvatar from "../UserAvatar";
@@ -41,9 +42,7 @@ export default function MerchantHeader({ toggleMobileMenu }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <UserAvatar showName={true} auth={false} />
-      </div>
+      <UserAvatar showName={true} auth={false} merchantLinks={true} />
     </header>
   );
 }
