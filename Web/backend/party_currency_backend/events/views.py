@@ -71,6 +71,7 @@ def EventCreate(request):
                 {"error": "Invalid date format. Use YYYY-MM-DD"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
 
         # Create event with shorter ID
         event = Events.objects.create(

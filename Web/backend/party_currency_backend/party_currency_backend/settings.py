@@ -138,7 +138,9 @@ INSTALLED_APPS = [
     'dj_rest_auth',
     'events',
     'payment',
-    'google_drive'
+    'google_drive',
+    'party_currency_admin',
+    'merchant'
     ]
 
 MIDDLEWARE = [
