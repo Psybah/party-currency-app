@@ -1,3 +1,4 @@
+
 import React, { useContext, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,14 +45,23 @@ export default function LoginPage() {
       if (response.ok) {
         console.log("Login successful:", data);
         const accessToken = data.token;
-        storeAuth(accessToken, "customer", true);
+        
+        // Get user type from response if available
+        const userType = data.user_type?.toLowerCase() === "merchant" ? "merchant" : "customer";
+        storeAuth(accessToken, userType, true);
 
         const userProfileResponse = await getProfileApi();
         if (userProfileResponse.ok) {
           const userProfileData = await userProfileResponse.json();
           setUserProfile(userProfileData);
           console.log("User profile fetched:", userProfileData);
-          navigate("/dashboard");
+          
+          // Redirect based on user type
+          if (userType === "merchant") {
+            navigate("/merchant/dashboard");
+          } else {
+            navigate("/dashboard");
+          }
         } else {
           throw new Error("Failed to fetch user profile.");
         }
