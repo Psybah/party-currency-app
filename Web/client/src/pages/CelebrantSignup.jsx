@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { AuthFormWrapper } from "@/components/forms/AuthFormWrapper";
 import { CelebrantSignupForm } from "@/components/celebrant/CelebrantSignupForm";

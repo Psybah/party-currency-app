@@ -66,3 +66,7 @@ export async function signupMerchantApi(values) {
     }),
   });
 }
+
+export function requestPasswordResetCode() {}
+export function getPasswordResetToken() {}
+export function resetPassword() {}

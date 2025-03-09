@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Search, Menu } from "lucide-react";
 import UserAvatar from "../UserAvatar";
@@ -13,11 +12,11 @@ export default function MerchantHeader({ toggleMobileMenu }) {
   };
 
   return (
-    <header className="h-20 border-b flex items-center justify-between px-4 md:px-6 bg-white">
+    <header className="flex justify-between items-center bg-white px-4 md:px-6 border-b h-20">
       <div className="flex items-center gap-4">
         <button
           onClick={handleMenuClick}
-          className="md:hidden text-bluePrimary hover:text-blueSecondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bluePrimary"
+          className="md:hidden focus:ring-2 focus:ring-bluePrimary focus:ring-offset-2 text-bluePrimary hover:text-blueSecondary focus:outline-none"
           aria-label="Toggle mobile menu"
         >
           <Menu className="w-6 h-6" />
@@ -31,11 +30,11 @@ export default function MerchantHeader({ toggleMobileMenu }) {
             <Search className="w-5 h-5" />
           </button>
           {isSearchOpen && (
-            <div className="absolute left-0 top-full mt-2 w-64 bg-white shadow-lg rounded-lg p-2 z-50">
+            <div className="top-full left-0 z-50 absolute bg-white shadow-lg mt-2 p-2 rounded-lg w-64">
               <input
                 type="text"
                 placeholder="Search Event ID..."
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-bluePrimary"
+                className="px-3 py-2 border rounded-md focus:ring-2 focus:ring-bluePrimary w-full focus:outline-none"
               />
             </div>
           )}

@@ -3,7 +3,14 @@ import { MerchantSidebar } from "@/components/merchant/MerchantSidebar";
 import MerchantHeader from "@/components/merchant/MerchantHeader";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export default function EventHistory() {
@@ -13,49 +20,79 @@ export default function EventHistory() {
 
   // Mock data - replace with actual API call
   const events = [
-    { eventId: "3FV56YGF", date: "13-09-2025", location: "Kuje,Abuja", merchantId: "001231907896" },
-    { eventId: "3FV56YGF", date: "13-09-2025", location: "Kuje,Abuja", merchantId: "001231907896" },
-    { eventId: "3FV56YGF", date: "13-09-2025", location: "Kuje,Abuja", merchantId: "001231907896" },
-    { eventId: "3FV56YGF", date: "13-09-2025", location: "Kuje,Abuja", merchantId: "001231907896" },
-    { eventId: "3FV56YGF", date: "13-09-2025", location: "Kuje,Abuja", merchantId: "001231907896" },
-    { eventId: "3FV56YGF", date: "13-09-2025", location: "Kuje,Abuja", merchantId: "001231907896" },
+    {
+      eventId: "3FV56YGF",
+      date: "13-09-2025",
+      location: "Kuje,Abuja",
+      merchantId: "001231907896",
+    },
+    {
+      eventId: "3FV56YGF",
+      date: "13-09-2025",
+      location: "Kuje,Abuja",
+      merchantId: "001231907896",
+    },
+    {
+      eventId: "3FV56YGF",
+      date: "13-09-2025",
+      location: "Kuje,Abuja",
+      merchantId: "001231907896",
+    },
+    {
+      eventId: "3FV56YGF",
+      date: "13-09-2025",
+      location: "Kuje,Abuja",
+      merchantId: "001231907896",
+    },
+    {
+      eventId: "3FV56YGF",
+      date: "13-09-2025",
+      location: "Kuje,Abuja",
+      merchantId: "001231907896",
+    },
+    {
+      eventId: "3FV56YGF",
+      date: "13-09-2025",
+      location: "Kuje,Abuja",
+      merchantId: "001231907896",
+    },
   ];
 
   const toggleEventSelection = (eventId) => {
-    setSelectedEvents(prev => 
-      prev.includes(eventId) 
-        ? prev.filter(id => id !== eventId)
+    setSelectedEvents((prev) =>
+      prev.includes(eventId)
+        ? prev.filter((id) => id !== eventId)
         : [...prev, eventId]
     );
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <MerchantSidebar 
+    <div className="bg-gray-50 min-h-screen">
+      <MerchantSidebar
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
       />
-      
-      <div className="md:pl-64 flex flex-col min-h-screen">
-        <MerchantHeader 
-          toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+
+      <div className="flex flex-col md:pl-64 min-h-screen">
+        <MerchantHeader
+          toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         />
-        
+
         <main className="flex-1 p-4 md:p-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-            <div className="flex-1 max-w-md relative">
+          <div className="flex md:flex-row flex-col justify-between md:items-center gap-4 mb-8">
+            <div className="relative flex-1 max-w-md">
               <Input
                 type="text"
                 placeholder="Search By Event ID"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-softbg pr-10"
+                className="bg-softbg pr-10 w-full"
               />
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blueSecondary w-5 h-5" />
+              <Search className="top-1/2 right-3 absolute w-5 h-5 text-blueSecondary transform -translate-y-1/2" />
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow">
+          <div className="bg-white shadow rounded-lg">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -64,7 +101,9 @@ export default function EventHistory() {
                       checked={selectedEvents.length === events.length}
                       onCheckedChange={(checked) => {
                         if (checked) {
-                          setSelectedEvents(events.map(event => event.eventId));
+                          setSelectedEvents(
+                            events.map((event) => event.eventId)
+                          );
                         } else {
                           setSelectedEvents([]);
                         }
@@ -83,7 +122,9 @@ export default function EventHistory() {
                     <TableCell>
                       <Checkbox
                         checked={selectedEvents.includes(event.eventId)}
-                        onCheckedChange={() => toggleEventSelection(event.eventId)}
+                        onCheckedChange={() =>
+                          toggleEventSelection(event.eventId)
+                        }
                       />
                     </TableCell>
                     <TableCell>{event.eventId}</TableCell>
