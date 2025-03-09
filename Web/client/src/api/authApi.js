@@ -38,11 +38,10 @@ export async function getProfileApi() {
   if (!accessToken) {
     throw new Error("No access token found");
   }
-  
   return fetch(`${BASE_URL}/users/profile`, {
     method: "GET",
     headers: {
-      "Authorization": `Token ${accessToken}`,
+      Authorization: `Token ${accessToken}`,
       "Content-Type": "application/json",
     },
   });

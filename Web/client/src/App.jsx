@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { ContextWrapper } from "./context";
 import { Toaster } from "react-hot-toast";
 import Home from "./pages/Home";
@@ -44,13 +49,16 @@ function App() {
           <Route path="/celebrant-signup" element={<CelebrantSignup />} />
           <Route path="/merchant-signup" element={<MerchantSignup />} />
           <Route path="/terms" element={<TermsOfService />} />
-          
+
           {/* Feature Pages */}
           <Route path="/custom-currency" element={<CustomCurrency />} />
-          <Route path="/reconciliation-service" element={<ReconciliationService />} />
+          <Route
+            path="/reconciliation-service"
+            element={<ReconciliationService />}
+          />
           <Route path="/vendor-kiosk-system" element={<VendorKiosk />} />
           <Route path="/foot-soldiers" element={<FootSoldiers />} />
-          
+
           {/* Customization Routes */}
           <Route path="/customize-200" element={<Customize200 />} />
           <Route path="/customize-500" element={<Customize500 />} />
@@ -73,7 +81,7 @@ function App() {
               </AdminProtectedRoute>
             }
           />
-          
+
           {/* Merchant Routes */}
           <Route
             path="/merchant/transactions"
@@ -99,15 +107,15 @@ function App() {
               </PrivateRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/merchant/dashboard"
             element={
               <PrivateRoute userType="merchant">
                 <MerchantDashboard />
               </PrivateRoute>
             }
-          />
-          
+          /> */}
+
           {/* Celebrant Routes */}
           <Route
             path="/dashboard"

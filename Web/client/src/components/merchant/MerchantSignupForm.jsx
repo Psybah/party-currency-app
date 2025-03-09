@@ -52,51 +52,68 @@ export function MerchantSignupForm() {
         console.log("Merchant signup successful:", data);
         const accessToken = data.token;
         storeAuth(accessToken, "merchant", true);
-        setUserProfile(data.user || {
-          firstname: values.firstName,
-          lastname: values.lastName,
-          email: values.email,
-        });
-        navigate("/merchant/dashboard");
+        setUserProfile(
+          data.user || {
+            firstname: values.firstName,
+            lastname: values.lastName,
+            email: values.email,
+          }
+        );
+        navigate("/merchant/transactions");
       } else {
         const errorData = formatErrorMessage(data);
         console.log("API Error response:", errorData);
-        
+
         // Handle specific field errors
         if (errorData.email) {
-          form.setError("email", { 
-            type: "manual", 
-            message: Array.isArray(errorData.email) ? errorData.email[0] : errorData.email 
+          form.setError("email", {
+            type: "manual",
+            message: Array.isArray(errorData.email)
+              ? errorData.email[0]
+              : errorData.email,
           });
-        } else if (errorData.detail && errorData.detail.toLowerCase().includes("email")) {
-          form.setError("email", { 
-            type: "manual", 
-            message: errorData.detail 
+        } else if (
+          errorData.detail &&
+          errorData.detail.toLowerCase().includes("email")
+        ) {
+          form.setError("email", {
+            type: "manual",
+            message: errorData.detail,
           });
         }
-        
+
         // Handle other field errors
         if (errorData.phone_number) {
-          form.setError("phoneNumber", { 
-            type: "manual", 
-            message: Array.isArray(errorData.phone_number) ? errorData.phone_number[0] : errorData.phone_number 
+          form.setError("phoneNumber", {
+            type: "manual",
+            message: Array.isArray(errorData.phone_number)
+              ? errorData.phone_number[0]
+              : errorData.phone_number,
           });
         }
         if (errorData.password) {
-          form.setError("password", { 
-            type: "manual", 
-            message: Array.isArray(errorData.password) ? errorData.password[0] : errorData.password 
+          form.setError("password", {
+            type: "manual",
+            message: Array.isArray(errorData.password)
+              ? errorData.password[0]
+              : errorData.password,
           });
         }
-        
+
         // Show generic toast error if no specific field errors
         const hasSetFieldErrors = Object.keys(form.formState.errors).length > 0;
         if (!hasSetFieldErrors && errorData.message) {
-          toast.error(typeof errorData.message === 'string' ? errorData.message : "Signup failed. Please check your information and try again.");
+          toast.error(
+            typeof errorData.message === "string"
+              ? errorData.message
+              : "Signup failed. Please check your information and try again."
+          );
         }
       }
     } catch (error) {
-      toast.error("Network error occurred. Please check your connection and try again.");
+      toast.error(
+        "Network error occurred. Please check your connection and try again."
+      );
       console.error("Signup error:", error);
     } finally {
       setLoading(false);
