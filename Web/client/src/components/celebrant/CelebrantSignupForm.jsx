@@ -1,4 +1,3 @@
-
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -16,7 +15,11 @@ import { signupCelebrantApi } from "@/api/authApi";
 import { storeAuth } from "@/lib/util";
 import { USER_PROFILE_CONTEXT } from "@/context";
 import { formatErrorMessage } from "@/utils/errorUtils";
-import { toast } from "react-hot-toast";
+import {
+  showAuthSuccess,
+  showAuthError,
+  showValidationError,
+} from "@/utils/feedback";
 
 const formSchema = z
   .object({
@@ -24,8 +27,11 @@ const formSchema = z
     lastName: z.string().min(2, "Last name is required"),
     email: z.string().email("Invalid email address"),
     password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string(),
-    phone: z.string().startsWith("+234", "Phone number must start with +234").min(13, "Invalid phone number"),
+    confirmPassword: z.string().min(8, "Please confirm your password"),
+    phone: z
+      .string()
+      .startsWith("+234", "Phone number must start with +234")
+      .min(13, "Invalid phone number"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -38,6 +44,8 @@ export function CelebrantSignupForm() {
   const [loading, setLoading] = useState(false);
   const { setUserProfile } = useContext(USER_PROFILE_CONTEXT);
   const navigate = useNavigate();
+  const [serverErrors, setServerErrors] = useState({});
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -53,79 +61,158 @@ export function CelebrantSignupForm() {
 
   const onSubmit = async (values) => {
     setLoading(true);
-
+    // Clear any existing errors before submission
+    form.clearErrors();
+    setServerErrors({});
+    console.log(values);
     try {
+      const { firstName, lastName, email, password, phone } = values;
       const response = await signupCelebrantApi(
-        values.firstName,
-        values.lastName,
-        values.email,
-        values.password,
-        values.phone
+        firstName,
+        lastName,
+        email,
+        password,
+        phone
       );
-
       const data = await response.json();
 
       if (response.ok) {
+        showAuthSuccess(
+          "Account created successfully! Welcome to Party Currency."
+        );
+        setUserProfile(data.user);
         const accessToken = data.token;
         storeAuth(accessToken, "customer", true);
-        setUserProfile(data.user);
         navigate("/dashboard");
       } else {
         const errorData = formatErrorMessage(data);
         console.log("API Error response:", errorData);
-        
-        // Handle email-specific errors, whether they're in email field or detail field
-        if (errorData.email) {
-          form.setError("email", { 
-            type: "manual", 
-            message: Array.isArray(errorData.email) ? errorData.email[0] : errorData.email 
-          });
-        } else if (errorData.detail && errorData.detail.toLowerCase().includes("email")) {
-          form.setError("email", { 
-            type: "manual", 
-            message: errorData.detail 
-          });
+        console.log(
+          "Error data structure:",
+          JSON.stringify(errorData, null, 2)
+        );
+
+        let hasSetError = false;
+
+        // Handle errors based on the API response structure
+        if (errorData.error) {
+          // Handle email errors
+          if (errorData.error.email) {
+            const emailError = Array.isArray(errorData.error.email)
+              ? errorData.error.email[0]
+              : errorData.error.email;
+
+            console.log("Setting email error:", emailError);
+            setServerErrors((prev) => ({ ...prev, email: emailError }));
+            form.setError("email", {
+              type: "manual",
+              message: emailError,
+            });
+            hasSetError = true;
+          }
+
+          // Handle phone errors (matching field name in this form)
+          if (errorData.error.phone || errorData.error.phone_number) {
+            const phoneError = Array.isArray(errorData.error.phone)
+              ? errorData.error.phone[0]
+              : errorData.error.phone || errorData.error.phone_number;
+
+            console.log("Setting phone error:", phoneError);
+            setServerErrors((prev) => ({ ...prev, phone: phoneError }));
+            form.setError("phone", {
+              type: "manual",
+              message: phoneError,
+            });
+            hasSetError = true;
+          }
+
+          // Handle password errors
+          if (errorData.error.password) {
+            const passwordError = Array.isArray(errorData.error.password)
+              ? errorData.error.password[0]
+              : errorData.error.password;
+
+            console.log("Setting password error:", passwordError);
+            setServerErrors((prev) => ({ ...prev, password: passwordError }));
+            form.setError("password", {
+              type: "manual",
+              message: passwordError,
+            });
+            hasSetError = true;
+          }
+        } else if (errorData.email || errorData.phone || errorData.password) {
+          // Direct error fields on the root level
+          if (errorData.email) {
+            const emailError = Array.isArray(errorData.email)
+              ? errorData.email[0]
+              : errorData.email;
+            setServerErrors((prev) => ({ ...prev, email: emailError }));
+            form.setError("email", { type: "manual", message: emailError });
+            hasSetError = true;
+          }
+
+          if (errorData.phone || errorData.phone_number) {
+            const phoneError = errorData.phone || errorData.phone_number;
+            const errorMessage = Array.isArray(phoneError)
+              ? phoneError[0]
+              : phoneError;
+            setServerErrors((prev) => ({ ...prev, phone: errorMessage }));
+            form.setError("phone", { type: "manual", message: errorMessage });
+            hasSetError = true;
+          }
+
+          if (errorData.password) {
+            const passwordError = Array.isArray(errorData.password)
+              ? errorData.password[0]
+              : errorData.password;
+            setServerErrors((prev) => ({ ...prev, password: passwordError }));
+            form.setError("password", {
+              type: "manual",
+              message: passwordError,
+            });
+            hasSetError = true;
+          }
         }
-        
-        // Handle other field-specific errors
-        if (errorData.phone_number) {
-          form.setError("phone", { 
-            type: "manual", 
-            message: Array.isArray(errorData.phone_number) ? errorData.phone_number[0] : errorData.phone_number 
+
+        // Handle detail message that might contain email error
+        if (
+          errorData.detail &&
+          errorData.detail.toLowerCase().includes("email")
+        ) {
+          setServerErrors((prev) => ({ ...prev, email: errorData.detail }));
+          form.setError("email", {
+            type: "manual",
+            message: errorData.detail,
           });
+          hasSetError = true;
         }
-        if (errorData.password) {
-          form.setError("password", { 
-            type: "manual", 
-            message: Array.isArray(errorData.password) ? errorData.password[0] : errorData.password 
-          });
-        }
-        if (errorData.first_name) {
-          form.setError("firstName", { 
-            type: "manual", 
-            message: Array.isArray(errorData.first_name) ? errorData.first_name[0] : errorData.first_name 
-          });
-        }
-        if (errorData.last_name) {
-          form.setError("lastName", { 
-            type: "manual", 
-            message: Array.isArray(errorData.last_name) ? errorData.last_name[0] : errorData.last_name 
-          });
-        }
-        
-        // Show generic toast error only if we couldn't map any specific field errors
-        const hasSetFieldErrors = Object.keys(form.formState.errors).length > 0;
-        if (!hasSetFieldErrors && errorData.message) {
-          toast.error(typeof errorData.message === 'string' ? errorData.message : "Signup failed. Please check your information and try again.");
+
+        // After setting errors, log the form state to verify errors are set
+        console.log("Form errors after setting:", form.formState.errors);
+        setForceUpdate((prev) => prev + 1);
+
+        if (hasSetError) {
+          showValidationError("Please check your form entries and try again");
+        } else {
+          showAuthError(
+            typeof errorData.message === "string"
+              ? errorData.message
+              : "Signup failed. Please check your information and try again."
+          );
         }
       }
     } catch (error) {
-      toast.error("Network error occurred. Please check your connection and try again.");
+      showAuthError("Network error occurred. Please try again later.");
       console.error("Signup error:", error);
     } finally {
       setLoading(false);
     }
   };
+
+  // Debug form errors
+  React.useEffect(() => {
+    console.log("Current form errors:", form.formState.errors);
+  }, [form.formState.errors]);
 
   return (
     <>
@@ -140,14 +227,18 @@ export function CelebrantSignupForm() {
             placeholder="example@gmail.com"
             control={form.control}
             labelClassName="text-left"
+            error={form.formState.errors.email?.message || serverErrors.email}
           />
 
-          <PasswordInputs 
-            form={form} 
-            showPassword={showPassword} 
-            setShowPassword={setShowPassword} 
-            showConfirmPassword={showConfirmPassword} 
-            setShowConfirmPassword={setShowConfirmPassword} 
+          <PasswordInputs
+            form={form}
+            showPassword={showPassword}
+            setShowPassword={setShowPassword}
+            showConfirmPassword={showConfirmPassword}
+            setShowConfirmPassword={setShowConfirmPassword}
+            error={
+              form.formState.errors.password?.message || serverErrors.password
+            }
           />
 
           <PhoneInput
@@ -155,11 +246,25 @@ export function CelebrantSignupForm() {
             name="phone"
             placeholder="8012345678"
             control={form.control}
+            error={form.formState.errors.phone?.message || serverErrors.phone}
           />
 
           <SignupSubmitButton loading={loading} />
         </form>
       </Form>
+
+      {/* Debug error display (can be removed in production) */}
+      {(Object.keys(form.formState.errors).length > 0 ||
+        Object.keys(serverErrors).length > 0) && (
+        <div className="bg-red-50 mt-4 p-3 border border-red-300 rounded text-red-600">
+          <h4 className="font-bold">Form Validation Errors:</h4>
+          {Object.entries(form.formState.errors).map(([key, error]) => (
+            <p key={`form-${key}`}>
+              <strong>{key}</strong>: {error.message}
+            </p>
+          ))}
+        </div>
+      )}
 
       <SocialAuthButtons />
       <TermsAndConditions />

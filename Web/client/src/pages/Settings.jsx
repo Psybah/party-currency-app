@@ -50,17 +50,17 @@ export default function Settings() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <DashboardSidebar 
-        isOpen={isMobileMenuOpen} 
-        onClose={() => setIsMobileMenuOpen(false)} 
+    <div className="bg-white min-h-screen">
+      <DashboardSidebar
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
       />
       <div className="md:pl-64">
-        <DashboardHeader 
-          toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+        <DashboardHeader
+          toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         />
         <main className="p-6">
-          <div className="max-w-4xl mx-auto space-y-8">
+          <div className="space-y-8 mx-auto max-w-4xl">
             <PhotoSection onUpdatePhoto={handlePhotoUpdate} />
             <ProfileSection onUpdate={handleProfileUpdate} />
             <SecuritySection onUpdatePassword={handlePasswordUpdate} />
