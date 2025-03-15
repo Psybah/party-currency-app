@@ -27,7 +27,7 @@ export default function CreateEvent() {
     state: "",
     city: "",
     post_code: "",
-    lga: "",
+    LGA: "",
     reconciliation_service: false,
   });
 
@@ -49,7 +49,7 @@ export default function CreateEvent() {
       // Transform the data for the API
       const requestData = {
         ...formData,
-        lga: formData.lga.toUpperCase(),
+        LGA: formData.LGA.toUpperCase(),
         reconciliation_service: Boolean(formData.reconciliation_service),
       };
 
@@ -68,7 +68,7 @@ export default function CreateEvent() {
         throw new Error(data.message || "Failed to create event");
       }
 
-      setEventId(data.event_id);
+      setEventId(data.event.event_id);
       setShowSuccessModal(true);
       toast.success("Event created successfully!");
     } catch (error) {
