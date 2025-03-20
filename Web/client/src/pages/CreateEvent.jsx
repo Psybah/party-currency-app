@@ -27,7 +27,7 @@ export default function CreateEvent() {
     state: "",
     city: "",
     post_code: "",
-    lga: "",
+    LGA: "",
     reconciliation_service: false,
   });
 
@@ -45,11 +45,11 @@ export default function CreateEvent() {
 
     try {
       const { accessToken } = getAuth();
-      
+
       // Transform the data for the API
       const requestData = {
         ...formData,
-        lga: formData.lga.toUpperCase(),
+        LGA: formData.LGA.toUpperCase(),
         reconciliation_service: Boolean(formData.reconciliation_service),
       };
 
@@ -68,7 +68,7 @@ export default function CreateEvent() {
         throw new Error(data.message || "Failed to create event");
       }
 
-      setEventId(data.event_id);
+      setEventId(data.event.event_id);
       setShowSuccessModal(true);
       toast.success("Event created successfully!");
     } catch (error) {
@@ -83,17 +83,19 @@ export default function CreateEvent() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="bg-white min-h-screen">
       <DashboardSidebar
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
       />
-      <div className="md:pl-64 flex flex-col min-h-screen">
+      <div className="flex flex-col md:pl-64 min-h-screen">
         <DashboardHeader
           toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         />
-        <main className="flex-1 p-4 md:p-8 max-w-4xl mx-auto w-full">
-          <h1 className="text-2xl font-semibold font-playfair mb-8 text-left">Create Event</h1>
+        <main className="flex-1 mx-auto p-4 md:p-8 w-full max-w-4xl">
+          <h1 className="mb-8 font-playfair font-semibold text-2xl text-left">
+            Create Event
+          </h1>
           <EventForm
             formData={formData}
             handleInputChange={handleInputChange}

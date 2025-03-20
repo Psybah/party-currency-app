@@ -1,18 +1,29 @@
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom";
-import { AuthFormWrapper } from "@/components/forms/AuthFormWrapper";
-import { GoogleAuthButton } from "@/components/GoogleAuthButton";
-import { requestPasswordResetCode, getPasswordResetToken, resetPassword } from "@/api/passwordApi";
-import toast from "react-hot-toast";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { formatErrorMessage } from "../utils/errorUtils";
+import * as z from "zod";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { AuthFormWrapper } from "@/components/forms/AuthFormWrapper";
+import { GoogleAuthButton } from "@/components/GoogleAuthButton";
+import { Loader } from "lucide-react";
+import {
+  requestPasswordResetCode,
+  getPasswordResetToken,
+  resetPassword,
+} from "@/api/authApi";
+import { showSuccess, showError, withFeedback } from "@/utils/feedback";
+import { formatErrorMessages } from "@/utils/feedback";
 
+// Validation schemas
 const emailSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
 });
@@ -21,13 +32,15 @@ const codeSchema = z.object({
   code: z.string().min(4, "Please enter the verification code"),
 });
 
-const passwordSchema = z.object({
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const passwordSchema = z
+  .object({
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState(1);
@@ -50,60 +63,134 @@ export default function ForgotPasswordPage() {
   });
 
   const handleRequestCode = async (values) => {
-    setLoading(true);
     try {
-      const response = await requestPasswordResetCode(values.email);
-      const data = await response.json();
+      await withFeedback(
+        async () => {
+          const response = await requestPasswordResetCode(values.email);
 
-      if (response.ok) {
-        setEmail(values.email);
-        setStep(2);
-        toast.success("Verification code sent to your email!");
-      } else {
-        throw new Error(formatErrorMessage(data));
-      }
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw errorData;
+          }
+
+          // Store email for next steps and advance to code verification
+          setEmail(values.email);
+          setStep(2);
+          return response.json();
+        },
+        {
+          loadingMessage: "Sending verification code...",
+          successMessage: "Verification code sent to your email!",
+          transform: (data) => {
+            // Any transformation if needed
+            return data;
+          },
+        }
+      );
     } catch (error) {
-      toast.error(formatErrorMessage(error));
-    } finally {
-      setLoading(false);
+      const errorMessage = formatErrorMessages(error);
+
+      if (error.email) {
+        emailForm.setError("email", {
+          type: "manual",
+          message: Array.isArray(error.email) ? error.email[0] : error.email,
+        });
+      } else {
+        showError(
+          errorMessage || "Failed to send verification code. Please try again."
+        );
+      }
+
+      console.error("Request code error:", error);
     }
   };
 
   const handleVerifyCode = async (values) => {
-    setLoading(true);
     try {
-      const response = await getPasswordResetToken(email);
-      const data = await response.json();
+      await withFeedback(
+        async () => {
+          const response = await getPasswordResetToken(email, values.code);
 
-      if (response.ok) {
-        setStep(3);
-        toast.success("Code verified successfully!");
-      } else {
-        throw new Error(formatErrorMessage(data));
-      }
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw errorData;
+          }
+
+          // Advance to password reset step
+          setStep(3);
+          return response.json();
+        },
+        {
+          loadingMessage: "Verifying code...",
+          successMessage: "Code verified successfully!",
+        }
+      );
     } catch (error) {
-      toast.error(formatErrorMessage(error));
-    } finally {
-      setLoading(false);
+      const errorMessage = formatErrorMessages(error);
+
+      if (error.code) {
+        codeForm.setError("code", {
+          type: "manual",
+          message: Array.isArray(error.code) ? error.code[0] : error.code,
+        });
+      } else {
+        showError(
+          errorMessage || "Invalid verification code. Please try again."
+        );
+      }
+
+      console.error("Verify code error:", error);
     }
   };
 
   const handleResetPassword = async (values) => {
-    setLoading(true);
     try {
-      const response = await resetPassword(email, values.password);
-      const data = await response.json();
+      await withFeedback(
+        async () => {
+          const response = await resetPassword(email, values.password);
 
-      if (response.ok) {
-        toast.success("Password reset successfully! Please login with your new password.");
-        setTimeout(() => window.location.href = "/login", 2000);
-      } else {
-        throw new Error(formatErrorMessage(data));
-      }
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw errorData;
+          }
+
+          return response.json();
+        },
+        {
+          loadingMessage: "Resetting your password...",
+          successMessage:
+            "Password reset successfully! Please login with your new password.",
+          transform: (data) => {
+            // Redirect after showing success message
+            setTimeout(() => (window.location.href = "/login"), 2000);
+            return data;
+          },
+        }
+      );
     } catch (error) {
-      toast.error(formatErrorMessage(error));
-    } finally {
-      setLoading(false);
+      const errorMessage = formatErrorMessages(error);
+
+      if (error.password) {
+        passwordForm.setError("password", {
+          type: "manual",
+          message: Array.isArray(error.password)
+            ? error.password[0]
+            : error.password,
+        });
+      } else if (error.confirmPassword) {
+        passwordForm.setError("confirmPassword", {
+          type: "manual",
+          message: Array.isArray(error.confirmPassword)
+            ? error.confirmPassword[0]
+            : error.confirmPassword,
+        });
+      } else {
+        showError(
+          errorMessage || "Failed to reset password. Please try again."
+        );
+      }
+
+      console.error("Reset password error:", error);
     }
   };
 
@@ -121,24 +208,38 @@ export default function ForgotPasswordPage() {
       <div className="space-y-6">
         {step === 1 && (
           <Form {...emailForm}>
-            <form onSubmit={emailForm.handleSubmit(handleRequestCode)} className="space-y-4">
+            <form
+              onSubmit={emailForm.handleSubmit(handleRequestCode)}
+              className="space-y-4"
+            >
               <FormField
                 control={emailForm.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
-                    <Input {...field} type="email" placeholder="example@gmail.com" />
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder="example@gmail.com"
+                    />
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <Button
                 type="submit"
-                className="w-full bg-[#1A1A1A] hover:bg-[#2D2D2D]"
-                disabled={loading}
+                className="bg-[#1A1A1A] hover:bg-[#2D2D2D] w-full"
+                disabled={emailForm.formState.isSubmitting}
               >
-                {loading ? "Sending..." : "Send verification code"}
+                {emailForm.formState.isSubmitting ? (
+                  <>
+                    <Loader className="mr-2 w-4 h-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  "Send verification code"
+                )}
               </Button>
             </form>
           </Form>
@@ -146,7 +247,10 @@ export default function ForgotPasswordPage() {
 
         {step === 2 && (
           <Form {...codeForm}>
-            <form onSubmit={codeForm.handleSubmit(handleVerifyCode)} className="space-y-4">
+            <form
+              onSubmit={codeForm.handleSubmit(handleVerifyCode)}
+              className="space-y-4"
+            >
               <FormField
                 control={codeForm.control}
                 name="code"
@@ -158,27 +262,63 @@ export default function ForgotPasswordPage() {
                   </FormItem>
                 )}
               />
-              <Button
-                type="submit"
-                className="w-full bg-[#1A1A1A] hover:bg-[#2D2D2D]"
-                disabled={loading}
-              >
-                {loading ? "Verifying..." : "Verify Code"}
-              </Button>
+              <div className="flex flex-col space-y-2">
+                <Button
+                  type="submit"
+                  className="bg-[#1A1A1A] hover:bg-[#2D2D2D] w-full"
+                  disabled={codeForm.formState.isSubmitting}
+                >
+                  {codeForm.formState.isSubmitting ? (
+                    <>
+                      <Loader className="mr-2 w-4 h-4 animate-spin" />
+                      Verifying...
+                    </>
+                  ) : (
+                    "Verify Code"
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="text-gray-500 text-xs hover:text-gray-700"
+                  onClick={() => setStep(1)}
+                  disabled={codeForm.formState.isSubmitting}
+                >
+                  Use a different email
+                </Button>
+                <Button
+                  type="button"
+                  variant="link"
+                  className="text-blue-500 text-xs"
+                  onClick={() =>
+                    emailForm.handleSubmit(handleRequestCode)({ email })
+                  }
+                  disabled={codeForm.formState.isSubmitting}
+                >
+                  Resend code
+                </Button>
+              </div>
             </form>
           </Form>
         )}
 
         {step === 3 && (
           <Form {...passwordForm}>
-            <form onSubmit={passwordForm.handleSubmit(handleResetPassword)} className="space-y-4">
+            <form
+              onSubmit={passwordForm.handleSubmit(handleResetPassword)}
+              className="space-y-4"
+            >
               <FormField
                 control={passwordForm.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>New Password</FormLabel>
-                    <Input {...field} type="password" placeholder="Enter new password" />
+                    <Input
+                      {...field}
+                      type="password"
+                      placeholder="Enter new password"
+                    />
                     <FormMessage />
                   </FormItem>
                 )}
@@ -189,17 +329,28 @@ export default function ForgotPasswordPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Confirm Password</FormLabel>
-                    <Input {...field} type="password" placeholder="Confirm new password" />
+                    <Input
+                      {...field}
+                      type="password"
+                      placeholder="Confirm new password"
+                    />
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <Button
                 type="submit"
-                className="w-full bg-[#1A1A1A] hover:bg-[#2D2D2D]"
-                disabled={loading}
+                className="bg-[#1A1A1A] hover:bg-[#2D2D2D] w-full"
+                disabled={passwordForm.formState.isSubmitting}
               >
-                {loading ? "Resetting..." : "Reset Password"}
+                {passwordForm.formState.isSubmitting ? (
+                  <>
+                    <Loader className="mr-2 w-4 h-4 animate-spin" />
+                    Resetting...
+                  </>
+                ) : (
+                  "Reset Password"
+                )}
               </Button>
             </form>
           </Form>
@@ -207,7 +358,7 @@ export default function ForgotPasswordPage() {
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300"></div>
+            <div className="border-gray-300 border-t w-full"></div>
           </div>
           <div className="relative flex justify-center text-sm">
             <span className="bg-white px-2 text-gray-500">Or</span>
@@ -217,7 +368,10 @@ export default function ForgotPasswordPage() {
         <GoogleAuthButton />
 
         <div className="text-center">
-          <Link to="/login" className="text-sm text-muted-foreground hover:underline">
+          <Link
+            to="/login"
+            className="text-muted-foreground text-sm hover:underline"
+          >
             Back to sign in page
           </Link>
         </div>

@@ -1,5 +1,4 @@
-
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,9 +6,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { getProfileApi, loginCustomerApi } from "@/api/authApi";
 import { storeAuth } from "@/lib/util";
-import { validateAdminCredentials, setAdminAuth } from '@/lib/admin-auth';
+import { validateAdminCredentials, setAdminAuth } from "@/lib/admin-auth";
 import { USER_PROFILE_CONTEXT, SIGNUP_CONTEXT } from "@/context";
 import { formatErrorMessage } from "../utils/errorUtils";
+import {
+  showAuthSuccess,
+  showAuthError,
+  showValidationError,
+} from "@/utils/feedback";
 
 export default function LoginPage() {
   const { setSignupOpen } = useContext(SIGNUP_CONTEXT);
@@ -17,23 +21,44 @@ export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // New state for handling server errors
+  const [serverErrors, setServerErrors] = useState({
+    identifier: "",
+    password: "",
+    general: "",
+  });
+
+  const clearErrors = () => {
+    setServerErrors({
+      identifier: "",
+      password: "",
+      general: "",
+    });
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setErrorMessage("");
+    clearErrors();
 
     if (validateAdminCredentials(identifier, password)) {
+      showAuthSuccess("Admin login successful");
       setAdminAuth(identifier);
       navigate("/admin/dashboard");
       return;
     }
 
-    if (!identifier.includes('@')) {
-      setErrorMessage("Please enter a valid email address for customer login");
+    if (!identifier.includes("@")) {
+      setServerErrors((prev) => ({
+        ...prev,
+        identifier: "Please enter a valid email address for customer login",
+      }));
+      showValidationError(
+        "Please enter a valid email address for customer login"
+      );
       setLoading(false);
       return;
     }
@@ -43,11 +68,15 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
+        showAuthSuccess("Login successful! Welcome back.");
         console.log("Login successful:", data);
         const accessToken = data.token;
-        
+
         // Get user type from response if available
-        const userType = data.user_type?.toLowerCase() === "merchant" ? "merchant" : "customer";
+        const userType =
+          data.user_type?.toLowerCase() === "merchant"
+            ? "merchant"
+            : "customer";
         storeAuth(accessToken, userType, true);
 
         const userProfileResponse = await getProfileApi();
@@ -55,7 +84,7 @@ export default function LoginPage() {
           const userProfileData = await userProfileResponse.json();
           setUserProfile(userProfileData);
           console.log("User profile fetched:", userProfileData);
-          
+
           // Redirect based on user type
           if (userType === "merchant") {
             navigate("/merchant/dashboard");
@@ -66,15 +95,89 @@ export default function LoginPage() {
           throw new Error("Failed to fetch user profile.");
         }
       } else {
-        setErrorMessage(formatErrorMessage(data));
+        const errorData = formatErrorMessage(data);
+        console.log(
+          "Login error response:",
+          JSON.stringify(errorData, null, 2)
+        );
+
+        let hasSetError = false;
+
+        // Handle different error structures
+        if (errorData.error) {
+          if (errorData.error.email || errorData.error.identifier) {
+            const emailError =
+              errorData.error.email || errorData.error.identifier;
+            setServerErrors((prev) => ({
+              ...prev,
+              identifier: Array.isArray(emailError)
+                ? emailError[0]
+                : emailError,
+            }));
+            hasSetError = true;
+          }
+
+          if (errorData.error.password) {
+            const passwordError = errorData.error.password;
+            setServerErrors((prev) => ({
+              ...prev,
+              password: Array.isArray(passwordError)
+                ? passwordError[0]
+                : passwordError,
+            }));
+            hasSetError = true;
+          }
+
+          if (errorData.error.non_field_errors || errorData.error.detail) {
+            const generalError =
+              errorData.error.non_field_errors || errorData.error.detail;
+            setServerErrors((prev) => ({
+              ...prev,
+              general: Array.isArray(generalError)
+                ? generalError[0]
+                : generalError,
+            }));
+            hasSetError = true;
+          }
+        } else if (errorData.detail) {
+          setServerErrors((prev) => ({ ...prev, general: errorData.detail }));
+          hasSetError = true;
+        } else if (errorData.message) {
+          setServerErrors((prev) => ({ ...prev, general: errorData.message }));
+          hasSetError = true;
+        }
+
+        // If no specific errors were set, set a general error
+        if (!hasSetError) {
+          setServerErrors((prev) => ({
+            ...prev,
+            general:
+              "Invalid credentials. Please check your email and password.",
+          }));
+        }
+
+        showAuthError(
+          serverErrors.general || "Login failed. Please try again."
+        );
       }
     } catch (error) {
+      showAuthError("Network error occurred. Please try again later.");
+      setServerErrors((prev) => ({
+        ...prev,
+        general: "Network error occurred. Please try again later.",
+      }));
       console.error("Login error:", error);
-      setErrorMessage(formatErrorMessage(error) || "An error occurred. Please try again later.");
     } finally {
       setLoading(false);
     }
   };
+
+  // Debug any errors
+  useEffect(() => {
+    if (Object.values(serverErrors).some((error) => error !== "")) {
+      console.log("Current server errors:", serverErrors);
+    }
+  }, [serverErrors]);
 
   return (
     <div className="flex flex-col justify-center items-center p-4 min-h-screen">
@@ -122,9 +225,16 @@ export default function LoginPage() {
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               required
-              className="border-lightgray"
+              className={`border-lightgray ${
+                serverErrors.identifier ? "border-red-500" : ""
+              }`}
               placeholder="Enter your email or username"
             />
+            {serverErrors.identifier && (
+              <p className="font-medium text-red-500 text-sm">
+                {serverErrors.identifier}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2 text-left">
@@ -136,13 +246,15 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="border-lightgray"
+                className={`border-lightgray ${
+                  serverErrors.password ? "border-red-500" : ""
+                }`}
                 placeholder="Enter your password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="top-1/2 right-3 absolute text-gray-400 -translate-y-1/2"
               >
                 {showPassword ? (
                   <EyeOff className="w-5 h-5" />
@@ -151,10 +263,17 @@ export default function LoginPage() {
                 )}
               </button>
             </div>
+            {serverErrors.password && (
+              <p className="font-medium text-red-500 text-sm">
+                {serverErrors.password}
+              </p>
+            )}
           </div>
 
-          {errorMessage && (
-            <p className="text-red-500 text-sm">{errorMessage}</p>
+          {serverErrors.general && (
+            <p className="font-medium text-red-500 text-sm">
+              {serverErrors.general}
+            </p>
           )}
 
           <Button

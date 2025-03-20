@@ -29,42 +29,43 @@ export default function Dashboard() {
 
   // Calculate total stats with safeguards
   const totalAmount = events.reduce((sum, event) => {
-    const amount = typeof event.amount === 'number' ? event.amount : 0;
+    const amount = typeof event.amount === "number" ? event.amount : 0;
     return sum + amount;
   }, 0);
-  
+
   const totalEvents = events.length;
 
   // Transform events into transaction format with actual data
-  const transactions = events.map(event => ({
-    id: event.event_id || 'N/A',
-    amount: typeof event.amount === 'number' ? event.amount : 0,
+  const transactions = events.map((event) => ({
+    id: event.event_id || "N/A",
+    amount: typeof event.amount === "number" ? event.amount : 0,
     date: event.created_at || new Date().toISOString(),
     status: event.status?.toLowerCase() || "pending",
-    invoiceUrl: `/api/invoices/${event.event_id}` // Replace with real invoice URL
+    invoiceUrl: `/api/invoices/${event.event_id}`, // Replace with real invoice URL
   }));
 
   console.log("Transformed transactions:", transactions); // Debug log
 
   // Filter transactions based on search
-  const filteredTransactions = transactions.filter(transaction =>
-    transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    transaction.status.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredTransactions = transactions.filter(
+    (transaction) =>
+      transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      transaction.status.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+      <div className="bg-gray-50 p-4 min-h-screen">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="mb-4 font-bold text-2xl text-gray-900">
             Unable to load dashboard
           </h2>
-          <p className="text-gray-600 mb-4">
+          <p className="mb-4 text-gray-600">
             {error.message || "Please try again later"}
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-gold hover:bg-gold/90 text-white px-4 py-2 rounded"
+            className="bg-gold hover:bg-gold/90 px-4 py-2 rounded text-white"
           >
             Retry
           </button>
@@ -81,8 +82,8 @@ export default function Dashboard() {
       />
 
       <div className="lg:pl-64">
-        <DashboardHeader 
-          toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+        <DashboardHeader
+          toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         />
 
         <main className="p-6">
@@ -90,20 +91,22 @@ export default function Dashboard() {
             <LoadingDisplay message="Loading dashboard..." />
           ) : (
             <>
-              <div className="gap-6 text-left grid grid-cols-1 md:grid-cols-2 mb-8">
+              <div className="gap-6 grid grid-cols-1 md:grid-cols-2 mb-8 text-left">
                 <StatsCard
                   label="Total Transaction Amount"
                   value={`₦${totalAmount.toLocaleString()}`}
                   status="Host"
                 />
-                <StatsCard 
-                  label="Total Events Hosted" 
-                  value={totalEvents.toString()} 
+                <StatsCard
+                  label="Total Events Hosted"
+                  value={totalEvents.toString()}
                 />
               </div>
 
               <section>
-                <h2 className="mb-6 font-semibold font-playfair text-xl">Transaction History</h2>
+                <h2 className="mb-6 font-playfair font-semibold text-xl">
+                  Transaction History
+                </h2>
                 {events.length === 0 ? (
                   <EmptyState type="ongoing" />
                 ) : (
