@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from  rest_framework.decorators import api_view,authentication_classes,permission_classes
+from  rest_framework.decorators import api_view,authentication_classes,permission_classes, throttle_classes
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication,SessionAuthentication
 from rest_framework.permissions import IsAuthenticated,AllowAny
@@ -10,12 +10,19 @@ from django.core.files.storage import default_storage
 import os
 from django.core.files.base import ContentFile
 from rest_framework import status
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 
+# Add these classes for custom throttling
+class UserThrottle(UserRateThrottle):
+    scope = 'user'
 
+class AnonThrottle(AnonRateThrottle):
+    scope = 'anon'
 
 # Create your views here.
 
 @api_view(["GET"])
+@throttle_classes([UserThrottle])
 @permission_classes([IsAuthenticated])
 @authentication_classes([SessionAuthentication,TokenAuthentication])
 def fetchUser(request):
@@ -44,6 +51,7 @@ def fetchUser(request):
 
 
 @api_view(["GET"])
+@throttle_classes([UserThrottle])
 @permission_classes([IsAuthenticated])
 def editUser(request):
      user = request.user
@@ -52,6 +60,7 @@ def editUser(request):
      })
      
 @api_view(["PUT"])
+@throttle_classes([UserThrottle])
 def upload_picture(request):
     user = request.user
     # Check if a file is provided in the request
@@ -77,6 +86,7 @@ def upload_picture(request):
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["GET"])
+@throttle_classes([AnonThrottle, UserThrottle])
 def get_picture(request):
     user = request.user
     if not user.profile_picture:
@@ -85,3 +95,5 @@ def get_picture(request):
     return Response({
         "profile_picture_url": f"https://drive.google.com/file/d/{user.profile_picture}"
     })
+
+
