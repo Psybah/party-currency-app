@@ -179,8 +179,8 @@ def save_currency(request):
         return Response({"error": "No currency image provided"}, status=status.HTTP_400_BAD_REQUEST)
     try:
         currency_image = request.FILES['image']
-        file_name = f"{user.email}_event_picture{os.path.splitext(profile_picture.name)[1]}"
-        file_path = default_storage.save(f'tmp/{file_name}', ContentFile(profile_picture.read()))
+        file_name = f"{user.email}_event_picture{os.path.splitext(currency_image.name)[1]}"
+        file_path = default_storage.save(f'tmp/{file_name}', ContentFile(currency_image.read()))
         # Upload the file to Google Drive
         folder_id = '1xg-UFjBtNMUeX3RbLsyOsBsmDOJzj2Sk'  # Replace with your folder ID
         file_id = upload_file_to_drive(file_path, file_name, folder_id)
