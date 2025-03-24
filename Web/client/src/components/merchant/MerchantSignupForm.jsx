@@ -220,11 +220,6 @@ export function MerchantSignupForm() {
               <strong>{key}</strong>: {error.message}
             </p>
           ))}
-          {/* {Object.entries(serverErrors).map(([key, error]) => (
-            <p key={`server-${key}`}>
-              <strong>{key} (server)</strong>: {error}
-            </p>
-          ))} */}
         </div>
       )}
 

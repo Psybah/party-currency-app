@@ -1,15 +1,16 @@
-
 import React, { useContext, useEffect } from "react";
 import { Avatar, Popover } from "antd";
 import { useNavigate, Link } from "react-router-dom";
 import { USER_PROFILE_CONTEXT } from "@/context";
 import { SIGNUP_CONTEXT } from "@/context";
-import { deleteAuth } from "@/lib/util";
+import { deleteAuth, getAuth } from "@/lib/util";
 
-export default function UserAvatar({ showName, auth, merchantLinks = false }) {
+export default function UserAvatar({ showName, auth }) {
   const { userProfile, setUserProfile } = useContext(USER_PROFILE_CONTEXT);
   const { setSignupOpen } = useContext(SIGNUP_CONTEXT);
   const navigate = useNavigate();
+  const { userType } = getAuth();
+  const isMerchant = userType === "merchant";
 
   const handleLogout = () => {
     setUserProfile(null);
@@ -30,10 +31,10 @@ export default function UserAvatar({ showName, auth, merchantLinks = false }) {
         <li
           className="hover:font-semibold hover:text-Primary transition-colors cursor-pointer select-none"
           onClick={() => {
-            navigate("/merchant/dashboard");
+            navigate("/merchant/transactions");
           }}
         >
-          Dashboard
+          Transactions
         </li>
         <li
           className="hover:font-semibold hover:text-Primary transition-colors cursor-pointer select-none"
@@ -84,7 +85,7 @@ export default function UserAvatar({ showName, auth, merchantLinks = false }) {
   );
 
   // Select appropriate options based on whether this is for merchant or regular user
-  const options = merchantLinks ? merchantOptions : regularOptions;
+  const options = isMerchant ? merchantOptions : regularOptions;
 
   return userProfile ? (
     <span className="select-none">
@@ -98,8 +99,8 @@ export default function UserAvatar({ showName, auth, merchantLinks = false }) {
         <div className="flex items-center gap-2 font-semibold cursor-pointer">
           {showName && (
             <>
-              <span className="text-paragraph hidden md:inline">Hello,</span>
-              <span className="text-paragraph hidden md:inline">{name}</span>
+              <span className="hidden md:inline text-paragraph">Hello,</span>
+              <span className="hidden md:inline text-paragraph">{name}</span>
             </>
           )}
           <Avatar
@@ -112,7 +113,7 @@ export default function UserAvatar({ showName, auth, merchantLinks = false }) {
       </Popover>
     </span>
   ) : auth ? (
-    <div className="md:flex items-center gap-6 hidden font-montserrat text-lg">
+    <div className="hidden md:flex items-center gap-6 font-montserrat text-lg">
       <Link to="/login" className="hover:text-gold">
         Login
       </Link>

@@ -2,10 +2,11 @@ import { useEffect, useContext } from "react";
 import { USER_PROFILE_CONTEXT } from "@/context";
 import { getProfileApi } from "@/api/authApi";
 import { getAuth } from "@/lib/util";
+import { useNavigate } from "react-router-dom";
 
 export function InitializeApp({ children }) {
   const { setUserProfile } = useContext(USER_PROFILE_CONTEXT);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const { accessToken } = getAuth();
     if (accessToken) {
