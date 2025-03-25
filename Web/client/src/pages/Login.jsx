@@ -72,24 +72,30 @@ export default function LoginPage() {
         console.log("Login successful:", data);
         const accessToken = data.token;
 
-        // Get user type from response if available
-        const userType =
-          data.user_type?.toLowerCase() === "merchant"
-            ? "merchant"
-            : "customer";
-        storeAuth(accessToken, userType, true);
+        // Store the access token in local storage or context
+        storeAuth(accessToken, undefined, true);
 
         const userProfileResponse = await getProfileApi();
         if (userProfileResponse.ok) {
           const userProfileData = await userProfileResponse.json();
           setUserProfile(userProfileData);
+          // Get user type from response if available
           console.log("User profile fetched:", userProfileData);
+          const userType = userProfileData.Type?.toLowerCase().startsWith(
+            "merchant"
+          )
+            ? "merchant"
+            : "customer";
+          // include userType in storeAuth
+          storeAuth(accessToken, userType, true);
 
           // Redirect based on user type
           if (userType === "merchant") {
-            navigate("/merchant/dashboard");
+            navigate("/merchant/transactions");
+            return;
           } else {
             navigate("/dashboard");
+            return;
           }
         } else {
           throw new Error("Failed to fetch user profile.");
