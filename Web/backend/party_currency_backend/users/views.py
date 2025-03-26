@@ -29,7 +29,7 @@ def fetchUser(request):
     user=request.user
     if (user.type == "user"):
          return Response({
-              "Type":"Basic User",
+              "type":"User",
                 "username": user.username,
                 "email": user.email,
                 "firstname":user.first_name,
@@ -39,7 +39,7 @@ def fetchUser(request):
             })
     elif (user.type == "merchant"):
          return Response({
-              "Type":"Merchant:"+user.business_type,
+              "type":"Merchant:"+user.business_type,
                 "username": user.username,
                 "email": user.email,
                 "firstname":user.first_name,
