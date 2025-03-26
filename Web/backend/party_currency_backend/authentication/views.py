@@ -71,7 +71,8 @@ def signupUser(request):
 
         return Response({
             "Message":"Login successful. use api/users/profile to get userdetails passing this token as an authorization, ",
-            "token": token.key
+            "token": token.key,
+            "type":"User"
     
         }, status=status.HTTP_201_CREATED)
 
@@ -102,7 +103,8 @@ def signupMerchant(request):
 
         return Response({
             "Message":"Login successful. use api/users/profile to get userdetails passing this token as an authorization, ",
-            "token": token.key
+            "token": token.key,
+            "type":"Merchant"
         }, status=status.HTTP_201_CREATED)
 
     # Return validation errors
