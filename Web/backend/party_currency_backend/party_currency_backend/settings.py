@@ -36,9 +36,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8000'
 ]
 ALLOWED_HOSTS = [
-    'party-currency-app-production.up.railway.app',
-    'localhost',
-    '127.0.0.1'
+    os.getenv('ALLOWED_HOSTS'),
+    
 ]
 
 # If you need to allow all origins, use this instead of wildcard
