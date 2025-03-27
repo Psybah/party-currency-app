@@ -169,7 +169,7 @@ export function MerchantSignupForm() {
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <NameInputs form={form} />
 
           <FormInput
@@ -210,7 +210,7 @@ export function MerchantSignupForm() {
         </form>
       </Form>
 
-      {/* Make debug error display more prominent during development */}
+      {/* Make debug error display more prominent during development
       {(Object.keys(form.formState.errors).length > 0 ||
         Object.keys(serverErrors).length > 0) && (
         <div className="bg-red-50 mt-4 p-3 border border-red-300 rounded text-red-600">
@@ -221,7 +221,7 @@ export function MerchantSignupForm() {
             </p>
           ))}
         </div>
-      )}
+      )} */}
 
       <SocialAuthButtons />
       <TermsAndConditions />

@@ -17,8 +17,8 @@ export function PhotoSection({ onUpdatePhoto }) {
   const fetchProfilePicture = async () => {
     try {
       const data = await profileService.getProfilePicture();
-      if (data && data.url) {
-        setPreviewUrl(data.url);
+      if (data && data.profile_picture) {
+        setPreviewUrl(data.profile_picture);
       }
     } catch (error) {
       console.error("Error fetching profile picture:", error);
@@ -41,31 +41,21 @@ export function PhotoSection({ onUpdatePhoto }) {
         };
         reader.readAsDataURL(file);
 
-        await profileService.uploadProfilePicture(file);
-        toast.success("Profile picture updated successfully");
-        onUpdatePhoto && onUpdatePhoto(file);
+        const response = await profileService.uploadProfilePicture(file);
+        if (response.profile_picture) {
+          setPreviewUrl(response.profile_picture);
+          toast.success("Profile picture updated successfully");
+          onUpdatePhoto && onUpdatePhoto(file);
+        } else {
+          throw new Error("No profile picture URL in response");
+        }
       } catch (error) {
         console.error("Error uploading profile picture:", error);
         toast.error("Failed to update profile picture");
-        setPreviewUrl(null);
+        await fetchProfilePicture(); // Refresh the current picture
       } finally {
         setIsLoading(false);
       }
-    }
-  };
-
-  const handleDelete = async () => {
-    setIsLoading(true);
-    try {
-      await profileService.uploadProfilePicture(null);
-      setPreviewUrl(null);
-      onUpdatePhoto && onUpdatePhoto(null);
-      toast.success("Profile picture removed successfully");
-    } catch (error) {
-      console.error("Error removing profile picture:", error);
-      toast.error("Failed to remove profile picture");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -99,16 +89,6 @@ export function PhotoSection({ onUpdatePhoto }) {
           <p className="text-sm text-gray-500">
             Recommended: Square image, less than 5MB
           </p>
-          {previewUrl && (
-            <Button
-              variant="outline"
-              onClick={handleDelete}
-              disabled={isLoading}
-              className="text-red-600 hover:text-red-700"
-            >
-              Remove Photo
-            </Button>
-          )}
         </div>
       </div>
     </div>
