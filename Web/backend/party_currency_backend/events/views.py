@@ -156,16 +156,28 @@ def EventUpdate(request,id):
             "message": f"Event {event.event_name} updated successfully",
             "event": {
                 "event_id": event.event_id,
-                "event_name": event.event_name
+                "event_name": event.event_name,
+                "start_date": event.start_date.date().isoformat(),
+                "end_date": event.end_date.date().isoformat(),
+                "event_author": event.event_author,
+                "event_description": event.event_description,
+                "city": event.city,
+                "street_address": event.street_address,
+                "LGA": event.LGA,
+                "state": event.state,
+                
             }
         }, status=status.HTTP_202_ACCEPTED)
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
 def EventDelete(request, id):
-    event = Events.objects.get(event_id=id)
-    event.event_author = "archive"
-    event.save()
-    return Response({"message":"Event deleted from list successfully."},status=status.HTTP_200_OK)
+    try:
+        event = Events.objects.get(event_id=id)
+        event.event_author = "archive"
+        event.save()
+        return Response({"message":"Event deleted from list successfully."},status=status.HTTP_200_OK)
+    except Events.DoesNotExist:
+        return Response({"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 #TODO  view archived event by admin or superuser

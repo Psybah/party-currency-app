@@ -79,7 +79,7 @@ def upload_picture(request):
         user.save()
         # Clean up the temporary file
         default_storage.delete(file_path)
-        return Response({"message": "Profile picture updated successfully", "file_id": file_id}, status=status.HTTP_200_OK)
+        return Response({"message": "Profile picture updated successfully", "profile_picture":f"https://drive.google.com/file/d/{file_id}"}, status=status.HTTP_200_OK)
     except Exception as e:
         # Handle any errors during the process
         print("others")
@@ -93,7 +93,7 @@ def get_picture(request):
         return Response({"profile_picture": "https://drive.google.com/file/d/1f0umstb0KjrMoDqK-om2jrzyKsI2RhGx"}, status=200)
     
     return Response({
-        "profile_picture_url": f"https://drive.google.com/file/d/{user.profile_picture}"
+        "profile_picture":f"https://drive.google.com/file/d/{user.profile_picture}"
     })
 
 
