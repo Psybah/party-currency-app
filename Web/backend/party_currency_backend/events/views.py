@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes,authenticatio
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import EventSerializer,EventSerializerFull
+from .serializers import EventSerializer,EventSerializerFull,currencySerializer 
 from .models import Events  # Fix the import
 from django.utils import timezone
 from datetime import datetime
@@ -187,21 +187,48 @@ def EventDelete(request, id):
 def save_currency(request):
     event = Events.objects.get(event_id=request.data["event_id"])
     user=request.user
-    if 'image' not in request.FILES:
-        return Response({"error": "No currency image provided"}, status=status.HTTP_400_BAD_REQUEST)
-    try:
-        currency_image = request.FILES['image']
-        file_name = f"{user.email}_event_picture{os.path.splitext(currency_image.name)[1]}"
-        file_path = default_storage.save(f'tmp/{file_name}', ContentFile(currency_image.read()))
-        # Upload the file to Google Drive
-        folder_id = '1xg-UFjBtNMUeX3RbLsyOsBsmDOJzj2Sk'  # Replace with your folder ID
+    folder_id = '1xg-UFjBtNMUeX3RbLsyOsBsmDOJzj2Sk'
+    if 'currency_image_1000' in request.FILES: 
+        file_name = f"{user.email}_event_picture_1000"
+        file_path = default_storage.save(f'tmp/{file_name}', ContentFile(request.FILES['currency_image_1000'].read()))
         file_id = upload_file_to_drive(file_path, file_name, folder_id)
-        # Update the user's profile picture field
-        event = file_id
-        user.save()
-        # Clean up the temporary file
+        event.currency_image_1000 = file_id
+        event.save()
         default_storage.delete(file_path)
-        return Response({"message": "Profile picture updated successfully", "file_id": file_id}, status=status.HTTP_200_OK)
-    except Exception as e:
-        # Handle any errors during the process
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    if 'currency_image_500' in request.FILES: 
+        file_name = f"{user.email}_event_picture_500"
+        file_path = default_storage.save(f'tmp/{file_name}', ContentFile(request.FILES['currency_image_500'].read()))
+        file_id = upload_file_to_drive(file_path, file_name, folder_id)
+        event.currency_image_500 = file_id
+        event.save()
+        default_storage.delete(file_path)   
+    if 'currency_image_200' in request.FILES: 
+        file_name = f"{user.email}_event_picture_200"
+        file_path = default_storage.save(f'tmp/{file_name}', ContentFile(request.FILES['currency_image_200'].read()))
+        file_id = upload_file_to_drive(file_path, file_name, folder_id)
+        event.currency_image_200 = file_id
+        event.save()
+        default_storage.delete(file_path)   
+    if 'currency_image_100' in request.FILES: 
+        file_name = f"{user.email}_event_picture_100"
+        file_path = default_storage.save(f'tmp/{file_name}', ContentFile(request.FILES['currency_image_100'].read()))
+        file_id = upload_file_to_drive(file_path, file_name, folder_id)
+        event.currency_image_100 = file_id
+        event.save()
+        default_storage.delete(file_path)   
+    if 'currency_image_50' in request.FILES: 
+        file_name = f"{user.email}_event_picture_50"
+        file_path = default_storage.save(f'tmp/{file_name}', ContentFile(request.FILES['currency_image_50'].read()))
+        file_id = upload_file_to_drive(file_path, file_name, folder_id)
+        event.currency_image_50 = file_id
+        event.save()
+        default_storage.delete(file_path)     
+    return Response({"message": "Currency images updated successfully"}, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+def get_currency(request):
+    event = Events.objects.get(event_id=request.data["event_id"])
+    serializer = currencySerializer(event)
+    return Response({"message": "Currency images retrieved successfully", "event": serializer.data}, status=status.HTTP_200_OK)
+
