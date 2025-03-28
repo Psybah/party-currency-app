@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .serializers import UserSerializer
+from .serializers import UserSerializer, GoogleLoginSerializer
 from.models import CustomUser as CUser,Merchant
 from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
@@ -17,6 +17,38 @@ from .utils import PasswordResetCodeManager as prcm
 
 class PasswordResetThrottle(AnonRateThrottle):
     rate = '3/hour'
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def google_login(request):
+    serializer = GoogleLoginSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.validated_data['user']
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({"token": token.key}, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def google_callback(request):
+    serializer = GoogleLoginSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.validated_data['user']
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({"token": token.key}, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def google_login_callback(request):
+    serializer = GoogleLoginSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.validated_data['user']
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({"token": token.key}, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])

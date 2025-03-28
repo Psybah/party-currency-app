@@ -1,6 +1,8 @@
 from .models import CustomUser as User,Merchant
 from rest_framework import serializers
 import re
+import jwt
+import os
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta(object):
@@ -92,3 +94,14 @@ class MerchantSerializer(serializers.ModelSerializer):
         return data
             
         return data
+    
+class GoogleLoginSerializer(serializers.Serializer):
+    token = serializers.CharField(required=True)
+    def validate_token(self, token):
+        try:
+            payload = jwt.decode(token, os.getenv("GOOGLE_SECRET_KEY"), algorithms=["HS256"])
+            return payload
+        except jwt.ExpiredSignatureError:
+            raise serializers.ValidationError("Token has expired")
+        except jwt.InvalidTokenError:
+            raise serializers.ValidationError("Invalid token")

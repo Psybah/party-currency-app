@@ -5,12 +5,14 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
 from .serializers import TransactionSerializer
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from .models import Transaction
+from events.models import Events
 import time
 import os
 from dotenv import load_dotenv
 from .utils import MonnifyAuth
+from rest_framework.permissions import AllowAny
 
 
 load_dotenv()
@@ -32,7 +34,7 @@ class InitializeTransactionView(APIView):
                 'paymentDescription': transaction.payment_description,
                 'currencyCode': transaction.currency_code,
                 'contractCode': transaction.contract_code,
-                'redirectUrl': f"{os.getenv('Base_Backend_URL')}/payment/callback",
+                'redirectUrl': f"{os.getenv('Base_Backend_URL')}/payments/callback",
                 'paymentMethods': ['CARD', 'ACCOUNT_TRANSFER']
             }
 
@@ -81,7 +83,7 @@ def generate_transcation_ID(request):
                     contract_code=os.getenv("MONIFY_CONTRACT_CODE")
         
                         )
-
+    
     return Response({
         "amount": amount,
         "total": sum(calculate_amount().values()),
@@ -90,8 +92,15 @@ def generate_transcation_ID(request):
 
     })
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
 def callback(request):
     transaction = Transaction.objects.get(payment_reference=request.data['payment_reference'])
     transaction.status = request.data['status']
     transaction.save()
+    event = Events.objects.get(event_id=request.data['event_id'])
+    event.transaction_id = request.data['payment_reference']
+    event.save()
     return Response({"message": "payment successful", "transaction": transaction.status, "transaction_reference": transaction.transaction_reference}, status=status.HTTP_200_OK)
+
+
