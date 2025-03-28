@@ -90,7 +90,7 @@ def upload_picture(request):
 def get_picture(request):
     user = request.user
     if not user.profile_picture:
-        return Response({"profile_picture": "https://drive.google.com/file/d/1f0umstb0KjrMoDqK-om2jrzyKsI2RhGx"}, status=404)
+        return Response({"profile_picture": "https://drive.google.com/file/d/1f0umstb0KjrMoDqK-om2jrzyKsI2RhGx"}, status=200)
     
     return Response({
         "profile_picture_url": f"https://drive.google.com/file/d/{user.profile_picture}"
