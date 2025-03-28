@@ -15,29 +15,12 @@ import { signupCelebrantApi } from "@/api/authApi";
 import { storeAuth } from "@/lib/util";
 import { USER_PROFILE_CONTEXT } from "@/context";
 import { formatErrorMessage } from "@/utils/errorUtils";
+import { celebrantSignupSchema } from "@/lib/validations/auth";
 import {
   showAuthSuccess,
   showAuthError,
   showValidationError,
 } from "@/utils/feedback";
-
-const formSchema = z
-  .object({
-    firstName: z.string().min(2, "First name is required"),
-    lastName: z.string().min(2, "Last name is required"),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string().min(8, "Please confirm your password"),
-    phone: z
-      .string()
-      .startsWith("+234", "Phone number must start with +234")
-      .min(13, "Phone number must be at least 10 digits long")
-      .max(14, "Phone number must be 10-11 digits long"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
 
 export function CelebrantSignupForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -46,10 +29,9 @@ export function CelebrantSignupForm() {
   const { setUserProfile } = useContext(USER_PROFILE_CONTEXT);
   const navigate = useNavigate();
   const [serverErrors, setServerErrors] = useState({});
-  const [forceUpdate, setForceUpdate] = useState(0);
 
   const form = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(celebrantSignupSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -190,7 +172,6 @@ export function CelebrantSignupForm() {
 
         // After setting errors, log the form state to verify errors are set
         console.log("Form errors after setting:", form.formState.errors);
-        setForceUpdate((prev) => prev + 1);
 
         if (hasSetError) {
           showValidationError("Please check your form entries and try again");
@@ -254,18 +235,6 @@ export function CelebrantSignupForm() {
         </form>
       </Form>
 
-      {/* Debug error display (can be removed in production)
-      {(Object.keys(form.formState.errors).length > 0 ||
-        Object.keys(serverErrors).length > 0) && (
-        <div className="bg-red-50 mt-4 p-3 border border-red-300 rounded text-red-600">
-          <h4 className="font-bold">Form Validation Errors:</h4>
-          {Object.entries(form.formState.errors).map(([key, error]) => (
-            <p key={`form-${key}`}>
-              <strong>{key}</strong>: {error.message}
-            </p>
-          ))}
-        </div>
-      )} */}
       <SocialAuthButtons />
       <TermsAndConditions />
     </>
