@@ -32,7 +32,7 @@ class InitializeTransactionView(APIView):
                 'paymentDescription': transaction.payment_description,
                 'currencyCode': transaction.currency_code,
                 'contractCode': transaction.contract_code,
-                'redirectUrl': "http://google.com",
+                'redirectUrl': f"{os.getenv('Base_Backend_URL')}/payment/callback",
                 'paymentMethods': ['CARD', 'ACCOUNT_TRANSFER']
             }
 
@@ -89,3 +89,9 @@ def generate_transcation_ID(request):
         "payment_reference":transcation.payment_reference
 
     })
+
+def callback(request):
+    transaction = Transaction.objects.get(payment_reference=request.data['payment_reference'])
+    transaction.status = request.data['status']
+    transaction.save()
+    return Response({"message": "payment successful", "transaction": transaction.status, "transaction_reference": transaction.transaction_reference}, status=status.HTTP_200_OK)
