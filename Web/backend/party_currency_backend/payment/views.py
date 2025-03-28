@@ -100,6 +100,9 @@ def callback(request):
     transaction.save()
     event = Events.objects.get(event_id=request.data['event_id'])
     event.transaction_id = request.data['payment_reference']
+    user = request.user
+    user.total_amount_spent += transaction.amount
+    user.save()
     event.save()
     return Response({"message": "payment successful", "transaction": transaction.status, "transaction_reference": transaction.transaction_reference}, status=status.HTTP_200_OK)
 

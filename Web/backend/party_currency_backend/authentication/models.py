@@ -11,6 +11,7 @@ class CustomUser(AbstractUser):
     state = models.CharField(max_length=100, blank=True, null=True)
     business_type = models.CharField(max_length=100, blank=True, null=True)
     type = models.CharField(max_length=50, default="user")
+    total_amount_spent = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     profile_picture = models.TextField(validators=[FileExtensionValidator(['png', 'jpg', 'jpeg'])], blank=True, null=True)
     
     groups = models.ManyToManyField(
