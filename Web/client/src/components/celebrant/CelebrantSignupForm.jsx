@@ -31,7 +31,8 @@ const formSchema = z
     phone: z
       .string()
       .startsWith("+234", "Phone number must start with +234")
-      .max(10, "Ensure this field has no more than 10 characters"),
+      .min(13, "Phone number must be at least 10 digits long")
+      .max(14, "Phone number must be 10-11 digits long"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
