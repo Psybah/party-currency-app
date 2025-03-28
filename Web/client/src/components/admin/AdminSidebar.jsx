@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Settings, LogOut, PanelRightOpen, PanelLeftOpen, X } from 'lucide-react';
+import { LayoutDashboard, Users, LogOut, PanelRightOpen, PanelLeftOpen, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import SidebarLogo from '../sidebar/SidebarLogo';
 
@@ -18,11 +18,6 @@ export function AdminSidebar({ isOpen, onClose }) {
       path: "/admin/user-management",
       icon: <Users className="w-5 h-5 min-w-[20px]" />,
       label: "User Management"
-    },
-    {
-      path: "/admin/settings",
-      icon: <Settings className="w-5 h-5 min-w-[20px]" />,
-      label: "Settings"
     },
   ];
 

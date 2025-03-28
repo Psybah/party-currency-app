@@ -31,7 +31,7 @@ const formSchema = z
     phone: z
       .string()
       .startsWith("+234", "Phone number must start with +234")
-      .min(13, "Invalid phone number"),
+      .max(10, "Ensure this field has no more than 10 characters"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -217,7 +217,7 @@ export function CelebrantSignupForm() {
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <NameInputs form={form} />
 
           <FormInput
@@ -253,7 +253,7 @@ export function CelebrantSignupForm() {
         </form>
       </Form>
 
-      {/* Debug error display (can be removed in production) */}
+      {/* Debug error display (can be removed in production)
       {(Object.keys(form.formState.errors).length > 0 ||
         Object.keys(serverErrors).length > 0) && (
         <div className="bg-red-50 mt-4 p-3 border border-red-300 rounded text-red-600">
@@ -264,8 +264,7 @@ export function CelebrantSignupForm() {
             </p>
           ))}
         </div>
-      )}
-
+      )} */}
       <SocialAuthButtons />
       <TermsAndConditions />
     </>

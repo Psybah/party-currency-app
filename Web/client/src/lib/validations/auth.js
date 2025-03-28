@@ -1,4 +1,3 @@
-
 import * as z from "zod";
 
 export const merchantSignupSchema = z.object({
@@ -11,7 +10,7 @@ export const merchantSignupSchema = z.object({
   country: z.string().min(1, "Please select a country"),
   state: z.string().min(1, "Please select a state"),
   city: z.string().min(1, "Please select a city"),
-  phoneNumber: z.string().startsWith("+234", "Phone number must start with +234").min(13, "Invalid phone number"),
+  phoneNumber: z.string().startsWith("+234", "Phone number must start with +234").max(10, "Ensure this field has no more than 10 characters"),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
