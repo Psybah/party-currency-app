@@ -63,7 +63,7 @@ def login(request):
     try:
         user = CUser.objects.get(username=email)
         if not user.check_password(password):
-            return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"message": "password"}, status=status.HTTP_401_UNAUTHORIZED)
         
         # Update last login
         user.last_login = timezone.now()
@@ -81,7 +81,7 @@ def login(request):
             "user":user.type
         }, status=status.HTTP_200_OK)
     except CUser.DoesNotExist:
-        return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"message": "gobe credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 
@@ -91,8 +91,8 @@ def signupUser(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         user = CUser.objects.create_user(
-            username=request.data.get("email"),  
-            email=request.data.get("email"),
+            username=request.data.get("email").strip().lower(),  
+            email=request.data.get("email").strip().lower(),
             password=request.data.get("password"),
             first_name=request.data.get("first_name"),
             last_name=request.data.get("last_name"),
@@ -118,8 +118,8 @@ def signupMerchant(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         user = Merchant.objects.create_user(
-            username=request.data.get("email"),  
-            email=request.data.get("email"),
+            username=request.data.get("email").strip().lower(),  
+            email=request.data.get("email").strip().lower(),
             password=request.data.get("password"),
             first_name=request.data.get("first_name"),
             last_name=request.data.get("last_name"),
