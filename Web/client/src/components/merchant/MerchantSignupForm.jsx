@@ -16,7 +16,6 @@ import { signupMerchantApi } from "@/api/authApi";
 import { storeAuth } from "@/lib/util";
 import { USER_PROFILE_CONTEXT } from "@/context";
 import { formatErrorMessage } from "@/utils/errorUtils";
-import { toast } from "react-hot-toast";
 import {
   showAuthSuccess,
   showAuthError,
@@ -30,7 +29,6 @@ export function MerchantSignupForm() {
   const { setUserProfile } = useContext(USER_PROFILE_CONTEXT);
   const navigate = useNavigate();
   const [serverErrors, setServerErrors] = useState({});
-  const [forceUpdate, setForceUpdate] = useState(0);
 
   const form = useForm({
     resolver: zodResolver(merchantSignupSchema),
@@ -137,9 +135,6 @@ export function MerchantSignupForm() {
         // After setting errors, log the form state to verify errors are set
         console.log("Form errors after setting:", form.formState.errors);
 
-        // Force a re-render to ensure errors are displayed
-        setForceUpdate((prev) => prev + 1);
-
         // Show toast messages
         if (hasSetError) {
           showValidationError("Please check your form entries and try again");
@@ -209,19 +204,6 @@ export function MerchantSignupForm() {
           <SignupSubmitButton loading={loading} />
         </form>
       </Form>
-
-      {/* Make debug error display more prominent during development
-      {(Object.keys(form.formState.errors).length > 0 ||
-        Object.keys(serverErrors).length > 0) && (
-        <div className="bg-red-50 mt-4 p-3 border border-red-300 rounded text-red-600">
-          <h4 className="font-bold">Form Validation Errors:</h4>
-          {Object.entries(form.formState.errors).map(([key, error]) => (
-            <p key={`form-${key}`}>
-              <strong>{key}</strong>: {error.message}
-            </p>
-          ))}
-        </div>
-      )} */}
 
       <SocialAuthButtons />
       <TermsAndConditions />

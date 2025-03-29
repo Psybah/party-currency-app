@@ -27,8 +27,7 @@ const signupSchema = z
     confirmPassword: z.string(),
     phoneNumber: z
       .string()
-      .startsWith("+234", "Phone number must start with +234")
-      .min(13, "Invalid phone number"),
+      .startsWith("+234", "Phone number must start with +234"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
