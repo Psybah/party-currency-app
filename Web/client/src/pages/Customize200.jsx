@@ -160,6 +160,7 @@ const Customize200 = () => {
           initialTexts={currencyData[currentSide].texts}
           onClose={() => setShowTextEditor(false)}
           onSave={(texts) => handleTextSave(currentSide, texts)}
+          denomination="200"
         />
       )}
 
@@ -169,6 +170,7 @@ const Customize200 = () => {
           currentImage={currencyData[currentSide].portraitImage}
           onClose={() => setShowImageEditor(false)}
           onSave={(imageUrl) => handleImageSave(currentSide, imageUrl)}
+          denomination="200"
         />
       )}
     </div>

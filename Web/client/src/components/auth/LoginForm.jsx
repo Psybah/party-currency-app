@@ -7,12 +7,12 @@ import { Form } from "@/components/ui/form";
 import { FormInput } from "@/components/forms/FormInput";
 import { Button } from "@/components/ui/button";
 import { USER_PROFILE_CONTEXT } from "@/context";
-import { showSuccess, showError } from "@/utils/feedback";
+import { showError } from "@/utils/feedback";
 import { handleAuthFeedback } from "@/utils/toastUtils";
 import { formatErrorMessage } from "@/utils/errorUtils";
 import { loginUserApi } from "@/api/authApi";
 import { storeAuth } from "@/lib/util";
-import { Eye, EyeOff, Loader } from "lucide-react";
+import { Loader } from "lucide-react";
 
 // Login form validation schema
 const loginSchema = z.object({

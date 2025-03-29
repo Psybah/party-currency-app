@@ -1,4 +1,3 @@
-
 import React from "react";
 import { FormInput } from "@/components/forms/FormInput";
 import {
@@ -13,7 +12,10 @@ export function BusinessInfoInputs({ form }) {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <label htmlFor="businessType" className="block text-sm font-medium text-gray-700 text-left">
+        <label
+          htmlFor="businessType"
+          className="block font-medium text-gray-700 text-sm text-left"
+        >
           Business Type
         </label>
         <Select
@@ -29,14 +31,17 @@ export function BusinessInfoInputs({ form }) {
           </SelectContent>
         </Select>
         {form.formState.errors.businessType && (
-          <p className="text-sm text-red-600">
+          <p className="text-red-600 text-sm">
             {form.formState.errors.businessType.message}
           </p>
         )}
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="country" className="block text-sm font-medium text-gray-700 text-left">
+        <label
+          htmlFor="country"
+          className="block font-medium text-gray-700 text-sm text-left"
+        >
           Country
         </label>
         <input
@@ -44,28 +49,26 @@ export function BusinessInfoInputs({ form }) {
           id="country"
           value="Nigeria"
           disabled
-          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
+          className="bg-gray-50 px-3 py-2 border border-gray-300 rounded-md w-full text-gray-600"
         />
       </div>
 
       <div className="gap-4 grid grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="state" className="block text-sm font-medium text-gray-700 text-left">
+          <label
+            htmlFor="state"
+            className="block font-medium text-gray-700 text-sm text-left"
+          >
             State
           </label>
-          <FormInput
-            name="state"
-            control={form.control}
-          />
-          {form.formState.errors.state && (
-            <p className="text-sm text-red-600">
-              {form.formState.errors.state.message}
-            </p>
-          )}
+          <FormInput name="state" control={form.control} />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="city" className="block text-sm font-medium text-gray-700 text-left">
+          <label
+            htmlFor="city"
+            className="block font-medium text-gray-700 text-sm text-left"
+          >
             City
           </label>
           <FormInput
@@ -84,11 +87,6 @@ export function BusinessInfoInputs({ form }) {
               </Select>
             )}
           />
-          {form.formState.errors.city && (
-            <p className="text-sm text-red-600">
-              {form.formState.errors.city.message}
-            </p>
-          )}
         </div>
       </div>
     </div>

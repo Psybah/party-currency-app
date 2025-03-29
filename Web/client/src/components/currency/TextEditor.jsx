@@ -4,13 +4,18 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Button } from '../ui/button';
 import { CurrencyCanvas } from './CurrencyCanvas';
+import { debounce } from 'lodash';
 
-export function TextEditor({ side, initialTexts, onClose, onSave }) {
+export function TextEditor({ side, initialTexts, onClose, onSave, denomination }) {
   const [texts, setTexts] = useState(initialTexts || {
     celebration: 'Celebration of Life',
     currencyName: side === 'front' ? 'Party Currency' : '',
     eventId: side === 'front' ? 'A2BB26789' : '',
   });
+
+  const updateText = debounce((key, value) => {
+    setTexts(prev => ({ ...prev, [key]: value }));
+  }, 100);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
@@ -29,9 +34,10 @@ export function TextEditor({ side, initialTexts, onClose, onSave }) {
               <h3 className="text-lg font-semibold mb-4">Preview</h3>
               <div className="border border-gray-200 rounded-lg p-4">
                 <CurrencyCanvas
-                  templateImage={`/lovable-uploads/200-${side}-template.png`}
+                  templateImage={`/lovable-uploads/${denomination}-${side}-template.png`}
                   texts={texts}
                   side={side}
+                  denomination={denomination}
                 />
               </div>
             </div>
@@ -39,34 +45,35 @@ export function TextEditor({ side, initialTexts, onClose, onSave }) {
             {/* Text Inputs */}
             <div className="space-y-6">
               <div>
-                <Label htmlFor="celebration" className="block mb-2">
+                <Label htmlFor="celebration" className="block mb-2 text-left">
                   Celebration Text
                 </Label>
                 <Input
                   id="celebration"
                   value={texts.celebration}
-                  onChange={(e) => setTexts(prev => ({ ...prev, celebration: e.target.value }))}
+                  onChange={(e) => updateText('celebration', e.target.value)}
                   maxLength={20}
                   placeholder="Enter celebration text"
                 />
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 mt-1 text-left">
                   Maximum 20 characters
+                  {side === 'back' && ' - Will appear at the bottom right of the currency'}
                 </p>
               </div>
 
               {side === 'front' && (
                 <div>
-                  <Label htmlFor="currencyName" className="block mb-2">
+                  <Label htmlFor="currencyName" className="block mb-2 text-left">
                     Currency Name
                   </Label>
                   <Input
                     id="currencyName"
                     value={texts.currencyName}
-                    onChange={(e) => setTexts(prev => ({ ...prev, currencyName: e.target.value }))}
+                    onChange={(e) => updateText('currencyName', e.target.value)}
                     maxLength={20}
                     placeholder="Enter currency name"
                   />
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-gray-500 mt-1 text-left">
                     Maximum 20 characters
                   </p>
                 </div>
@@ -74,7 +81,7 @@ export function TextEditor({ side, initialTexts, onClose, onSave }) {
 
               {side === 'front' && (
                 <div>
-                  <Label htmlFor="eventId" className="block mb-2">
+                  <Label htmlFor="eventId" className="block mb-2 text-left">
                     Event ID
                   </Label>
                   <Input
@@ -83,7 +90,7 @@ export function TextEditor({ side, initialTexts, onClose, onSave }) {
                     disabled
                     className="bg-gray-100"
                   />
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-gray-500 mt-1 text-left">
                     Event ID is automatically generated
                   </p>
                 </div>

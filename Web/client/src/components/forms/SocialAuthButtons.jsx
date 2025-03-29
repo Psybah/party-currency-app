@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { googleAuthUrl } from "@/config";
 
 export function SocialAuthButtons() {
   return (
@@ -16,7 +17,13 @@ export function SocialAuthButtons() {
       </div>
 
       <div className="gap-4 grid grid-cols-2">
-        <Button variant="outline" className="border-lightgray">
+        <Button
+          variant="outline"
+          className="border-lightgray"
+          onClick={() => {
+            window.location.href = googleAuthUrl;
+          }}
+        >
           <img src="/google.svg" alt="Google" className="mr-2 w-5 h-5" />
           Google
         </Button>
