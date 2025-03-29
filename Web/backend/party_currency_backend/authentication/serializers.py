@@ -40,10 +40,10 @@ class UserSerializer(serializers.ModelSerializer):
             errors["name"] = name_errors
 
         # Phone validation
-        phone_pattern = r'^\+234[0-9]{10}$'
-        if not re.match(phone_pattern, data['phone_number']):
-            errors["phone_number"] = "Invalid Nigerian phone number format. Use +234xxxxxxxxxx"
-
+        phone_pattern = r'^\+234[789][01]\d{8}$'
+        if not re.match( phone_pattern,data['phone_number']):
+                errors["phone_number"] = "Invalid Nigerian phone number format. Use +234xxxxxxxxxx"
+        
         if errors:
             raise serializers.ValidationError(errors)
         return data
@@ -85,10 +85,11 @@ class MerchantSerializer(serializers.ModelSerializer):
             errors["name"] = name_errors
 
         # Phone validation
-        phone_pattern = r'^\+234[0-9]{10}$'
-        if not re.match(phone_pattern, data['phone_number']):
-            errors["phone_number"] = "Invalid Nigerian phone number format. Use +234xxxxxxxxxx"
-
+        
+        phone_pattern = r'^\+234[789][01]\d{7}$'
+        if not re.match( phone_pattern,data['phone_number']):
+                errors["phone_number"] = "Invalid Nigerian phone number format. Use +234xxxxxxxxxx"
+        
         if errors:
             raise serializers.ValidationError(errors)
         return data

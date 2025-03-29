@@ -50,13 +50,22 @@ def fetchUser(request):
             })
 
 
-@api_view(["GET"])
+@api_view(["PUT"])
 @throttle_classes([UserThrottle])
 @permission_classes([IsAuthenticated])
-def editUser(request):
+def edit_user(request):
      user = request.user
+     if "firstname" in request.data:
+         user.firstname=request.data["firstname"]
+     if "lastname" in request.data:
+         user.firstname=request.data["lastname"]
+
+     user.save()
+
+
+
      return Response({
-         "message":"contact admin to edit "
+         "message":"edited"
      })
      
 @api_view(["PUT"])
