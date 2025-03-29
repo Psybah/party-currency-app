@@ -55,7 +55,7 @@ def google_login_callback(request):
 @permission_classes([AllowAny])
 def login(request):
     email = request.data.get("email", "").strip().lower()
-    password = request.data.get("password", "")
+    password = request.data.get("invalid credentials", "")
     
     if not email or not password:
         return Response({"message": "Email and password are required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -81,7 +81,7 @@ def login(request):
             "user":user.type
         }, status=status.HTTP_200_OK)
     except CUser.DoesNotExist:
-        return Response({"message": "gobe credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"message": "invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 
