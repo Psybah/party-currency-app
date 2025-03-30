@@ -6,7 +6,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { getProfileApi, loginCustomerApi } from "@/api/authApi";
 import { storeAuth } from "@/lib/util";
-import { validateAdminCredentials, setAdminAuth } from "@/lib/admin-auth";
 import { USER_PROFILE_CONTEXT, SIGNUP_CONTEXT } from "@/context";
 import { formatErrorMessage } from "../utils/errorUtils";
 import {
@@ -44,21 +43,12 @@ export default function LoginPage() {
     setLoading(true);
     clearErrors();
 
-    if (validateAdminCredentials(identifier, password)) {
-      showAuthSuccess("Admin login successful");
-      setAdminAuth(identifier);
-      navigate("/admin/dashboard");
-      return;
-    }
-
     if (!identifier.includes("@")) {
       setServerErrors((prev) => ({
         ...prev,
-        identifier: "Please enter a valid email address for customer login",
+        identifier: "Please enter a valid email address for login",
       }));
-      showValidationError(
-        "Please enter a valid email address for customer login"
-      );
+      showValidationError("Please enter a valid email address for login");
       setLoading(false);
       return;
     }
@@ -81,22 +71,30 @@ export default function LoginPage() {
           setUserProfile(userProfileData);
           // Get user type from response if available
           console.log("User profile fetched:", userProfileData);
-          const userType = userProfileData.Type?.toLowerCase().startsWith(
-            "merchant"
-          )
-            ? "merchant"
-            : "customer";
+
+          let userType = "customer";
+
+          // Check if user is admin type
+          if (userProfileData.type?.toLowerCase() === "admin") {
+            userType = "admin";
+          }
+          // Check if user is merchant type
+          else if (userProfileData.type?.toLowerCase().startsWith("merchant")) {
+            userType = "merchant";
+          }
+
           // include userType in storeAuth
           storeAuth(accessToken, userType, true);
 
           // Redirect based on user type
-          if (userType === "merchant") {
+          if (userType === "admin") {
+            navigate("/admin/dashboard");
+          } else if (userType === "merchant") {
             navigate("/merchant/transactions");
-            return;
           } else {
             navigate("/dashboard");
-            return;
           }
+          return;
         } else {
           throw new Error("Failed to fetch user profile.");
         }
@@ -234,7 +232,7 @@ export default function LoginPage() {
               className={`border-lightgray ${
                 serverErrors.identifier ? "border-red-500" : ""
               }`}
-              placeholder="Enter your email or username"
+              placeholder="Enter your email"
             />
             {serverErrors.identifier && (
               <p className="font-medium text-red-500 text-sm">

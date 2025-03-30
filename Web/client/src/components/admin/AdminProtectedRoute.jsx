@@ -1,11 +1,16 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { getAdminAuth } from '@/lib/admin-auth';
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { getAuth } from "@/lib/util";
 
 export function AdminProtectedRoute({ children }) {
-  const { isAuthenticated } = getAdminAuth();
+  const { accessToken, userType } = getAuth();
 
-  if (!isAuthenticated) {
+  if (!accessToken) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Verify that the user is specifically an admin
+  if (userType !== "admin") {
     return <Navigate to="/" replace />;
   }
 
