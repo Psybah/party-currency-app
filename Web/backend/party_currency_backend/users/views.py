@@ -48,6 +48,16 @@ def fetchUser(request):
                 "location":user.country+"/"+user.state+"/"+user.city,
                
             })
+    elif (user.is_superuser):
+         return Response({
+              "type":"Admin",
+                "username": user.username,
+                "email": user.email,
+                "firstname":user.first_name,
+                "lastname":user.last_name,
+                "phonenumber":user.phone_number,
+
+         })
 
 
 @api_view(["PUT"])
@@ -55,18 +65,30 @@ def fetchUser(request):
 @permission_classes([IsAuthenticated])
 def edit_user(request):
      user = request.user
-     if "firstname" in request.data:
-         user.firstname=request.data["firstname"]
-     if "lastname" in request.data:
-         user.firstname=request.data["lastname"]
-
-     user.save()
-
-
-
+     if (user.type == "user"):
+         if "firstname" in request.data:
+             user.firstname=request.data["firstname"]
+         if "lastname" in request.data:
+             user.firstname=request.data["lastname"]
+         if "phonenumber" in request.data:
+             user.phonenumber=request.data["phonenumber"]
+     elif (user.type == "merchant"):
+         if "business_type" in request.data:
+             user.business_type=request.data["business_type"]
+         if "location" in request.data:
+             user.location=request.data["location"]
+         if "firstname" in request.data:
+             user.firstname=request.data["firstname"]
+         if "lastname" in request.data:
+             user.firstname=request.data["lastname"]
+         if "phonenumber" in request.data:
+             user.phonenumber=request.data["phonenumber"]
+        
+     user.save()    
      return Response({
-         "message":"edited"
-     })
+          "message":"edited"
+     }) 
+
      
 @api_view(["PUT"])
 @throttle_classes([UserThrottle])

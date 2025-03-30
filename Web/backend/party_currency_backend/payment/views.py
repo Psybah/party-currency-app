@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
 from .serializers import TransactionSerializer
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from .models import Transaction
 from events.models import Events
 import time
@@ -13,9 +13,13 @@ import os
 from dotenv import load_dotenv
 from .utils import MonnifyAuth
 from rest_framework.permissions import AllowAny
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 
+class UserThrottle(UserRateThrottle):
+    scope = 'user'
 
 load_dotenv()
+
 class InitializeTransactionView(APIView):
     def post(self, request):
         transaction = Transaction.objects.get(payment_reference=request.data['payment_reference'])
@@ -63,6 +67,7 @@ class InitializeTransactionView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+@throttle_classes([UserThrottle])
 def calculate_amount():
     return {
         "printing": 1000,
@@ -93,6 +98,8 @@ def generate_transcation_ID(request):
     })
 
 @api_view(["GET"])
+@throttle_classes([UserThrottle])
+
 @permission_classes([AllowAny])
 def callback(request):
     transaction = Transaction.objects.get(payment_reference=request.data['payment_reference'])

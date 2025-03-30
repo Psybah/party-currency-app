@@ -139,7 +139,8 @@ INSTALLED_APPS = [
     'payment',
     'google_drive',
     'party_currency_admin',
-    'merchant'
+    'merchant',
+    'currencies'
     ]
 
 MIDDLEWARE = [
