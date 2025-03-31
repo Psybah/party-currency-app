@@ -29,4 +29,5 @@ urlpatterns = [
     path('events/', include("events.urls")),
     path('payments/', include("payment.urls")),
     path("merchant",include("merchant.urls")),
+    path("currencies/",include("currencies.urls")),
 ]

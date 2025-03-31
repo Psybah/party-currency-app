@@ -16,11 +16,7 @@ class Events(models.Model):
     delivery_address = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)  # Changed to proper timestamp
     updated_at = models.DateTimeField(auto_now=True)      # Changed to proper timestamp
-    currency_image_1000 = models.TextField( null=True)
-    currency_image_500 = models.TextField( null=True)
-    currency_image_200 = models.TextField( null=True)
-    currency_image_100 = models.TextField( null=True)
-    currency_image_50 = models.TextField( null=True)
+    currency_id = models.CharField(max_length=255, null=True)
     reconciliation = models.BooleanField(default=False)
     transaction_id = models.CharField(max_length=255, blank=True, null=True)  # Fixed typo
     delivery_status = models.CharField(
