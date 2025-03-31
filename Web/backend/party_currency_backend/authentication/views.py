@@ -47,7 +47,7 @@ def google_callback(request):
         client_id = os.getenv("GOOGLE_CLIENT_ID")
         client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
         redirect_uri = os.getenv("GOOGLE_OAUTH2_REDIRECT_URI")
-        
+       
         import urllib.parse
         redirect_uri = redirect_uri.strip()
         
@@ -58,6 +58,7 @@ def google_callback(request):
             "redirect_uri": redirect_uri,
             "grant_type": "authorization_code"
         }
+       
         
         # Import requests at the top of your file
         import requests
@@ -77,7 +78,8 @@ def google_callback(request):
                 "payload_sent": {
                     "client_id": client_id,
                     "redirect_uri": redirect_uri,
-                    "grant_type": "authorization_code"
+                    "grant_type": "authorization_code",
+                    
                     # Don't include code or client_secret for security
                 }
             }, status=status.HTTP_400_BAD_REQUEST)
@@ -122,6 +124,10 @@ def google_callback(request):
         if request.method == "GET":
             # For GET requests, redirect to frontend with token
             frontend_url = os.getenv("FRONTEND_URL", "/")
+            #for testing locally 
+            #TODO: remove this after testing
+            frontend_url="localhost:8080"
+
             redirect_url = f"{frontend_url}?token={token.key}&user={user.type}"
             from django.http import HttpResponseRedirect
             return HttpResponseRedirect(redirect_url)
@@ -140,11 +146,6 @@ def google_callback(request):
             "message": f"An error occurred: {str(e)}",
             "trace": trace
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
-
 
 
 
@@ -186,6 +187,7 @@ def login(request):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def signupUser(request):
+    request.data['email'] = request.data['email'].strip().lower()
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         user = CUser.objects.create_user(
@@ -213,6 +215,7 @@ def signupUser(request):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def signupMerchant(request):
+    request.data['email'] = request.data['email'].strip().lower()
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         user = Merchant.objects.create_user(
