@@ -13,42 +13,140 @@ from .utils import PasswordResetCodeManager as prcm
 from django.core.mail import send_mail
 from rest_framework.throttling import AnonRateThrottle
 from .utils import PasswordResetCodeManager as prcm
+import os
 
 
 class PasswordResetThrottle(AnonRateThrottle):
     rate = '3/hour'
 
 
-@api_view(["POST"])
+@api_view(["GET"])
 @permission_classes([AllowAny])
 def google_login(request):
-    serializer = GoogleLoginSerializer(data=request.data)
-    if serializer.is_valid():
-        user = serializer.validated_data['user']
-        token, _ = Token.objects.get_or_create(user=user)
-        return Response({"token": token.key}, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    oauthurl = f"https://accounts.google.com/o/oauth2/v2/auth?client_id={os.getenv('GOOGLE_CLIENT_ID')}&redirect_uri={os.getenv('GOOGLE_OAUTH2_REDIRECT_URI')}&response_type=code&scope=email profile"
+    from django.http import HttpResponseRedirect
+    return HttpResponseRedirect(oauthurl)
+    # return Response({"oauthurl": oauthurl}, status=status.HTTP_200_OK)
 
-@api_view(["POST"])
+@api_view(["GET", "POST"])
 @permission_classes([AllowAny])
 def google_callback(request):
-    serializer = GoogleLoginSerializer(data=request.data)
-    if serializer.is_valid():
-        user = serializer.validated_data['user']
+    # Check for code in both request.data (POST body) and request.GET (URL parameters)
+    code = request.data.get("code") if request.method == "POST" else None
+    if not code and request.method == "GET":
+        code = request.GET.get("code")
+    
+    if not code:
+        return Response({"message": "Code is required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        # Exchange authorization code for access token
+        token_url = "https://oauth2.googleapis.com/token"
+        
+        # Get client ID and redirect URI
+        client_id = os.getenv("GOOGLE_CLIENT_ID")
+        client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
+        redirect_uri = os.getenv("GOOGLE_OAUTH2_REDIRECT_URI")
+        
+        import urllib.parse
+        redirect_uri = redirect_uri.strip()
+        
+        token_payload = {
+            "code": code,
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "redirect_uri": redirect_uri,
+            "grant_type": "authorization_code"
+        }
+        
+        # Import requests at the top of your file
+        import requests
+        
+       
+        
+        token_response = requests.post(token_url, data=token_payload)
+        
+        token_data = token_response.json()
+        
+        if "error" in token_data:
+            error_message = token_data.get("error")
+            error_description = token_data.get("error_description", "")
+            return Response({
+                "message": f"Error in token exchange: {error_message}",
+                "description": error_description,
+                "payload_sent": {
+                    "client_id": client_id,
+                    "redirect_uri": redirect_uri,
+                    "grant_type": "authorization_code"
+                    # Don't include code or client_secret for security
+                }
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Get user info with the access token
+        access_token = token_data.get("access_token")
+        user_info_url = "https://www.googleapis.com/oauth2/v3/userinfo"
+        user_info_response = requests.get(
+            user_info_url, 
+            headers={"Authorization": f"Bearer {access_token}"}
+        )
+        user_info = user_info_response.json()
+        
+        # Extract relevant user information
+        email = user_info.get("email")
+        if not email:
+            return Response({"message": "Email not found in Google profile"},
+                          status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if user exists, otherwise create a new one
+        try:
+            user = CUser.objects.get(email=email)
+        except CUser.DoesNotExist:
+            # Create a new user
+            user = CUser.objects.create_user(
+                username=email,
+                email=email,
+                first_name=user_info.get("given_name", ""),
+                last_name=user_info.get("family_name", ""),
+                # Set a random password since the user will use Google login
+                password=os.urandom(32).hex(),
+            )
+        
+        # Update last login
+        user.last_login = timezone.now()
+        user.save()
+        
+        # Create or get token for the user
         token, _ = Token.objects.get_or_create(user=user)
-        return Response({"token": token.key}, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Decide how to return based on request method
+        if request.method == "GET":
+            # For GET requests, redirect to frontend with token
+            frontend_url = os.getenv("FRONTEND_URL", "/")
+            redirect_url = f"{frontend_url}?token={token.key}&user={user.type}"
+            from django.http import HttpResponseRedirect
+            return HttpResponseRedirect(redirect_url)
+        else:
+            # For POST requests, return JSON
+            return Response({
+                "message": "Google login successful",
+                "token": token.key,
+                "user": user.type
+            }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        import traceback
+        trace = traceback.format_exc()
+        return Response({
+            "message": f"An error occurred: {str(e)}",
+            "trace": trace
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def google_login_callback(request):
-    serializer = GoogleLoginSerializer(data=request.data)
-    if serializer.is_valid():
-        user = serializer.validated_data['user']
-        token, _ = Token.objects.get_or_create(user=user)
-        return Response({"token": token.key}, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
 
 
 @api_view(["POST"])
