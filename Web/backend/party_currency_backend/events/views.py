@@ -25,7 +25,8 @@ def generate_short_event_id(username):
     if Events.objects.filter(event_id=id).exists():
         return generate_short_event_id(username)
     return id
-
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def EventCreate(request):
     required_fields = [
         'event_name', 'event_type', 'start_date', 'end_date',
@@ -60,9 +61,9 @@ def EventCreate(request):
                     {"error": "End date cannot be before start date"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-        except ValueError:
+        except ValueError as e:
             return Response(
-                {"error": "Invalid date format. Use YYYY-MM-DD"},
+                {"error": "Invalid date format. Please use YYYY-MM-DD format"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
