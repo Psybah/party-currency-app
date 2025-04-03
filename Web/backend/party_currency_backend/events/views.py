@@ -31,7 +31,7 @@ def generate_short_event_id(username):
 def EventCreate(request):
     required_fields = [
         'event_name', 'event_type', 'start_date', 'end_date',
-        'city', 'street_address', 'LGA', 'state', 'reconciliation_service'
+        'city', 'street_address', 'LGA', 'state', 'reconciliation_service','postal_code'
     ]
 
     # Validate required fields
