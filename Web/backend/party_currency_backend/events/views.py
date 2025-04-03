@@ -78,6 +78,7 @@ def EventCreate(request):
             street_address=request.data["street_address"],
             LGA=request.data["LGA"],
             state=request.data["state"],
+            postal_code=request.data["postal_code"],
             event_id=generate_short_event_id(request.user.username),
             created_at=current_time,
             reconciliation=request.data["reconciliation_service"],
