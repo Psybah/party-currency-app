@@ -19,6 +19,7 @@ from dotenv import load_dotenv
 import random
 import string
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
+from events.models import Events
 
 # Load environment variables
 load_dotenv()
@@ -103,8 +104,11 @@ def save_currency(request):
         back_image=back_image_url,
         back_celebration_text=back_celebration_text
     )
+    event = Events.objects.get(id=event_id)
+    event.currency_id=currency_id
     currency.save()
-    return Response({"message": "Currency saved successfully","currency_id":currency_id}, status=status.HTTP_200_OK)
+   
+    return Response({"message": "Currency saved successfully","currency_id":currency_id,"event":event.event_name}, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])

@@ -26,8 +26,6 @@ def generate_short_event_id(username):
         return generate_short_event_id(username)
     return id
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
 def EventCreate(request):
     required_fields = [
         'event_name', 'event_type', 'start_date', 'end_date',
@@ -47,14 +45,15 @@ def EventCreate(request):
         
         # Parse and validate dates
         try:
-            # Parse dates as naive datetime objects first (no timezone)
-            start_date_naive = datetime.strptime(request.data["start_date"], '%Y-%m-%d')
-            end_date_naive = datetime.strptime(request.data["end_date"], '%Y-%m-%d')
+            start_date = timezone.datetime.strptime(
+                request.data["start_date"], 
+                '%Y-%m-%d'
+            ).replace(tzinfo=pytz.UTC)
             
-            # Create timezone aware datetime by properly localizing them
-            # This sets the time to midnight in UTC, preserving the exact date
-            start_date = pytz.UTC.localize(start_date_naive)
-            end_date = pytz.UTC.localize(end_date_naive)
+            end_date = timezone.datetime.strptime(
+                request.data["end_date"], 
+                '%Y-%m-%d'
+            ).replace(tzinfo=pytz.UTC)
 
             if end_date < start_date:
                 return Response(
@@ -67,6 +66,7 @@ def EventCreate(request):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+
         # Create event with shorter ID
         event = Events.objects.create(
             event_name=request.data["event_name"],
@@ -97,7 +97,7 @@ def EventCreate(request):
         return Response({
             "error": f"Failed to create event: {str(e)}"
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
 
 
 @api_view(["GET"])
@@ -132,67 +132,38 @@ def EventDetail(_, id):
 @permission_classes([IsAuthenticated])
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
-def EventUpdate(request, id):
-    try:
-        event = Events.objects.get(event_id=id)
-        current_time = timezone.now()
-        
-        if "event_name" in request.data and request.data["event_name"]:
-            event.event_name = request.data["event_name"]
-        
-        if "event_type" in request.data and request.data["event_type"]:
-            event.event_description = request.data["event_type"]
-        
-        if "start_date" in request.data and request.data["start_date"]:
-            try:
-                # Parse date as naive datetime object first (no timezone)
-                start_date_naive = datetime.strptime(request.data["start_date"], '%Y-%m-%d')
-                # Create timezone aware datetime by properly localizing it
-                event.start_date = pytz.UTC.localize(start_date_naive)
-            except ValueError:
-                return Response(
-                    {"error": "Invalid start date format. Use YYYY-MM-DD"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        
-        if "end_date" in request.data and request.data["end_date"]:
-            try:
-                # Parse date as naive datetime object first (no timezone)
-                end_date_naive = datetime.strptime(request.data["end_date"], '%Y-%m-%d')
-                # Create timezone aware datetime by properly localizing it
-                event.end_date = pytz.UTC.localize(end_date_naive)
-            except ValueError:
-                return Response(
-                    {"error": "Invalid end date format. Use YYYY-MM-DD"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        
-        # Validate dates after potential updates
-        if event.end_date < event.start_date:
-            return Response(
-                {"error": "End date cannot be before start date"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        if "city" in request.data and request.data["city"]:
-            event.city = request.data["city"]
-        
-        if "street_address" in request.data and request.data["street_address"]:
-            event.street_address = request.data["street_address"]
-        
-        if "state" in request.data and request.data["state"]:
-            event.state = request.data["state"]
-        
-        if "LGA" in request.data and request.data["LGA"]:
-            event.LGA = request.data["LGA"]
-        
-        if "delivery_address" in request.data and request.data["delivery_address"]:
-            event.delivery_address = request.data["delivery_address"]
-        
-        event.updated_at = current_time
-        event.save()
-        
-        return Response({
+def EventUpdate(request,id):
+    current_time = timezone.now()
+    event = Events.objects.get(event_id=id)
+    
+    if "event_name" in request.data and request.data["event_name"]:
+        event.event_name = request.data["event_name"]
+    if "event_type" in request.data and request.data["event_type"]:
+        event.event_description = request.data["event_type"]
+    if "start_date" in request.data and request.data["start_date"]:
+        event.start_date = timezone.datetime.strptime(
+            request.data["start_date"], 
+            '%Y-%m-%d'
+        ).replace(tzinfo=pytz.UTC)
+    if "end_date" in request.data and request.data["end_date"]:
+        event.end_date = timezone.datetime.strptime(
+            request.data["end_date"], 
+            '%Y-%m-%d'
+        ).replace(tzinfo=pytz.UTC)
+    if "city" in request.data and request.data["city"]:
+        event.city = request.data["city"]
+    if "street_address" in request.data and request.data["street_address"]:
+        event.address = request.data["street_address"]
+    if "state" in request.data and request.data["state"]:
+        event.state = request.data["state"]
+    if "LGA" in request.data and request.data["LGA"]:
+        event.LGA = request.data["LGA"]
+    if "delivery_address" in request.data and request.data["delivery_address"]:
+        event.delivery_address = request.data["delivery_address"]
+    
+    event.updated_at = current_time
+    event.save()
+    return Response({
             "message": f"Event {event.event_name} updated successfully",
             "event": {
                 "event_id": event.event_id,
@@ -205,16 +176,9 @@ def EventUpdate(request, id):
                 "street_address": event.street_address,
                 "LGA": event.LGA,
                 "state": event.state,
+                
             }
         }, status=status.HTTP_202_ACCEPTED)
-    
-    except Events.DoesNotExist:
-        return Response({"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
-    
-    except Exception as e:
-        return Response({
-            "error": f"Failed to update event: {str(e)}"
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
