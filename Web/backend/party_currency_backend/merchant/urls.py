@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import getAllTransaction,getEvents
+from .views import getAllTransaction,createReservedAccount
 urlpatterns = [
-    path("transactions",getAllTransaction,name="list transactions"),
-    path("events",getEvents,name="get events")
+    path("/transactions",getAllTransaction,name="list transactions"),
+    path("/create-reserved-account",createReservedAccount,name="create reserved account")
 
 ]

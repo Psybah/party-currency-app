@@ -19,7 +19,6 @@ class MonnifyAuth:
             
         auth_string = f"{api_key}:{secret_key}"
         encoded_auth = base64.b64encode(auth_string.encode()).decode()
-        print(encoded_auth)
         return f"Basic {encoded_auth}"
 
     @staticmethod
