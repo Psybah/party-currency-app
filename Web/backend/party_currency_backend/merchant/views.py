@@ -75,32 +75,26 @@ def getAllTransaction(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 @throttle_classes([UserThrottle])
-
-
 def createReservedAccount(request):
-
     data = request.data
     event = Events.objects.get(event_id=data["event_id"])
 
     headers = {
-                'Authorization': f"Bearer {MonnifyAuth.get_access_token()['token']}",
-                'Content-Type': 'application/json'
-            }
+        'Authorization': f"Bearer {MonnifyAuth.get_access_token()['token']}",
+        'Content-Type': 'application/json'
+    }
     payload = {
-
-
-    "accountReference":event.event_id,
-    "accountName":event.event_name,
-    "currencyCode":"NGN",
-    "contractCode":os.getenv("MONIFY_CONTRACT_CODE"),
-    "customerEmail":event.event_author,
-    "customerName":request.data["customer_name"],
-    "bvn":request.data["bvn"],
-    "getAllAvailableBanks":"true",
-
+        "accountReference": event.event_id,
+        "accountName": event.event_name,
+        "currencyCode": "NGN",
+        "contractCode": os.getenv("MONIFY_CONTRACT_CODE"),
+        "customerEmail": event.event_author,
+        "customerName": request.data["customer_name"],
+        "bvn": request.data["bvn"],
+        "getAllAvailableBanks": "true",
     }
     try:
-        response = requests.post(f"{os.getenv("MONIFY_BASE_URL")}/bank-transfer/reserved-accounts", headers=headers, json=payload).json()
+        response = requests.post(f"{os.getenv('MONIFY_BASE_URL')}/bank-transfer/reserved-accounts", headers=headers, json=payload).json()
         
         if not response.get("requestSuccessful", False):
             error_message = response.get("responseMessage", "Unknown error")
@@ -116,6 +110,10 @@ def createReservedAccount(request):
                     "error": error_message,
                     "error_code": error_code
                 }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Update the event to indicate it has a reserved account
+        event.has_reserved_account = True
+        event.save()
             
         return Response({
             "message": "account created successfully",
@@ -137,4 +135,45 @@ def createReservedAccount(request):
         }, status=status.HTTP_400_BAD_REQUEST)
     
 
-
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+@throttle_classes([UserThrottle])
+def deleteReservedAccount(request, account_reference=None):
+    # If account_reference is not provided as a parameter, get it from query_params
+    if account_reference is None and request is not None:
+        account_reference = request.query_params.get("account_reference")
+    
+    if not account_reference:
+        return Response({
+            "error": "account_reference is required"
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    headers = {
+        'Authorization': f"Bearer {MonnifyAuth.get_access_token()['token']}",
+        'Content-Type': 'application/json'
+    }
+    
+    try:
+        response = requests.delete(
+            f"{os.getenv('MONIFY_BASE_URL')}/bank-transfer/reserved-accounts/{account_reference}", 
+            headers=headers
+        ).json()
+        
+        # If this was called from the scheduler, return a simple response
+        if request is None:
+            return response
+            
+        return Response(response, status=status.HTTP_200_OK)
+    except Exception as e:
+        error_response = {
+            "error": str(e),
+            "response": response if 'response' in locals() else None
+        }
+        
+        # If this was called from the scheduler, return the error response
+        if request is None:
+            return error_response
+            
+        return Response(error_response, status=status.HTTP_400_BAD_REQUEST)
+    
+    
