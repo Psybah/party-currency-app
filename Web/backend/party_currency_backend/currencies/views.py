@@ -104,7 +104,7 @@ def save_currency(request):
         back_image=back_image_url,
         back_celebration_text=back_celebration_text
     )
-    event = Events.objects.get(id=event_id)
+    event = Events.objects.get(event_id=event_id)
     event.currency_id=currency_id
     currency.save()
    
