@@ -28,6 +28,6 @@ urlpatterns = [
     path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
     path('events/', include("events.urls")),
     path('payments/', include("payment.urls")),
-    path("merchant",include("merchant.urls")),
+    path("merchant/",include("merchant.urls")),
     path("currencies/",include("currencies.urls")),
 ]
