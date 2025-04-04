@@ -210,3 +210,31 @@ REST_FRAMEWORK = {
         'user': '100/day'  # 100 requests per day for authenticated users
     }
 }
+
+# Django Allauth Settings
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
+ACCOUNT_USER_MODEL_EMAIL_FIELD = 'email'
+
+# New SIGNUP_FIELDS configuration
+ACCOUNT_SIGNUP_FIELDS = {
+    'username': {
+        'required': True,
+        'min_length': 3,
+        'max_length': 30,
+    },
+    'email': {
+        'required': True,
+    },
+    'password1': {
+        'required': True,
+        'min_length': 8,
+    },
+    'password2': {
+        'required': True,
+    },
+}
