@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, ShoppingBag, ArrowRightLeft, Users2, User2, Trash2, UserCheck, UserMinus } from 'lucide-react';
+import { Users, ShoppingBag, ArrowRightLeft, Users2, User2, Trash2, UserCheck, UserMinus, Loader } from 'lucide-react';
 import { ActionMenu } from "@/components/admin/ActionMenu";
 import { DeleteDialog, ActivateDialog, DeactivateDialog } from "@/components/admin/ActionDialogs";
 
+import { adminApi } from '@/api/adminApi';
+
 export default function AdminDashboard() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [dashboardData, setDashboardData] = useState(null);
+  const [statsData, setStatsData] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showActivateDialog, setShowActivateDialog] = useState(false);
@@ -20,6 +22,7 @@ export default function AdminDashboard() {
   const [actionError, setActionError] = useState(null);
 
   const LoadingCard = () => (
+    
     <div className="animate-pulse space-y-4 p-6 rounded-lg bg-white shadow">
       <div className="h-4 bg-gray-200 rounded w-1/4"></div>
       <div className="h-8 bg-gray-200 rounded w-1/2"></div>
@@ -39,23 +42,6 @@ export default function AdminDashboard() {
         Try Again
       </button>
     </div>
-  );
-
-  const EmptyMetricCard = ({ icon: Icon, title }) => (
-    <Card className="p-6">
-      <div className="flex items-center gap-4">
-        <div className="p-3 bg-gray-100 rounded-full">
-          <Icon className="w-6 h-6 text-gray-400" />
-        </div>
-        <div>
-          <p className="text-sm text-gray-500">{title}</p>
-          <p className="text-2xl font-semibold mt-1">--</p>
-        </div>
-      </div>
-      <div className="mt-4 flex items-center text-gray-400 text-sm">
-        <span>No data available</span>
-      </div>
-    </Card>
   );
 
   const EmptyChart = () => (
@@ -148,6 +134,34 @@ export default function AdminDashboard() {
     return actions;
   };
 
+  const [users, setUsers] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const [statsData, usersData] = await Promise.all([
+                    adminApi.getAdminStatistics(),
+                    adminApi.getUsers()
+                ]);
+                setStatsData(statsData);
+                setUsers(usersData);
+            } catch (err) {
+                setError(err.message || "Failed to load dashboard data");
+                console.error("Error fetching data:", err);
+            }  finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+
+
+  
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -188,73 +202,56 @@ export default function AdminDashboard() {
   }
 
   const currentDate = new Date().toLocaleDateString('en-US', {
-    day: 'numeric',
+      day: 'numeric',
     month: 'long',
     year: 'numeric'
   });
 
-  const stats = [
-    { 
-      title: "Active Users", 
-      value: "120",
-      change: "+12%",
-      period: "this week",
-      icon: <Users className="w-5 h-5 text-[#4069E5]" />,
-      bgColor: "bg-[#EEF1FE]"
-    },
-    { 
-      title: "Total Orders", 
-      value: "70",
-      change: "+20%",
-      period: "this week",
-      icon: <ShoppingBag className="w-5 h-5 text-[#3F845F]" />,
-      bgColor: "bg-[#EDFAF3]"
-    },
-    { 
-      title: "Total Transfers", 
-      value: "50",
-      change: "+12%",
-      period: "this week",
-      icon: <ArrowRightLeft className="w-5 h-5 text-[#E4C65B]" />,
-      bgColor: "bg-[#FEF9EC]"
-    },
-    { 
-      title: "Total Visitors", 
-      value: "70",
-      change: "+20%",
-      period: "this week",
-      icon: <Users2 className="w-5 h-5 text-[#E56940]" />,
-      bgColor: "bg-[#FEF1EC]"
-    }
-  ];
-
-  const users = [
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Merchant", status: "Suspended", lastActivity: "2 Hours ago", transaction: "₦500,000" },
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Merchant", status: "Active", lastActivity: "2 Hours ago", transaction: "₦500,000" },
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Merchant", status: "Active", lastActivity: "2 Hours ago", transaction: "₦500,000" },
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Merchant", status: "Active", lastActivity: "2 Hours ago", transaction: "₦500,000" },
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Merchant", status: "Suspended", lastActivity: "2 Hours ago", transaction: "₦500,000" }
-  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
       
       <div className="lg:pl-64">
-        <AdminHeader toggleMobileMenu={() => setIsMobileMenuOpen(true)} />
-        
-        <main className="p-6 space-y-6">
+        <AdminHeader toggleMobileMenu={() => setIsMobileMenuOpen(true)} /> 
+
+            <main className="p-6 space-y-6">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-semibold font-playfair">Hello, Admin</h1>
             <p className="text-sm text-gray-500">{currentDate}</p>
           </div>
+
+          {loading && (<div className="flex justify-center items-center space-x-2">
+                <Loader className="h-5 w-5 animate-spin"/>
+                <p>Loading</p>
+          </div>)}
+           {!loading && !error && statsData && (<>
+
+            {statsData && Object.keys(statsData).length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+               <StatsCard statsData={statsData}/>
+                </div>
+                 ) : null}
+          </>)}
+
+
+           {!loading && !error && users.length > 0 && ( <div className="bg-white rounded-lg shadow">
+            <div className="p-4 border-b">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <User2 className="w-5 h-5 text-blue-600" />
+                </div>
+                <h2 className="text-lg font-semibold">User Management</h2>
+              </div>
+            </div>
+
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {stats.map((stat, index) => (
               <Card key={index} className="p-6 bg-white">
                 <div className="flex flex-col">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+                    <div className={`p-2 rounded-lg `}>
                       {stat.icon}
                     </div>
                     <span className="text-sm text-gray-500">{stat.title}</span>
@@ -269,15 +266,8 @@ export default function AdminDashboard() {
                 </div>
               </Card>
             ))}
-          </div>
+            </div>
 
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-4 border-b">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-50 rounded-lg">
-                  <User2 className="w-5 h-5 text-blue-600" />
-                </div>
-                <h2 className="text-lg font-semibold">User Management</h2>
               </div>
             </div>
             <Table>
@@ -296,16 +286,10 @@ export default function AdminDashboard() {
                 {users.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell className="text-center">{user.id}</TableCell>
-                    <TableCell className="text-center">{user.name}</TableCell>
+                    <TableCell className="text-center">{user.username}</TableCell>
                     <TableCell className="text-center">{user.role}</TableCell>
                     <TableCell className="text-center">
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        user.status === "Active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                      }`}>
-                        {user.status}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center">{user.lastActivity}</TableCell>
+                     <span className={`px-2 py-1 rounded-full text-xs ${user.status === "Active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{user.status}</span></TableCell>                    <TableCell className="text-center">{user.lastActivity}</TableCell>
                     <TableCell className="text-center">{user.transaction}</TableCell>
                     <TableCell className="text-right pr-6">
                       <ActionMenu
@@ -319,6 +303,7 @@ export default function AdminDashboard() {
                 ))}
               </TableBody>
             </Table>
+            </div>)}
           </div>
         </main>
       </div>
@@ -346,3 +331,49 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+
+
+const StatsCard = ({ statsData }) => {
+  const stats = statsData ? [
+    { 
+      title: "Active Users", 
+      value: statsData.activeUsers || "N/A",
+      change: statsData.activeUsersChange || "N/A",
+      period: "this week",
+      icon: <Users className="w-5 h-5 text-[#4069E5]" />,
+      bgColor: "bg-[#EEF1FE]"
+    },
+    { 
+      title: "Total Orders", 
+      value: statsData.totalOrders || "N/A",
+      change: statsData.totalOrdersChange || "N/A",
+      period: "this week",
+      icon: <ShoppingBag className="w-5 h-5 text-[#3F845F]" />,
+      bgColor: "bg-[#EDFAF3]"
+    },
+    { 
+      title: "Total Transfers", 
+      value: statsData.totalTransfers || "N/A",
+      change: statsData.totalTransfersChange || "N/A",
+      period: "this week",
+      icon: <ArrowRightLeft className="w-5 h-5 text-[#E4C65B]" />,
+      bgColor: "bg-[#FEF9EC]"
+    },
+    { 
+      title: "Total Visitors", 
+      value: statsData.totalVisitors || "N/A",
+      change: statsData.totalVisitorsChange || "N/A",
+      period: "this week",
+      icon: <Users2 className="w-5 h-5 text-[#E56940]" />,
+      bgColor: "bg-[#FEF1EC]"
+    }
+  ] : [];
+
+
+  return (
+    <>
+            {stats.map((stat, index) => (<Card key={index} className="p-6 bg-white"> <div className="flex flex-col"><div className="flex items-center gap-3 mb-4"> <div className={`p-2 rounded-lg ${stat.bgColor}`}> {stat.icon} </div> <span className="text-sm text-gray-500">{stat.title}</span> </div> <div className="space-y-1"><p className="text-2xl text-left font-semibold">{stat.value}</p> <div className="flex items-center gap-2"><span className="text-sm text-green-500">{stat.change}</span> <span className="text-sm text-gray-500">{stat.period}</span> </div> </div> </div> </Card>))}
+    </>
+  );
+};
