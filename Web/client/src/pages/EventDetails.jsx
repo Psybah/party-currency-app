@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,18 @@ import { toast } from "react-hot-toast";
 export default function EventDetails() {
   const { eventId } = useParams();
   const navigate = useNavigate();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    const handleSidebarStateChange = (event) => {
+      setSidebarCollapsed(event.detail.isCollapsed);
+    };
+
+    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
+    return () => {
+      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
+    };
+  }, []);
 
   const { data: event, isLoading } = useQuery({
     queryKey: ["event", eventId],
@@ -35,7 +47,9 @@ export default function EventDetails() {
   }
 
   return (
-    <div className="bg-white p-8 min-h-screen">
+    <div className={`bg-white min-h-screen transition-all duration-300 ${
+      sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+    }`}>
       <Button
         variant="ghost"
         onClick={() => navigate("/manage-event")}

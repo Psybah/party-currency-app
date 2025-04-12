@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut, PanelRightOpen, PanelLeftOpen, X } from "lucide-react";
 import { USER_PROFILE_CONTEXT } from "@/context";
@@ -12,6 +12,12 @@ export default function Sidebar({ isOpen, onClose }) {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const { setUserProfile } = useContext(USER_PROFILE_CONTEXT);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('sidebarStateChange', { 
+      detail: { isCollapsed } 
+    }));
+  }, [isCollapsed]);
 
   const handleLogout = () => {
     setUserProfile(null);

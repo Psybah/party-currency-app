@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MerchantSidebar } from "@/components/merchant/MerchantSidebar";
 import MerchantHeader from "@/components/merchant/MerchantHeader";
 import { Pencil } from "lucide-react";
@@ -6,8 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 
 export default function Settings() {
-  const [isAccountDisabled, setIsAccountDisabled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isAccountDisabled, setIsAccountDisabled] = useState(false);
+
+  useEffect(() => {
+    const handleSidebarStateChange = (event) => {
+      setSidebarCollapsed(event.detail.isCollapsed);
+    };
+
+    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
+    return () => {
+      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
+    };
+  }, []);
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -16,7 +28,9 @@ export default function Settings() {
         onClose={() => setIsMobileMenuOpen(false)}
       />
 
-      <div className="flex flex-col md:pl-64 min-h-screen">
+      <div className={`transition-all duration-300 ${
+        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+      }`}>
         <MerchantHeader
           toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         />

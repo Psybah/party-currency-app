@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MerchantSidebar } from "@/components/merchant/MerchantSidebar";
 import MerchantHeader from "@/components/merchant/MerchantHeader";
 import { Search } from "lucide-react";
@@ -17,6 +17,18 @@ export default function EventHistory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEvents, setSelectedEvents] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    const handleSidebarStateChange = (event) => {
+      setSidebarCollapsed(event.detail.isCollapsed);
+    };
+
+    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
+    return () => {
+      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
+    };
+  }, []);
 
   // Mock data - replace with actual API call
   const events = [
@@ -73,7 +85,9 @@ export default function EventHistory() {
         onClose={() => setIsMobileMenuOpen(false)}
       />
 
-      <div className="flex flex-col md:pl-64 min-h-screen">
+      <div className={`transition-all duration-300 ${
+        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+      }`}>
         <MerchantHeader
           toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         />

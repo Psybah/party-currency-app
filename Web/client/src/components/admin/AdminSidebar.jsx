@@ -8,6 +8,13 @@ export function AdminSidebar({ isOpen, onClose }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
 
+  const handleCollapse = (collapsed) => {
+    setIsCollapsed(collapsed);
+    window.dispatchEvent(new CustomEvent('sidebarStateChange', { 
+      detail: { isCollapsed: collapsed } 
+    }));
+  };
+
   const navLinks = [
     {
       path: "/admin/dashboard",
@@ -34,7 +41,7 @@ export function AdminSidebar({ isOpen, onClose }) {
         <div className="flex justify-between items-center border-b border-white/10 px-3 py-2 h-20">
           <SidebarLogo isCollapsed={isCollapsed} />
           <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            onClick={() => handleCollapse(!isCollapsed)}
             className="text-white hover:text-gray-300"
           >
             {isCollapsed ? (

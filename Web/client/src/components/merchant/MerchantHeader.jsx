@@ -1,9 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, Menu } from "lucide-react";
 import UserAvatar from "../UserAvatar";
 
 export default function MerchantHeader({ toggleMobileMenu }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    const handleSidebarStateChange = (event) => {
+      setSidebarCollapsed(event.detail.isCollapsed);
+    };
+
+    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
+    return () => {
+      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
+    };
+  }, []);
 
   const handleMenuClick = (e) => {
     e.preventDefault();
@@ -12,7 +24,9 @@ export default function MerchantHeader({ toggleMobileMenu }) {
   };
 
   return (
-    <header className="flex justify-between items-center bg-white px-4 md:px-6 border-b h-20">
+    <header className={`flex justify-between items-center bg-white px-4 md:px-6 border-b h-20 transition-all duration-300 ${
+      sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+    }`}>
       <div className="flex items-center gap-4">
         <button
           onClick={handleMenuClick}

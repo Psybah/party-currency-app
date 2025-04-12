@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { LogOut, PanelRightOpen, PanelLeftOpen, X, History, FileText, Settings } from "lucide-react";
 import { USER_PROFILE_CONTEXT } from "@/context";
@@ -12,6 +12,12 @@ export function MerchantSidebar({ isOpen, onClose }) {
   const { setUserProfile } = useContext(USER_PROFILE_CONTEXT);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('sidebarStateChange', { 
+      detail: { isCollapsed } 
+    }));
+  }, [isCollapsed]);
 
   const handleLogout = () => {
     setUserProfile(null);
@@ -39,6 +45,10 @@ export function MerchantSidebar({ isOpen, onClose }) {
     }
   ];
 
+  const handleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
     <>
       {/* Desktop Sidebar */}
@@ -50,7 +60,7 @@ export function MerchantSidebar({ isOpen, onClose }) {
         <div className="flex justify-between items-center border-b border-white/10 px-3 py-2 h-20">
           <SidebarLogo isCollapsed={isCollapsed} />
           <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            onClick={handleCollapse}
             className="text-white hover:text-gray-300"
           >
             {isCollapsed ? (

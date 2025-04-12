@@ -35,9 +35,23 @@ import { getEvents } from "@/services/eventService";
 
 export default function ManageEvent() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState("ongoing");
   const authenticated = useAuthenticated();
   const [events, setEvents] = useState([]);
+
+  // Add sidebar collapse listener
+  useEffect(() => {
+    const handleSidebarStateChange = (event) => {
+      setSidebarCollapsed(event.detail.isCollapsed);
+    };
+
+    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
+    return () => {
+      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
+    };
+  }, []);
+
   const fetchEvents = async () => {
     let events_fetched = await getEvents();
     console.log({ events_fetched });
@@ -71,7 +85,9 @@ export default function ManageEvent() {
         onClose={() => setIsMobileMenuOpen(false)}
       />
 
-      <div className="md:pl-[var(--sidebar-width)] transition-all duration-300 ease-in-out">
+      <div className={`transition-all duration-300 ${
+        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+      }`}>
         <DashboardHeader
           toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         />

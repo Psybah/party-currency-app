@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardSidebar from "../components/DashboardSidebar";
 import DashboardHeader from "../components/DashboardHeader";
 import { ProfileSection } from "../components/settings/ProfileSection";
@@ -10,7 +10,19 @@ import { PhotoSection } from "../components/settings/PhotoSection";
 
 export default function Settings() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const authenticated = useAuthenticated();
+
+  useEffect(() => {
+    const handleSidebarStateChange = (event) => {
+      setSidebarCollapsed(event.detail.isCollapsed);
+    };
+
+    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
+    return () => {
+      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
+    };
+  }, []);
 
   const handleProfileUpdate = async (profileData) => {
     try {
@@ -55,7 +67,9 @@ export default function Settings() {
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
       />
-      <div className="md:pl-64">
+      <div className={`transition-all duration-300 ${
+        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+      }`}>
         <DashboardHeader
           toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         />
