@@ -67,6 +67,42 @@ export async function signupMerchantApi(values) {
   });
 }
 
-export function requestPasswordResetCode() {}
-export function getPasswordResetToken() {}
-export function resetPassword() {}
+export async function requestPasswordResetCode(email) {
+  return fetch(`${BASE_URL}/auth/password/code`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function getPasswordResetToken(email, code) {
+  return fetch(`${BASE_URL}/auth/password/token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email,code }),
+  });
+}
+
+export async function resetPassword(email, password) {
+    try {
+        const response = await fetch(`${BASE_URL}/auth/password/reset`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw data;
+        }
+        return response;
+    } catch (error) {
+        throw error;
+    }
+}
