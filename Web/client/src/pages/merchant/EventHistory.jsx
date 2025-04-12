@@ -11,11 +11,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
 
 export default function EventHistory() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedEvents, setSelectedEvents] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -70,14 +68,6 @@ export default function EventHistory() {
     },
   ];
 
-  const toggleEventSelection = (eventId) => {
-    setSelectedEvents((prev) =>
-      prev.includes(eventId)
-        ? prev.filter((id) => id !== eventId)
-        : [...prev, eventId]
-    );
-  };
-
   // Format date to be more mobile-friendly
   const formatDate = (dateString) => {
     const [day, month, year] = dateString.split('-');
@@ -118,43 +108,25 @@ export default function EventHistory() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[70px]">
-                      <Checkbox
-                        checked={selectedEvents.length === events.length}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setSelectedEvents(
-                              events.map((event) => event.eventId)
-                            );
-                          } else {
-                            setSelectedEvents([]);
-                          }
-                        }}
-                      />
-                    </TableHead>
-                    <TableHead className="w-[150px] text-left">Event ID</TableHead>
+                    <TableHead className="w-[200px] text-left">Event ID</TableHead>
                     <TableHead className="w-[180px] text-left whitespace-nowrap">Date</TableHead>
-                    <TableHead className="w-[200px] text-left">Location</TableHead>
-                    <TableHead className="w-[150px] text-left">Merchant ID</TableHead>
+                    <TableHead className="w-[250px] text-left">Location</TableHead>
+                    <TableHead className="w-[200px] text-left">Merchant ID</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {events.map((event, index) => (
                     <TableRow key={index} className="hover:bg-gray-50">
-                      <TableCell className="text-left">
-                        <Checkbox
-                          checked={selectedEvents.includes(event.eventId)}
-                          onCheckedChange={() =>
-                            toggleEventSelection(event.eventId)
-                          }
-                        />
+                      <TableCell className="text-left whitespace-nowrap">
+                        {event.eventId}
                       </TableCell>
-                      <TableCell className="text-left whitespace-nowrap">{event.eventId}</TableCell>
                       <TableCell className="text-left whitespace-nowrap">
                         {formatDate(event.date)}
                       </TableCell>
                       <TableCell className="text-left">{event.location}</TableCell>
-                      <TableCell className="text-left whitespace-nowrap">{event.merchantId}</TableCell>
+                      <TableCell className="text-left whitespace-nowrap">
+                        {event.merchantId}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

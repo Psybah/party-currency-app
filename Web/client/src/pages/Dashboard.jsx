@@ -36,13 +36,13 @@ export default function Dashboard() {
 
   const totalEvents = events.length;
 
-  // Transform events into transaction format with actual data
+  // Transform events into transaction format with proper date handling
   const transactions = events.map((event) => ({
     id: event.event_id || "N/A",
     amount: typeof event.amount === "number" ? event.amount : 0,
-    date: event.created_at || new Date().toISOString(),
+    date: event.created_at || event.date || new Date().toISOString(), // Prioritize created_at or event date
     status: event.status?.toLowerCase() || "pending",
-    invoiceUrl: `/api/invoices/${event.event_id}`, // Replace with real invoice URL
+    invoiceUrl: `/api/invoices/${event.event_id}`,
   }));
 
   console.log("Transformed transactions:", transactions); // Debug log

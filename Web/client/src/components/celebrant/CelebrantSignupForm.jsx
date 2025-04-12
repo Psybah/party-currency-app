@@ -216,6 +216,9 @@ export function CelebrantSignupForm() {
 
   return (
     <>
+      <h1 className="text-2xl md:text-3xl lg:text-4xl font-playfair text-center mb-6">
+        Create Your Account
+      </h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <NameInputs form={form} />

@@ -11,12 +11,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
 export default function TransactionHistory() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTransactions, setSelectedTransactions] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -72,14 +70,6 @@ export default function TransactionHistory() {
       invoice: "↓",
     },
   ];
-
-  const toggleTransactionSelection = (eventId) => {
-    setSelectedTransactions((prev) =>
-      prev.includes(eventId)
-        ? prev.filter((id) => id !== eventId)
-        : [...prev, eventId]
-    );
-  };
 
   const EmptyState = () => (
     <div className="text-center py-12">
@@ -140,46 +130,22 @@ export default function TransactionHistory() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[70px]">
-                        <Checkbox
-                          checked={selectedTransactions.length === transactions.length}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setSelectedTransactions(
-                                transactions.map((tx) => tx.eventId)
-                              );
-                            } else {
-                              setSelectedTransactions([]);
-                            }
-                          }}
-                        />
-                      </TableHead>
-                      <TableHead className="w-[150px]">Event ID</TableHead>
-                      <TableHead className="w-[120px]">Amount</TableHead>
-                      <TableHead className="w-[150px]">Machine ID</TableHead>
-                      <TableHead className="w-[70px]">Invoice</TableHead>
+                      <TableHead className="w-[200px] text-left">Event ID</TableHead>
+                      <TableHead className="w-[150px] text-left">Amount</TableHead>
+                      <TableHead className="w-[200px] text-left">Machine ID</TableHead>
+                      <TableHead className="w-[100px] text-left">Invoice</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {transactions.map((transaction, index) => (
                       <TableRow key={index} className="hover:bg-gray-50">
-                        <TableCell className="text-left">
-                          <Checkbox
-                            checked={selectedTransactions.includes(
-                              transaction.eventId
-                            )}
-                            onCheckedChange={() =>
-                              toggleTransactionSelection(transaction.eventId)
-                            }
-                          />
-                        </TableCell>
-                        <TableCell className="text-left">
+                        <TableCell className="text-left whitespace-nowrap">
                           {transaction.eventId}
                         </TableCell>
-                        <TableCell className="text-left">
+                        <TableCell className="text-left whitespace-nowrap">
                           ₦{transaction.amount}
                         </TableCell>
-                        <TableCell className="text-left">
+                        <TableCell className="text-left whitespace-nowrap">
                           {transaction.machineId}
                         </TableCell>
                         <TableCell className="text-left">
