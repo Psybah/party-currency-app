@@ -1,25 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, ShoppingBag, ArrowRightLeft, Users2, User2, Trash2, UserCheck, UserMinus } from 'lucide-react';
+import { Users, ShoppingBag, ArrowRightLeft, Users2, User2, Trash2, UserCheck, UserMinus, Loader } from 'lucide-react';
 import { ActionMenu } from "@/components/admin/ActionMenu";
 import { DeleteDialog, ActivateDialog, DeactivateDialog } from "@/components/admin/ActionDialogs";
+import adminApi from '@/api/adminApi';
+import { cn } from '@/lib/utils';
 
 export default function AdminDashboard() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [dashboardData, setDashboardData] = useState(null);
+  const [statsData, setStatsData] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showActivateDialog, setShowActivateDialog] = useState(false);
   const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
   const [loadingAction, setLoadingAction] = useState(null);
   const [actionError, setActionError] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const LoadingCard = () => (
+    
     <div className="animate-pulse space-y-4 p-6 rounded-lg bg-white shadow">
       <div className="h-4 bg-gray-200 rounded w-1/4"></div>
       <div className="h-8 bg-gray-200 rounded w-1/2"></div>
@@ -39,23 +44,6 @@ export default function AdminDashboard() {
         Try Again
       </button>
     </div>
-  );
-
-  const EmptyMetricCard = ({ icon: Icon, title }) => (
-    <Card className="p-6">
-      <div className="flex items-center gap-4">
-        <div className="p-3 bg-gray-100 rounded-full">
-          <Icon className="w-6 h-6 text-gray-400" />
-        </div>
-        <div>
-          <p className="text-sm text-gray-500">{title}</p>
-          <p className="text-2xl font-semibold mt-1">--</p>
-        </div>
-      </div>
-      <div className="mt-4 flex items-center text-gray-400 text-sm">
-        <span>No data available</span>
-      </div>
-    </Card>
   );
 
   const EmptyChart = () => (
@@ -101,26 +89,32 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDelete = () => handleActionWithLoading('delete', async () => {
-    // API call to delete user
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-    setShowDeleteDialog(false);
-    setSelectedUser(null);
-  });
+  const handleDelete = async () => {
+    await handleActionWithLoading('delete', async () => {
+      await adminApi.deleteUser(selectedUser.email);
+      setShowDeleteDialog(false);
+      setSelectedUser(null);
+      fetchDashboardData(); // Refresh data
+    });
+  };
 
-  const handleActivate = () => handleActionWithLoading('activate', async () => {
-    // API call to activate user
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-    setShowActivateDialog(false);
-    setSelectedUser(null);
-  });
+  const handleActivate = async () => {
+    await handleActionWithLoading('activate', async () => {
+      await adminApi.activateUser(selectedUser.email);
+      setShowActivateDialog(false);
+      setSelectedUser(null);
+      fetchDashboardData(); // Refresh data
+    });
+  };
 
-  const handleDeactivate = () => handleActionWithLoading('deactivate', async () => {
-    // API call to deactivate user
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-    setShowDeactivateDialog(false);
-    setSelectedUser(null);
-  });
+  const handleDeactivate = async () => {
+    await handleActionWithLoading('deactivate', async () => {
+      await adminApi.suspendUser(selectedUser.email);
+      setShowDeactivateDialog(false);
+      setSelectedUser(null);
+      fetchDashboardData(); // Refresh data
+    });
+  };
 
   const getActions = (user) => {
     const actions = [
@@ -148,11 +142,47 @@ export default function AdminDashboard() {
     return actions;
   };
 
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  useEffect(() => {
+    const handleSidebarStateChange = (event) => {
+      setSidebarCollapsed(event.detail.isCollapsed);
+    };
+
+    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
+    return () => {
+      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
+    };
+  }, []);
+
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [statsData, usersData] = await Promise.all([
+        adminApi.getAdminStatistics(),
+        adminApi.getUsers()
+      ]);
+      
+      setDashboardData(statsData);
+      setUsers(usersData);
+    } catch (err) {
+      setError(err.message || 'Failed to load dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <AdminSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
-        <div className="lg:pl-64">
+        <div className={cn(
+          "transition-all duration-300",
+          sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+        )}>
           <AdminHeader toggleMobileMenu={() => setIsMobileMenuOpen(true)} />
           <main className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -171,7 +201,10 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen bg-gray-50">
         <AdminSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
-        <div className="lg:pl-64">
+        <div className={cn(
+          "transition-all duration-300",
+          sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+        )}>
           <AdminHeader toggleMobileMenu={() => setIsMobileMenuOpen(true)} />
           <main className="p-6">
             <ErrorState 
@@ -188,7 +221,7 @@ export default function AdminDashboard() {
   }
 
   const currentDate = new Date().toLocaleDateString('en-US', {
-    day: 'numeric',
+      day: 'numeric',
     month: 'long',
     year: 'numeric'
   });
@@ -196,51 +229,60 @@ export default function AdminDashboard() {
   const stats = [
     { 
       title: "Active Users", 
-      value: "120",
-      change: "+12%",
+      value: dashboardData?.activeUsers ?? '--',
+      change: dashboardData?.userGrowth ?? '--',
       period: "this week",
       icon: <Users className="w-5 h-5 text-[#4069E5]" />,
       bgColor: "bg-[#EEF1FE]"
     },
     { 
       title: "Total Orders", 
-      value: "70",
-      change: "+20%",
+      value: dashboardData?.totalOrders ?? '--',
+      change: dashboardData?.orderGrowth ?? '--',
       period: "this week",
       icon: <ShoppingBag className="w-5 h-5 text-[#3F845F]" />,
       bgColor: "bg-[#EDFAF3]"
     },
     { 
       title: "Total Transfers", 
-      value: "50",
-      change: "+12%",
+      value: dashboardData?.totalTransfers ?? '--',
+      change: dashboardData?.transferGrowth ?? '--',
       period: "this week",
       icon: <ArrowRightLeft className="w-5 h-5 text-[#E4C65B]" />,
       bgColor: "bg-[#FEF9EC]"
     },
     { 
       title: "Total Visitors", 
-      value: "70",
-      change: "+20%",
+      value: dashboardData?.totalVisitors ?? '--',
+      change: dashboardData?.visitorGrowth ?? '--',
       period: "this week",
       icon: <Users2 className="w-5 h-5 text-[#E56940]" />,
       bgColor: "bg-[#FEF1EC]"
     }
   ];
 
-  const users = [
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Merchant", status: "Suspended", lastActivity: "2 Hours ago", transaction: "₦500,000" },
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Merchant", status: "Active", lastActivity: "2 Hours ago", transaction: "₦500,000" },
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Merchant", status: "Active", lastActivity: "2 Hours ago", transaction: "₦500,000" },
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Merchant", status: "Active", lastActivity: "2 Hours ago", transaction: "₦500,000" },
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Merchant", status: "Suspended", lastActivity: "2 Hours ago", transaction: "₦500,000" }
-  ];
+  const EmptyUsersTable = () => (
+    <div className="text-center py-12">
+      <div className="flex justify-center mb-4">
+        <div className="p-3 bg-gray-100 rounded-full">
+          <Users2 className="w-8 h-8 text-gray-400" />
+        </div>
+      </div>
+      <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+      <p className="text-gray-500 max-w-sm mx-auto">
+        There are currently no users in the system.
+      </p>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
       
-      <div className="lg:pl-64">
+      <div className={cn(
+        "transition-all duration-300",
+        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+      )}>
         <AdminHeader toggleMobileMenu={() => setIsMobileMenuOpen(true)} />
         
         <main className="p-6 space-y-6">
@@ -249,12 +291,19 @@ export default function AdminDashboard() {
             <p className="text-sm text-gray-500">{currentDate}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className={cn(
+            "grid gap-4",
+            "grid-cols-1",
+            "md:grid-cols-2",
+            sidebarCollapsed 
+              ? "xl:grid-cols-4" 
+              : "lg:grid-cols-4"
+          )}>
             {stats.map((stat, index) => (
               <Card key={index} className="p-6 bg-white">
                 <div className="flex flex-col">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+                    <div className={`p-2 rounded-lg `}>
                       {stat.icon}
                     </div>
                     <span className="text-sm text-gray-500">{stat.title}</span>
@@ -262,16 +311,24 @@ export default function AdminDashboard() {
                   <div className="space-y-1">
                     <p className="text-2xl text-left font-semibold">{stat.value}</p>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-green-500">{stat.change}</span>
+                      <span className={`text-sm ${
+                        stat.change === '--' 
+                          ? 'text-gray-400' 
+                          : parseFloat(stat.change) >= 0 
+                            ? 'text-green-500' 
+                            : 'text-red-500'
+                      }`}>
+                        {stat.change === '--' ? '--' : `${parseFloat(stat.change) >= 0 ? '+' : ''}${stat.change}`}
+                      </span>
                       <span className="text-sm text-gray-500">{stat.period}</span>
                     </div>
                   </div>
                 </div>
               </Card>
             ))}
-          </div>
+            </div>
 
-          <div className="bg-white rounded-lg shadow">
+          <div className="bg-white rounded-lg shadow overflow-x-auto">
             <div className="p-4 border-b">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-50 rounded-lg">
@@ -280,45 +337,51 @@ export default function AdminDashboard() {
                 <h2 className="text-lg font-semibold">User Management</h2>
               </div>
             </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-center">User ID</TableHead>
-                  <TableHead className="text-center">Name</TableHead>
-                  <TableHead className="text-center">Role</TableHead>
-                  <TableHead className="text-center">Status</TableHead>
-                  <TableHead className="text-center">Last Activity</TableHead>
-                  <TableHead className="text-center">Total Transaction</TableHead>
-                  <TableHead className="text-right pr-6">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="text-center">{user.id}</TableCell>
-                    <TableCell className="text-center">{user.name}</TableCell>
-                    <TableCell className="text-center">{user.role}</TableCell>
-                    <TableCell className="text-center">
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        user.status === "Active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                      }`}>
-                        {user.status}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center">{user.lastActivity}</TableCell>
-                    <TableCell className="text-center">{user.transaction}</TableCell>
-                    <TableCell className="text-right pr-6">
-                      <ActionMenu
-                        actions={getActions(user)}
-                        onAction={(action) => handleAction(action, user)}
-                        loading={loadingAction !== null}
-                        loadingAction={loadingAction}
-                      />
-                    </TableCell>
+            {users && users.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-center">User ID</TableHead>
+                    <TableHead className="text-center">Name</TableHead>
+                    <TableHead className="text-center">Role</TableHead>
+                    <TableHead className="text-center">Status</TableHead>
+                    <TableHead className="text-center">Last Activity</TableHead>
+                    <TableHead className="text-center">Total Transaction</TableHead>
+                    <TableHead className="text-right pr-6">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="text-center">{user.id || '--'}</TableCell>
+                      <TableCell className="text-center">{user.name || '--'}</TableCell>
+                      <TableCell className="text-center">{user.role || '--'}</TableCell>
+                      <TableCell className="text-center">
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          user.status?.toLowerCase() === "active" 
+                            ? "bg-green-100 text-green-800" 
+                            : "bg-red-100 text-red-800"
+                        }`}>
+                          {user.status || 'Unknown'}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center">{user.lastActivity || '--'}</TableCell>
+                      <TableCell className="text-center">{user.transaction || '₦0'}</TableCell>
+                      <TableCell className="text-right pr-6">
+                        <ActionMenu
+                          actions={getActions(user)}
+                          onAction={(action) => handleAction(action, user)}
+                          loading={loadingAction !== null}
+                          loadingAction={loadingAction}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <EmptyUsersTable />
+            )}
           </div>
         </main>
       </div>
@@ -346,3 +409,49 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+
+
+const StatsCard = ({ statsData }) => {
+  const stats = statsData ? [
+    { 
+      title: "Active Users", 
+      value: statsData.activeUsers || "N/A",
+      change: statsData.activeUsersChange || "N/A",
+      period: "this week",
+      icon: <Users className="w-5 h-5 text-[#4069E5]" />,
+      bgColor: "bg-[#EEF1FE]"
+    },
+    { 
+      title: "Total Orders", 
+      value: statsData.totalOrders || "N/A",
+      change: statsData.totalOrdersChange || "N/A",
+      period: "this week",
+      icon: <ShoppingBag className="w-5 h-5 text-[#3F845F]" />,
+      bgColor: "bg-[#EDFAF3]"
+    },
+    { 
+      title: "Total Transfers", 
+      value: statsData.totalTransfers || "N/A",
+      change: statsData.totalTransfersChange || "N/A",
+      period: "this week",
+      icon: <ArrowRightLeft className="w-5 h-5 text-[#E4C65B]" />,
+      bgColor: "bg-[#FEF9EC]"
+    },
+    { 
+      title: "Total Visitors", 
+      value: statsData.totalVisitors || "N/A",
+      change: statsData.totalVisitorsChange || "N/A",
+      period: "this week",
+      icon: <Users2 className="w-5 h-5 text-[#E56940]" />,
+      bgColor: "bg-[#FEF1EC]"
+    }
+  ] : [];
+
+
+  return (
+    <>
+            {stats.map((stat, index) => (<Card key={index} className="p-6 bg-white"> <div className="flex flex-col"><div className="flex items-center gap-3 mb-4"> <div className={`p-2 rounded-lg ${stat.bgColor}`}> {stat.icon} </div> <span className="text-sm text-gray-500">{stat.title}</span> </div> <div className="space-y-1"><p className="text-2xl text-left font-semibold">{stat.value}</p> <div className="flex items-center gap-2"><span className="text-sm text-green-500">{stat.change}</span> <span className="text-sm text-gray-500">{stat.period}</span> </div> </div> </div> </Card>))}
+    </>
+  );
+};

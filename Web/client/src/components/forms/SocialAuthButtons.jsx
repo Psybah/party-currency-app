@@ -1,8 +1,12 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { googleAuthUrl } from "@/config";
 
 export function SocialAuthButtons() {
+  const handleGoogleLogin = () => {
+    // Redirect to the backend's Google auth URL
+    window.location.href = "https://party-currency-app-production-70c0.up.railway.app/auth/google/login";
+  };
+
   return (
     <div className="space-y-4">
       <div className="relative">
@@ -16,22 +20,14 @@ export function SocialAuthButtons() {
         </div>
       </div>
 
-      <div className="gap-4 grid grid-cols-2">
-        <Button
-          variant="outline"
-          className="border-lightgray"
-          onClick={() => {
-            window.location.href = googleAuthUrl;
-          }}
-        >
-          <img src="/google.svg" alt="Google" className="mr-2 w-5 h-5" />
-          Google
-        </Button>
-        <Button variant="outline" className="border-lightgray">
-          <img src="/apple.svg" alt="Apple" className="mr-2 w-5 h-5" />
-          Apple
-        </Button>
-      </div>
+      <Button
+        variant="outline"
+        className="w-full border-lightgray"
+        onClick={handleGoogleLogin}
+      >
+        <img src="/google.svg" alt="Google" className="mr-2 w-5 h-5" />
+        Continue with Google
+      </Button>
     </div>
   );
 }

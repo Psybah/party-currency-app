@@ -30,23 +30,23 @@ const Features = () => {
   ];
 
   return (
-    <section id="features" className="py-10 px-5 md:px-20 bg-softbg">
-      <div className="mr-auto ml-auto lg:max-w-[100%]">
+    <section id="features" className="py-12 md:py-20 px-4 md:px-8 lg:px-20 bg-softbg">
+      <div className="max-w-7xl mx-auto">
         {/* Section Title */}
-        <div className="mb-10 text-center">
-          <h3 className="text-bluePrimary text-3xl md:text-5xl font-playfair 
-                          font-bold mt-5 mb-6 text-center">
+        <div className="mb-8 md:mb-16 text-center">
+          <h3 className="text-bluePrimary text-2xl md:text-3xl lg:text-5xl font-playfair 
+                        font-bold mt-4 mb-4 md:mb-6">
             What We Do
           </h3>
-          <p className="text-lg text-paragraph leading-relaxed text-center">
+          <p className="text-base md:text-lg text-paragraph leading-relaxed max-w-3xl mx-auto">
             Discover our services for effortless spraying and see how we enhance
             <br className="hidden sm:block" /> your party experience with ease and excitement.
           </p>
         </div>
 
         {/* Card Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 
-        sm:gap-6 md:gap-8 lg:gap-10 p-7">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 
+                      md:gap-6 lg:gap-8 p-4 md:p-6">
           {featuresData.map((feature, index) => (
             <div
               key={index}

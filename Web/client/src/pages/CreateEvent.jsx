@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import DashboardSidebar from "@/components/DashboardSidebar";
@@ -16,6 +16,7 @@ export default function CreateEvent() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [eventId, setEventId] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const authenticated = useAuthenticated();
 
   const [formData, setFormData] = useState({
@@ -30,6 +31,17 @@ export default function CreateEvent() {
     LGA: "",
     reconciliation_service: false,
   });
+
+  useEffect(() => {
+    const handleSidebarStateChange = (event) => {
+      setSidebarCollapsed(event.detail.isCollapsed);
+    };
+
+    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
+    return () => {
+      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
+    };
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -88,7 +100,9 @@ export default function CreateEvent() {
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
       />
-      <div className="flex flex-col md:pl-64 min-h-screen">
+      <div className={`transition-all duration-300 ${
+        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+      }`}>
         <DashboardHeader
           toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         />

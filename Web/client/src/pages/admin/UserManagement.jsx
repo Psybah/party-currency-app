@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { UserCheck, UserMinus, Trash2, Search, ChevronLeft, ChevronRight, Users2 } from 'lucide-react';
 import { ActionMenu } from '@/components/admin/ActionMenu';
 import { DeleteDialog, ActivateDialog, DeactivateDialog } from '@/components/admin/ActionDialogs';
+import adminApi from '@/api/adminApi';
+import { cn } from '@/lib/utils';
 
 export default function UserManagement() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -20,17 +22,36 @@ export default function UserManagement() {
   const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
   const [loadingAction, setLoadingAction] = useState(null);
   const [actionError, setActionError] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // Mock data - will be replaced with API call later
-  const [users] = useState([
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Merchant", status: "Deactivated", lastActivity: "2 Hours ago", transaction: "₦500,000" },
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Host", status: "Active", lastActivity: "2 Hours ago", transaction: "₦500,000" },
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Merchant", status: "Active", lastActivity: "2 Hours ago", transaction: "₦500,000" },
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Host", status: "Active", lastActivity: "2 Hours ago", transaction: "₦500,000" },
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Merchant", status: "Deactivated", lastActivity: "2 Hours ago", transaction: "₦500,000" },
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Host", status: "Deactivated", lastActivity: "2 Hours ago", transaction: "₦500,000" },
-    { id: "TAL-0001", name: "Felix Nwaghods", role: "Host", status: "Deactivated", lastActivity: "2 Hours ago", transaction: "₦500,000" }
-  ]);
+  useEffect(() => {
+    fetchUsers();
+  }, [currentPage]);
+
+  useEffect(() => {
+    const handleSidebarStateChange = (event) => {
+      setSidebarCollapsed(event.detail.isCollapsed);
+    };
+
+    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
+    return () => {
+      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
+    };
+  }, []);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await adminApi.getUsers();
+      setUsers(data);
+    } catch (err) {
+      setError(err.message || 'Failed to load users');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAction = (action, user) => {
     setSelectedUser(user);
@@ -63,26 +84,32 @@ export default function UserManagement() {
     }
   };
 
-  const handleDelete = () => handleActionWithLoading('delete', async () => {
-    // API call to delete user
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-    setShowDeleteDialog(false);
-    setSelectedUser(null);
-  });
+  const handleDelete = async () => {
+    await handleActionWithLoading('delete', async () => {
+      await adminApi.deleteUser(selectedUser.email);
+      setShowDeleteDialog(false);
+      setSelectedUser(null);
+      fetchUsers(); // Refresh user list
+    });
+  };
 
-  const handleActivate = () => handleActionWithLoading('activate', async () => {
-    // API call to activate user
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-    setShowActivateDialog(false);
-    setSelectedUser(null);
-  });
+  const handleActivate = async () => {
+    await handleActionWithLoading('activate', async () => {
+      await adminApi.activateUser(selectedUser.email);
+      setShowActivateDialog(false);
+      setSelectedUser(null);
+      fetchUsers(); // Refresh user list
+    });
+  };
 
-  const handleDeactivate = () => handleActionWithLoading('deactivate', async () => {
-    // API call to deactivate user
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-    setShowDeactivateDialog(false);
-    setSelectedUser(null);
-  });
+  const handleDeactivate = async () => {
+    await handleActionWithLoading('deactivate', async () => {
+      await adminApi.suspendUser(selectedUser.email);
+      setShowDeactivateDialog(false);
+      setSelectedUser(null);
+      fetchUsers(); // Refresh user list
+    });
+  };
 
   const getActions = (user) => {
     const actions = [
@@ -154,7 +181,10 @@ export default function UserManagement() {
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
       
-      <div className="lg:pl-64">
+      <div className={cn(
+        "transition-all duration-300",
+        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+      )}>
         <AdminHeader toggleMobileMenu={() => setIsMobileMenuOpen(true)} />
         
         <main className="p-6 space-y-6">

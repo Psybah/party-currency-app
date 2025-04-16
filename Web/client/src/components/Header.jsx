@@ -66,7 +66,7 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-50 py-2 md:px-5 text-white 
+      className={`fixed top-0 left-0 w-full z-50 py-2 px-4 md:px-6 lg:px-8 text-white 
         transition-all duration-300 
         ${
           isScrolled
@@ -74,24 +74,28 @@ const Header = () => {
             : ""
         }`}
     >
-      <div className="flex justify-between items-center px-4 md:px-7 py-4 w-full">
-        <Link to="/" className="w-28">
-          <img src={logo} alt="Party Currency Logo" />
+      <div className="flex justify-between items-center py-4 w-full">
+        <Link to="/" className="w-24 md:w-28">
+          <img src={logo} alt="Party Currency Logo" className="w-full" />
         </Link>
 
-        <DesktopNav
-          location={location}
-          scrollToSection={scrollToSection}
-          isDropdownOpen={isDropdownOpen}
-          setIsDropdownOpen={setIsDropdownOpen}
-        />
+        {/* Desktop Navigation - Only show on large screens */}
+        <div className="hidden lg:block">
+          <DesktopNav
+            location={location}
+            scrollToSection={scrollToSection}
+            isDropdownOpen={isDropdownOpen}
+            setIsDropdownOpen={setIsDropdownOpen}
+          />
+        </div>
 
         <div className="flex items-center gap-4">
-          {/* Mobile Menu Toggle */}
-          <div className="md:hidden">
+          {/* Menu Toggle - Show on mobile and tablet */}
+          <div className="lg:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              aria-label="Toggle menu"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -120,6 +124,7 @@ const Header = () => {
         </div>
       </div>
 
+      {/* Mobile Menu - Show on mobile and tablet */}
       <MobileMenu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}

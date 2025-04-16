@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardSidebar from "../components/DashboardSidebar";
 import DashboardHeader from "../components/DashboardHeader";
@@ -10,10 +10,22 @@ import CurrencyBreakdown from "@/components/CurrencyBreakdown";
 
 export default function Templates() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [isCustomized, setIsCustomized] = useState(false);
   const navigate = useNavigate();
   const authenticated = useAuthenticated();
+
+  useEffect(() => {
+    const handleSidebarStateChange = (event) => {
+      setSidebarCollapsed(event.detail.isCollapsed);
+    };
+
+    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
+    return () => {
+      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
+    };
+  }, []);
 
   const currencies = [
     {
@@ -58,8 +70,9 @@ export default function Templates() {
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
       />
-
-      <div className="md:pl-64">
+      <div className={`transition-all duration-300 ${
+        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+      }`}>
         <DashboardHeader toggleMobileMenu={toggleMobileMenu} />
 
         <main className="p-6">

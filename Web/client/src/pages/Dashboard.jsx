@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import DashboardSidebar from "../components/DashboardSidebar";
@@ -11,6 +11,7 @@ import { getEvents } from "../services/eventService";
 
 export default function Dashboard() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data, isLoading, error } = useQuery({
@@ -35,13 +36,13 @@ export default function Dashboard() {
 
   const totalEvents = events.length;
 
-  // Transform events into transaction format with actual data
+  // Transform events into transaction format with proper date handling
   const transactions = events.map((event) => ({
     id: event.event_id || "N/A",
     amount: typeof event.amount === "number" ? event.amount : 0,
-    date: event.created_at || new Date().toISOString(),
+    date: event.created_at || event.date || new Date().toISOString(), // Prioritize created_at or event date
     status: event.status?.toLowerCase() || "pending",
-    invoiceUrl: `/api/invoices/${event.event_id}`, // Replace with real invoice URL
+    invoiceUrl: `/api/invoices/${event.event_id}`,
   }));
 
   console.log("Transformed transactions:", transactions); // Debug log
@@ -52,6 +53,18 @@ export default function Dashboard() {
       transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.status.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Add this effect to all dashboard pages
+  useEffect(() => {
+    const handleSidebarStateChange = (event) => {
+      setSidebarCollapsed(event.detail.isCollapsed);
+    };
+
+    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
+    return () => {
+      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
+    };
+  }, []);
 
   if (error) {
     return (
@@ -81,7 +94,9 @@ export default function Dashboard() {
         onClose={() => setIsMobileMenuOpen(false)}
       />
 
-      <div className="lg:pl-64">
+      <div className={`transition-all duration-300 ${
+        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+      }`}>
         <DashboardHeader
           toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         />

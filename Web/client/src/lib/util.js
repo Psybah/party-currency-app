@@ -6,8 +6,9 @@ export function storeAuth(
   userType = "customer",
   rememberMe = true
 ) {
-  // Supertype can be 'customer' or 'merchant'
+  // Ensure userType is stored correctly
   localStorage.setItem("userType", userType);
+  console.log('Storing auth - userType:', userType);
 
   if (rememberMe) {
     Cookies.set("accessToken", accessToken, { expires: ACCESS_TOKEN_DURATION });
@@ -26,3 +27,25 @@ export function getAuth() {
 export function deleteAuth() {
   Cookies.remove("accessToken");
 }
+
+export const clearAllAuth = () => {
+  // Clear all localStorage items
+  localStorage.removeItem('token');
+  localStorage.removeItem('userType');
+  localStorage.removeItem('isAuthenticated');
+  localStorage.removeItem('resetToken');
+  
+  // Clear session storage
+  sessionStorage.clear();
+  
+  // Clear cookies using js-cookie
+  Cookies.remove('accessToken');
+  Cookies.remove('token');
+  
+  // Force clear any other cookies
+  const cookies = document.cookie.split(';');
+  cookies.forEach(cookie => {
+    const cookieName = cookie.split('=')[0].trim();
+    Cookies.remove(cookieName);
+  });
+};

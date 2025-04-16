@@ -37,13 +37,9 @@ export function GoogleAuthButton() {
     }
   };
 
-  const initializeGoogleAuth = () => {
-    toast.error("Google authentication is not configured yet. Please use email/password login.");
-  };
-
   return (
     <button
-      onClick={initializeGoogleAuth}
+      onClick={() => window.location.href = "https://party-currency-app-production-70c0.up.railway.app/auth/google/login"}
       type="button"
       className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2"
     >

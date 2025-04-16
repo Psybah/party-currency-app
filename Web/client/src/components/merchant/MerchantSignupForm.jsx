@@ -22,6 +22,8 @@ import {
   showValidationError,
 } from "@/utils/feedback";
 
+const nameRegex = /^[a-zA-Z0-9@]+$/; // Allow letters, numbers, and @ symbol
+
 export function MerchantSignupForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -48,8 +50,29 @@ export function MerchantSignupForm() {
 
   const onSubmit = async (values) => {
     setLoading(true);
-    // Clear any existing errors before submission
     form.clearErrors();
+    setServerErrors({});
+
+    // Validate name fields first
+    if (!nameRegex.test(values.firstName)) {
+      form.setError("firstName", {
+        type: "manual",
+        message: "First name can only contain letters, numbers, and @",
+      });
+      showValidationError("Please check your form entries and try again");
+      setLoading(false);
+      return;
+    }
+
+    if (!nameRegex.test(values.lastName)) {
+      form.setError("lastName", {
+        type: "manual",
+        message: "Last name can only contain letters, numbers, and @",
+      });
+      showValidationError("Please check your form entries and try again");
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await signupMerchantApi(values);
@@ -72,16 +95,37 @@ export function MerchantSignupForm() {
         const errorData = formatErrorMessage(data);
         console.log("API Error response:", errorData);
 
-        // Debug the structure of the error data
-        console.log(
-          "Error data structure:",
-          JSON.stringify(errorData, null, 2)
-        );
-
         let hasSetError = false;
 
-        // Specifically handle the structure we're seeing in the logs
         if (errorData.error) {
+          // Handle first name errors
+          if (errorData.error.firstName || errorData.error.first_name) {
+            const firstNameError = errorData.error.firstName || errorData.error.first_name;
+            setServerErrors((prev) => ({
+              ...prev,
+              firstName: Array.isArray(firstNameError) ? firstNameError[0] : firstNameError,
+            }));
+            form.setError("firstName", {
+              type: "manual",
+              message: Array.isArray(firstNameError) ? firstNameError[0] : firstNameError,
+            });
+            hasSetError = true;
+          }
+
+          // Handle last name errors
+          if (errorData.error.lastName || errorData.error.last_name) {
+            const lastNameError = errorData.error.lastName || errorData.error.last_name;
+            setServerErrors((prev) => ({
+              ...prev,
+              lastName: Array.isArray(lastNameError) ? lastNameError[0] : lastNameError,
+            }));
+            form.setError("lastName", {
+              type: "manual",
+              message: Array.isArray(lastNameError) ? lastNameError[0] : lastNameError,
+            });
+            hasSetError = true;
+          }
+
           // Handle email errors
           if (errorData.error.email) {
             const emailError = Array.isArray(errorData.error.email)
@@ -137,19 +181,11 @@ export function MerchantSignupForm() {
 
         // Show toast messages
         if (hasSetError) {
-          showValidationError("Please check your form entries and try again");
-        } else if (errorData.message) {
-          showAuthError(
-            typeof errorData.message === "string"
-              ? errorData.message
-              : "Signup failed. Please check your information and try again."
-          );
+          showValidationError("Signup failed. Please check your information and try again.");
         }
       }
     } catch (error) {
-      showAuthError(
-        "Network error occurred. Please check your connection and try again."
-      );
+      showAuthError("Network error occurred. Please check your connection and try again.");
       console.error("Signup error:", error);
     } finally {
       setLoading(false);
@@ -163,9 +199,16 @@ export function MerchantSignupForm() {
 
   return (
     <>
+      <h1 className="text-2xl md:text-3xl lg:text-4xl font-playfair text-center mb-6">
+        Create a Merchant Account
+      </h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <NameInputs form={form} />
+          <NameInputs 
+            form={form} 
+            firstNameError={serverErrors.firstName}
+            lastNameError={serverErrors.lastName}
+          />
 
           <FormInput
             label="Email"

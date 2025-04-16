@@ -13,7 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AuthFormWrapper } from "@/components/forms/AuthFormWrapper";
-import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { Loader } from "lucide-react";
 import {
   requestPasswordResetCode,
@@ -22,7 +21,7 @@ import {
 } from "@/api/authApi";
 import { showSuccess, showError, withFeedback } from "@/utils/feedback";
 import { formatErrorMessages } from "@/utils/feedback";
-
+import { BASE_URL } from "@/config";
 // Validation schemas
 const emailSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -66,14 +65,21 @@ export default function ForgotPasswordPage() {
     try {
       await withFeedback(
         async () => {
-          const response = await requestPasswordResetCode(values.email);
+          const response = await fetch(`${BASE_URL}/auth/password/code`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: values.email
+            }),
+          });
 
           if (!response.ok) {
             const errorData = await response.json();
             throw errorData;
           }
 
-          // Store email for next steps and advance to code verification
           setEmail(values.email);
           setStep(2);
           return response.json();
@@ -81,10 +87,6 @@ export default function ForgotPasswordPage() {
         {
           loadingMessage: "Sending verification code...",
           successMessage: "Verification code sent to your email!",
-          transform: (data) => {
-            // Any transformation if needed
-            return data;
-          },
         }
       );
     } catch (error) {
@@ -109,16 +111,24 @@ export default function ForgotPasswordPage() {
     try {
       await withFeedback(
         async () => {
-          const response = await getPasswordResetToken(email, values.code);
+          const tokenResponse = await fetch(`${BASE_URL}/auth/password/token`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: email
+            }),
+          });
 
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw errorData;
+          if (!tokenResponse.ok) {
+            throw await tokenResponse.json();
           }
 
-          // Advance to password reset step
+          const { token } = await tokenResponse.json();
+          localStorage.setItem('resetToken', token);
           setStep(3);
-          return response.json();
+          return { success: true };
         },
         {
           loadingMessage: "Verifying code...",
@@ -147,24 +157,30 @@ export default function ForgotPasswordPage() {
     try {
       await withFeedback(
         async () => {
-          const response = await resetPassword(email, values.password);
+          const resetToken = localStorage.getItem('resetToken');
+          const response = await fetch(`${BASE_URL}/auth/password/reset`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Token ${resetToken}`,
+            },
+            body: JSON.stringify({
+              email: email,
+              password: values.password
+            }),
+          });
 
           if (!response.ok) {
-            const errorData = await response.json();
-            throw errorData;
+            throw await response.json();
           }
 
+          localStorage.removeItem('resetToken');
+          setTimeout(() => (window.location.href = "/login"), 2000);
           return response.json();
         },
         {
           loadingMessage: "Resetting your password...",
-          successMessage:
-            "Password reset successfully! Please login with your new password.",
-          transform: (data) => {
-            // Redirect after showing success message
-            setTimeout(() => (window.location.href = "/login"), 2000);
-            return data;
-          },
+          successMessage: "Password reset successfully! Please login with your new password.",
         }
       );
     } catch (error) {
@@ -216,8 +232,8 @@ export default function ForgotPasswordPage() {
                 control={emailForm.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
+                  <FormItem className="text-left">
+                    <FormLabel className="text-left block">Email</FormLabel>
                     <Input
                       {...field}
                       type="email"
@@ -355,17 +371,6 @@ export default function ForgotPasswordPage() {
             </form>
           </Form>
         )}
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="border-gray-300 border-t w-full"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="bg-white px-2 text-gray-500">Or</span>
-          </div>
-        </div>
-
-        <GoogleAuthButton />
 
         <div className="text-center">
           <Link

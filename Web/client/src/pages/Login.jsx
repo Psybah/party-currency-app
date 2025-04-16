@@ -13,6 +13,7 @@ import {
   showAuthError,
   showValidationError,
 } from "@/utils/feedback";
+import { SocialAuthButtons } from "@/components/forms/SocialAuthButtons";
 
 export default function LoginPage() {
   const { setSignupOpen } = useContext(SIGNUP_CONTEXT);
@@ -68,31 +69,36 @@ export default function LoginPage() {
         const userProfileResponse = await getProfileApi();
         if (userProfileResponse.ok) {
           const userProfileData = await userProfileResponse.json();
+          console.log('Login - User Profile Data:', userProfileData);
+          
           setUserProfile(userProfileData);
-          // Get user type from response if available
-          console.log("User profile fetched:", userProfileData);
-
+          
           let userType = "customer";
-
+          
           // Check if user is admin type
           if (userProfileData.type?.toLowerCase() === "admin") {
             userType = "admin";
+            console.log('Login - Detected admin user');
           }
           // Check if user is merchant type
           else if (userProfileData.type?.toLowerCase().startsWith("merchant")) {
             userType = "merchant";
+            console.log('Login - Detected merchant user');
           }
-
-          // include userType in storeAuth
+          
+          console.log('Login - Setting user type:', userType);
+          
+          // Store auth with user type
           storeAuth(accessToken, userType, true);
-
+          
           // Redirect based on user type
           if (userType === "admin") {
-            navigate("/admin/dashboard");
+            console.log('Login - Redirecting to admin dashboard');
+            navigate("/admin/dashboard", { replace: true });
           } else if (userType === "merchant") {
-            navigate("/merchant/transactions");
+            navigate("/merchant/transactions", { replace: true });
           } else {
-            navigate("/dashboard");
+            navigate("/dashboard", { replace: true });
           }
           return;
         } else {
@@ -289,29 +295,7 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <div className="space-y-4">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="border-t border-lightgray w-full"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-muted-foreground">
-                Or continue with
-              </span>
-            </div>
-          </div>
-
-          <div className="gap-4 grid grid-cols-2">
-            <Button variant="outline" className="border-lightgray">
-              <img src="/google.svg" alt="Google" className="mr-2 w-5 h-5" />
-              Google
-            </Button>
-            <Button variant="outline" className="border-lightgray">
-              <img src="/apple.svg" alt="Apple" className="mr-2 w-5 h-5" />
-              Apple
-            </Button>
-          </div>
-        </div>
+        <SocialAuthButtons />
 
         <div className="space-y-2 text-center">
           <Link

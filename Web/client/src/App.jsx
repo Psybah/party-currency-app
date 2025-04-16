@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { ContextWrapper } from "./context";
 import { Toaster } from "react-hot-toast";
 import Home from "./pages/Home";
@@ -27,6 +27,10 @@ import MerchantSettings from "./pages/merchant/Settings";
 import AdminDashboard from "./pages/admin/Dashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
+import { AdminRouteGuard } from '@/components/AdminRouteGuard';
+import FAQ from "./pages/FAQ";
+import WhyChooseUs from "./pages/WhyChooseUs";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
 
 function App() {
   console.log("App component rendering"); // Debug log
@@ -43,6 +47,9 @@ function App() {
           <Route path="/celebrant-signup" element={<CelebrantSignup />} />
           <Route path="/merchant-signup" element={<MerchantSignup />} />
           <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/why-choose-us" element={<WhyChooseUs />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
           {/* Feature Pages */}
           <Route path="/custom-currency" element={<CustomCurrency />} />
@@ -60,19 +67,17 @@ function App() {
 
           {/* Admin Routes */}
           <Route
-            path="/admin/dashboard"
+            path="/admin/*"
             element={
-              <AdminProtectedRoute>
-                <AdminDashboard />
-              </AdminProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/user-management"
-            element={
-              <AdminProtectedRoute>
-                <UserManagement />
-              </AdminProtectedRoute>
+              <AdminRouteGuard>
+                <AdminProtectedRoute>
+                  <Routes>
+                    <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+                    <Route path="dashboard" element={<AdminDashboard />} />
+                    <Route path="user-management" element={<UserManagement />} />
+                  </Routes>
+                </AdminProtectedRoute>
+              </AdminRouteGuard>
             }
           />
 

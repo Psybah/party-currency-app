@@ -216,6 +216,9 @@ export function CelebrantSignupForm() {
 
   return (
     <>
+      <h1 className="text-2xl md:text-3xl lg:text-4xl font-playfair text-center mb-6">
+        Create Your Account
+      </h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <NameInputs form={form} />
@@ -254,7 +257,7 @@ export function CelebrantSignupForm() {
       </Form>
 
       {/* Debug error display (can be removed in production) */}
-      {(Object.keys(form.formState.errors).length > 0 ||
+      {/* {(Object.keys(form.formState.errors).length > 0 ||
         Object.keys(serverErrors).length > 0) && (
         <div className="bg-red-50 mt-4 p-3 border border-red-300 rounded text-red-600">
           <h4 className="font-bold">Form Validation Errors:</h4>
@@ -264,7 +267,7 @@ export function CelebrantSignupForm() {
             </p>
           ))}
         </div>
-      )}
+      )} */}
 
       <SocialAuthButtons />
       <TermsAndConditions />
