@@ -38,6 +38,7 @@ CSRF_TRUSTED_ORIGINS = [
 ALLOWED_HOSTS = [
     os.getenv('ALLOWED_HOSTS'),
     
+    
 ]
 
 # If you need to allow all origins, use this instead of wildcard
@@ -47,7 +48,8 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGINS = [
     'https://party-currency-app-production.up.railway.app',
     'http://localhost:8000',
-    'http://127.0.0.1:8000'
+    'http://127.0.0.1:8000',
+    "*"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -69,6 +71,7 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+    "*"
 ]
 # Database configuration
 DATABASES = {
