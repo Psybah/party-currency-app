@@ -7,6 +7,7 @@ import {
   faInstagram,
 } from "@fortawesome/free-brands-svg-icons";
 import { useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const WithoutFooter = [
   "/login",
@@ -33,9 +34,13 @@ const Footer = () => {
           <h3 className="font-playfair font-semibold text-2xl mb-4">Company</h3>
           <ul className="space-y-2">
             <li>
-              <a href="#" className="hover:text-gold">
+              <Link 
+                to="/why-choose-us" 
+                className="hover:text-gold"
+                onClick={() => window.scrollTo(0, 0)}
+              >
                 Why Choose Party Currency?
-              </a>
+              </Link>
             </li>
             <li>
               <a href="/terms" className="hover:text-gold">
@@ -43,14 +48,18 @@ const Footer = () => {
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-gold">
+              <a href="/privacy-policy" className="hover:text-gold">
                 Privacy
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-gold">
+              <Link 
+                to="/faq" 
+                className="hover:text-gold"
+                onClick={() => window.scrollTo(0, 0)}
+              >
                 FAQs
-              </a>
+              </Link>
             </li>
           </ul>
         </div>

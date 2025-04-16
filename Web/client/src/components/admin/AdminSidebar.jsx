@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Users, LogOut, PanelRightOpen, PanelLeftOpen, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import SidebarLogo from '../sidebar/SidebarLogo';
+import { USER_PROFILE_CONTEXT } from "@/context";
+import { deleteAuth, clearAllAuth } from "@/lib/util";
 
 export function AdminSidebar({ isOpen, onClose }) {
+  const { setUserProfile } = useContext(USER_PROFILE_CONTEXT);
+  const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
 
@@ -13,6 +17,18 @@ export function AdminSidebar({ isOpen, onClose }) {
     window.dispatchEvent(new CustomEvent('sidebarStateChange', { 
       detail: { isCollapsed: collapsed } 
     }));
+  };
+
+  const handleLogout = () => {
+    // Clear all auth data
+    clearAllAuth();
+    // Clear user profile
+    setUserProfile(null);
+    // Clear any stored tokens
+    localStorage.removeItem('resetToken');
+    localStorage.removeItem('userType');
+    // Force a page reload to clear any cached states
+    window.location.href = "/";
   };
 
   const navLinks = [
@@ -71,13 +87,13 @@ export function AdminSidebar({ isOpen, onClose }) {
         </nav>
 
         <div className="mt-auto px-3 mb-6">
-          <Link
-            to="/admin/logout"
-            className="flex items-center gap-3 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors w-full"
           >
             <LogOut className="w-5 h-5" />
             {!isCollapsed && <span>Log out</span>}
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -113,14 +129,13 @@ export function AdminSidebar({ isOpen, onClose }) {
             </nav>
 
             <div className="border-t border-white/10 p-4">
-              <Link
-                to="/admin/logout"
-                className="flex items-center gap-3 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                onClick={onClose}
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-3 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors w-full"
               >
                 <LogOut className="w-5 h-5" />
                 <span>Log out</span>
-              </Link>
+              </button>
             </div>
           </div>
         </div>

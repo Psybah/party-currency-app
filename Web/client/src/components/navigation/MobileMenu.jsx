@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from 'prop-types';
 import { Link, useNavigate } from "react-router-dom";
 
 export const MobileMenu = ({
@@ -137,6 +137,17 @@ export const MobileMenu = ({
           )}
         </div>
 
+        <Link
+          to="/faq"
+          className="text-left text-lg text-white hover:text-gold"
+          onClick={() => {
+            onClose();
+            window.scrollTo(0, 0);
+          }}
+        >
+          FAQ
+        </Link>
+
         <div className="absolute right-6 bottom-6 left-6">
           <button
             className="block mb-8 text-gold text-xl text-left w-full hover:text-yellow-400"
@@ -159,3 +170,17 @@ export const MobileMenu = ({
     </div>
   );
 };
+
+MobileMenu.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  isMobileDropdownOpen: PropTypes.bool.isRequired,
+  setIsMobileDropdownOpen: PropTypes.func.isRequired,
+  scrollToSection: PropTypes.func.isRequired,
+  handlePopUpToggle: PropTypes.func.isRequired,
+  location: PropTypes.shape({
+    pathname: PropTypes.string.isRequired
+  }).isRequired
+};
+
+export default MobileMenu;

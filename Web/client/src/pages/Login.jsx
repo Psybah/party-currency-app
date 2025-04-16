@@ -69,31 +69,36 @@ export default function LoginPage() {
         const userProfileResponse = await getProfileApi();
         if (userProfileResponse.ok) {
           const userProfileData = await userProfileResponse.json();
+          console.log('Login - User Profile Data:', userProfileData);
+          
           setUserProfile(userProfileData);
-          // Get user type from response if available
-          console.log("User profile fetched:", userProfileData);
-
+          
           let userType = "customer";
-
+          
           // Check if user is admin type
           if (userProfileData.type?.toLowerCase() === "admin") {
             userType = "admin";
+            console.log('Login - Detected admin user');
           }
           // Check if user is merchant type
           else if (userProfileData.type?.toLowerCase().startsWith("merchant")) {
             userType = "merchant";
+            console.log('Login - Detected merchant user');
           }
-
-          // include userType in storeAuth
+          
+          console.log('Login - Setting user type:', userType);
+          
+          // Store auth with user type
           storeAuth(accessToken, userType, true);
-
+          
           // Redirect based on user type
           if (userType === "admin") {
-            navigate("/admin/dashboard");
+            console.log('Login - Redirecting to admin dashboard');
+            navigate("/admin/dashboard", { replace: true });
           } else if (userType === "merchant") {
-            navigate("/merchant/transactions");
+            navigate("/merchant/transactions", { replace: true });
           } else {
-            navigate("/dashboard");
+            navigate("/dashboard", { replace: true });
           }
           return;
         } else {

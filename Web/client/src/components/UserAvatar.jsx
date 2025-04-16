@@ -5,7 +5,7 @@ import { USER_PROFILE_CONTEXT } from "@/context";
 import { SIGNUP_CONTEXT } from "@/context";
 import { deleteAuth, getAuth } from "@/lib/util";
 
-export default function UserAvatar({ showName, auth }) {
+export default function UserAvatar({ showName, auth, merchantLinks }) {
   const { userProfile, setUserProfile } = useContext(USER_PROFILE_CONTEXT);
   const { setSignupOpen } = useContext(SIGNUP_CONTEXT);
   const navigate = useNavigate();
@@ -21,6 +21,19 @@ export default function UserAvatar({ showName, auth }) {
   useEffect(() => {
     console.log("user Profile changed", userProfile);
   }, [userProfile]);
+
+  // Check auth status on mount and when userProfile changes
+  useEffect(() => {
+    if (auth && !userProfile) {
+      // If auth is required but no user profile exists, redirect to login
+      navigate('/login');
+    }
+  }, [auth, userProfile, navigate]);
+
+  // If auth is required and no user profile exists, don't render anything
+  if (auth && !userProfile) {
+    return null;
+  }
 
   let name = userProfile && userProfile.firstname;
 
