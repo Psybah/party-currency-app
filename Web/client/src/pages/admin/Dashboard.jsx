@@ -1,19 +1,48 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, ShoppingBag, ArrowRightLeft, Users2, User2, Trash2, UserCheck, UserMinus, Loader } from 'lucide-react';
+import { Users, ShoppingBag, ArrowRightLeft, Users2, User2, Trash2, UserCheck, UserMinus } from 'lucide-react';
 import { ActionMenu } from "@/components/admin/ActionMenu";
 import { DeleteDialog, ActivateDialog, DeactivateDialog } from "@/components/admin/ActionDialogs";
 import adminApi from '@/api/adminApi';
 import { cn } from '@/lib/utils';
+import PropTypes from 'prop-types';
+
+// Utility functions
+const formatDate = (timestamp) => {
+  if (!timestamp) return '--';
+  try {
+    const date = new Date(timestamp);
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return '--';
+  }
+};
 
 export default function AdminDashboard() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [statsData, setStatsData] = useState(null);
+  const [statsData, setStatsData] = useState({
+    activeUsers: 0,
+    totalOrders: 0,
+    totalTransfers: 0,
+    totalVisitors: 0,
+    userGrowth: 0,
+    orderGrowth: 0,
+    transferGrowth: 0,
+    visitorGrowth: 0
+  });
   const [selectedUser, setSelectedUser] = useState(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showActivateDialog, setShowActivateDialog] = useState(false);
@@ -24,11 +53,55 @@ export default function AdminDashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const LoadingCard = () => (
-    
-    <div className="animate-pulse space-y-4 p-6 rounded-lg bg-white shadow">
-      <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-      <div className="h-8 bg-gray-200 rounded w-1/2"></div>
-      <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+    <Card className="p-6 bg-white">
+      <div className="animate-pulse space-y-4">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-8 h-8 bg-gray-200 rounded-lg"></div>
+          <div className="h-4 bg-gray-200 rounded w-24"></div>
+        </div>
+        <div className="space-y-2">
+          <div className="h-7 bg-gray-200 rounded w-20"></div>
+          <div className="flex items-center gap-2">
+            <div className="h-4 bg-gray-200 rounded w-12"></div>
+            <div className="h-4 bg-gray-200 rounded w-16"></div>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+
+  const LoadingTable = () => (
+    <div className="bg-white rounded-lg shadow overflow-x-auto">
+      <div className="p-4 border-b">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 bg-gray-200 rounded-lg"></div>
+          <div className="h-6 bg-gray-200 rounded w-32"></div>
+        </div>
+      </div>
+      <div className="animate-pulse">
+        <div className="border-b">
+          <div className="flex p-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex-1 px-3">
+                <div className="h-4 bg-gray-200 rounded w-full"></div>
+              </div>
+            ))}
+            <div className="w-20"></div>
+          </div>
+        </div>
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex p-4 border-b">
+            {[...Array(6)].map((_, j) => (
+              <div key={j} className="flex-1 px-3">
+                <div className="h-4 bg-gray-200 rounded w-[80%]"></div>
+              </div>
+            ))}
+            <div className="w-20 px-3">
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 
@@ -46,17 +119,10 @@ export default function AdminDashboard() {
     </div>
   );
 
-  const EmptyChart = () => (
-    <Card className="p-6">
-      <h3 className="text-lg font-medium mb-6">Transaction Overview</h3>
-      <div className="h-[300px] flex items-center justify-center bg-gray-50 rounded-lg border border-dashed">
-        <div className="text-center">
-          <User2 className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-          <p className="text-gray-500">No transaction data available</p>
-        </div>
-      </div>
-    </Card>
-  );
+  ErrorState.propTypes = {
+    message: PropTypes.string.isRequired,
+    onRetry: PropTypes.func.isRequired
+  };
 
   const handleActionWithLoading = async (action, handler) => {
     setLoadingAction(action);
@@ -161,14 +227,42 @@ export default function AdminDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const [statsData, usersData] = await Promise.all([
-        adminApi.getAdminStatistics(),
-        adminApi.getUsers()
-      ]);
+      // Fetch admin statistics
+      const statsResponse = await adminApi.getAdminStatistics();
+      console.log('Stats Response:', statsResponse); // Debug log
+
+      // Fetch users
+      const usersResponse = await adminApi.getUsers();
+      console.log('Users Response:', usersResponse); // Debug log
+
+      // Transform users data
+      const formattedUsers = usersResponse.map(user => ({
+        id: user.username,
+        name: user.name || '--',
+        email: user.username,
+        role: user.role?.toLowerCase() || '--',
+        status: user.isActive ? 'Active' : 'Inactive',
+        last_activity: formatDate(user.last_login),
+        total_transaction: typeof user.total_transaction === 'number' 
+          ? `₦${user.total_transaction.toLocaleString()}`
+          : '₦0'
+      }));
+
+      // Set the stats data based on the actual API response fields
+      setStatsData({
+        activeUsers: statsResponse?.total_active_users || 0,
+        totalOrders: statsResponse?.total_completed_transactions || 0,
+        totalTransfers: statsResponse?.total_transfers || 0,
+        totalVisitors: statsResponse?.total_visitors || 0,
+        userGrowth: statsResponse?.percentage_increase || 0,
+        orderGrowth: statsResponse?.transaction_growth || 0,
+        transferGrowth: statsResponse?.transfer_growth || 0,
+        visitorGrowth: statsResponse?.visitor_growth || 0
+      });
       
-      setDashboardData(statsData);
-      setUsers(usersData);
+      setUsers(formattedUsers);
     } catch (err) {
+      console.error('Error fetching dashboard data:', err);
       setError(err.message || 'Failed to load dashboard data');
     } finally {
       setLoading(false);
@@ -184,13 +278,24 @@ export default function AdminDashboard() {
           sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
         )}>
           <AdminHeader toggleMobileMenu={() => setIsMobileMenuOpen(true)} />
-          <main className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <main className="p-6 space-y-6">
+            <div className="flex justify-between items-center">
+              <div className="h-8 bg-gray-200 rounded w-32"></div>
+              <div className="h-4 bg-gray-200 rounded w-24"></div>
+            </div>
+            <div className={cn(
+              "grid gap-4",
+              "grid-cols-1",
+              "md:grid-cols-2",
+              sidebarCollapsed 
+                ? "xl:grid-cols-4" 
+                : "lg:grid-cols-4"
+            )}>
               {[...Array(4)].map((_, i) => (
                 <LoadingCard key={i} />
               ))}
             </div>
-            <LoadingCard />
+            <LoadingTable />
           </main>
         </div>
       </div>
@@ -228,33 +333,37 @@ export default function AdminDashboard() {
 
   const stats = [
     { 
+      id: 'active-users',
       title: "Active Users", 
-      value: dashboardData?.activeUsers ?? '--',
-      change: dashboardData?.userGrowth ?? '--',
+      value: statsData.activeUsers,
+      change: statsData.userGrowth,
       period: "this week",
       icon: <Users className="w-5 h-5 text-[#4069E5]" />,
       bgColor: "bg-[#EEF1FE]"
     },
     { 
+      id: 'total-orders',
       title: "Total Orders", 
-      value: dashboardData?.totalOrders ?? '--',
-      change: dashboardData?.orderGrowth ?? '--',
+      value: statsData.totalOrders,
+      change: statsData.orderGrowth,
       period: "this week",
       icon: <ShoppingBag className="w-5 h-5 text-[#3F845F]" />,
       bgColor: "bg-[#EDFAF3]"
     },
     { 
+      id: 'total-transfers',
       title: "Total Transfers", 
-      value: dashboardData?.totalTransfers ?? '--',
-      change: dashboardData?.transferGrowth ?? '--',
+      value: statsData.totalTransfers,
+      change: statsData.transferGrowth,
       period: "this week",
       icon: <ArrowRightLeft className="w-5 h-5 text-[#E4C65B]" />,
       bgColor: "bg-[#FEF9EC]"
     },
     { 
+      id: 'total-visitors',
       title: "Total Visitors", 
-      value: dashboardData?.totalVisitors ?? '--',
-      change: dashboardData?.visitorGrowth ?? '--',
+      value: statsData.totalVisitors,
+      change: statsData.visitorGrowth,
       period: "this week",
       icon: <Users2 className="w-5 h-5 text-[#E56940]" />,
       bgColor: "bg-[#FEF1EC]"
@@ -299,26 +408,27 @@ export default function AdminDashboard() {
               ? "xl:grid-cols-4" 
               : "lg:grid-cols-4"
           )}>
-            {stats.map((stat, index) => (
-              <Card key={index} className="p-6 bg-white">
+            {stats.map((stat) => (
+              <Card key={stat.id} className="p-6 bg-white">
                 <div className="flex flex-col">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className={`p-2 rounded-lg `}>
+                    <div className={cn("p-2 rounded-lg", stat.bgColor)}>
                       {stat.icon}
                     </div>
                     <span className="text-sm text-gray-500">{stat.title}</span>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-2xl text-left font-semibold">{stat.value}</p>
+                    <p className="text-2xl font-semibold">{stat.value}</p>
                     <div className="flex items-center gap-2">
-                      <span className={`text-sm ${
-                        stat.change === '--' 
+                      <span className={cn(
+                        "text-sm",
+                        stat.change === 0 
                           ? 'text-gray-400' 
-                          : parseFloat(stat.change) >= 0 
+                          : stat.change > 0 
                             ? 'text-green-500' 
                             : 'text-red-500'
-                      }`}>
-                        {stat.change === '--' ? '--' : `${parseFloat(stat.change) >= 0 ? '+' : ''}${stat.change}`}
+                      )}>
+                        {stat.change === 0 ? '--' : `${stat.change > 0 ? '+' : ''}${stat.change}%`}
                       </span>
                       <span className="text-sm text-gray-500">{stat.period}</span>
                     </div>
@@ -326,7 +436,7 @@ export default function AdminDashboard() {
                 </div>
               </Card>
             ))}
-            </div>
+          </div>
 
           <div className="bg-white rounded-lg shadow overflow-x-auto">
             <div className="p-4 border-b">
@@ -341,32 +451,33 @@ export default function AdminDashboard() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-center">User ID</TableHead>
-                    <TableHead className="text-center">Name</TableHead>
-                    <TableHead className="text-center">Role</TableHead>
-                    <TableHead className="text-center">Status</TableHead>
-                    <TableHead className="text-center">Last Activity</TableHead>
-                    <TableHead className="text-center">Total Transaction</TableHead>
-                    <TableHead className="text-right pr-6">Actions</TableHead>
+                    <TableHead className="text-left pl-10">Name</TableHead>
+                    <TableHead className="text-left">Email</TableHead>
+                    <TableHead className="text-left">Role</TableHead>
+                    <TableHead className="text-left">Status</TableHead>
+                    <TableHead className="text-left">Last Activity</TableHead>
+                    <TableHead className="text-left">Total Transaction</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((user, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="text-center">{user.id || '--'}</TableCell>
-                      <TableCell className="text-center">{user.name || '--'}</TableCell>
-                      <TableCell className="text-center">{user.role || '--'}</TableCell>
-                      <TableCell className="text-center">
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          user.status?.toLowerCase() === "active" 
-                            ? "bg-green-100 text-green-800" 
-                            : "bg-red-100 text-red-800"
-                        }`}>
-                          {user.status || 'Unknown'}
+                  {users.slice(0, 5).map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="text-left pl-10">{user.name}</TableCell>
+                      <TableCell className="text-left">{user.email}</TableCell>
+                      <TableCell className="text-left">{user.role}</TableCell>
+                      <TableCell className="text-left">
+                        <span className={cn(
+                          "px-2 py-1 rounded-full text-xs font-medium",
+                          user.status === "Active"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        )}>
+                          {user.status}
                         </span>
                       </TableCell>
-                      <TableCell className="text-center">{user.lastActivity || '--'}</TableCell>
-                      <TableCell className="text-center">{user.transaction || '₦0'}</TableCell>
+                      <TableCell className="text-left">{user.last_activity}</TableCell>
+                      <TableCell className="text-left">{user.total_transaction}</TableCell>
                       <TableCell className="text-right pr-6">
                         <ActionMenu
                           actions={getActions(user)}
@@ -391,6 +502,8 @@ export default function AdminDashboard() {
         onOpenChange={setShowDeleteDialog}
         onConfirm={handleDelete}
         error={actionError}
+        loading={loadingAction === 'delete'}
+        user={selectedUser}
       />
 
       <ActivateDialog
@@ -398,6 +511,8 @@ export default function AdminDashboard() {
         onOpenChange={setShowActivateDialog}
         onConfirm={handleActivate}
         error={actionError}
+        loading={loadingAction === 'activate'}
+        user={selectedUser}
       />
 
       <DeactivateDialog
@@ -405,53 +520,9 @@ export default function AdminDashboard() {
         onOpenChange={setShowDeactivateDialog}
         onConfirm={handleDeactivate}
         error={actionError}
+        loading={loadingAction === 'deactivate'}
+        user={selectedUser}
       />
     </div>
   );
 }
-
-
-
-const StatsCard = ({ statsData }) => {
-  const stats = statsData ? [
-    { 
-      title: "Active Users", 
-      value: statsData.activeUsers || "N/A",
-      change: statsData.activeUsersChange || "N/A",
-      period: "this week",
-      icon: <Users className="w-5 h-5 text-[#4069E5]" />,
-      bgColor: "bg-[#EEF1FE]"
-    },
-    { 
-      title: "Total Orders", 
-      value: statsData.totalOrders || "N/A",
-      change: statsData.totalOrdersChange || "N/A",
-      period: "this week",
-      icon: <ShoppingBag className="w-5 h-5 text-[#3F845F]" />,
-      bgColor: "bg-[#EDFAF3]"
-    },
-    { 
-      title: "Total Transfers", 
-      value: statsData.totalTransfers || "N/A",
-      change: statsData.totalTransfersChange || "N/A",
-      period: "this week",
-      icon: <ArrowRightLeft className="w-5 h-5 text-[#E4C65B]" />,
-      bgColor: "bg-[#FEF9EC]"
-    },
-    { 
-      title: "Total Visitors", 
-      value: statsData.totalVisitors || "N/A",
-      change: statsData.totalVisitorsChange || "N/A",
-      period: "this week",
-      icon: <Users2 className="w-5 h-5 text-[#E56940]" />,
-      bgColor: "bg-[#FEF1EC]"
-    }
-  ] : [];
-
-
-  return (
-    <>
-            {stats.map((stat, index) => (<Card key={index} className="p-6 bg-white"> <div className="flex flex-col"><div className="flex items-center gap-3 mb-4"> <div className={`p-2 rounded-lg ${stat.bgColor}`}> {stat.icon} </div> <span className="text-sm text-gray-500">{stat.title}</span> </div> <div className="space-y-1"><p className="text-2xl text-left font-semibold">{stat.value}</p> <div className="flex items-center gap-2"><span className="text-sm text-green-500">{stat.change}</span> <span className="text-sm text-gray-500">{stat.period}</span> </div> </div> </div> </Card>))}
-    </>
-  );
-};

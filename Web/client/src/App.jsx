@@ -33,15 +33,13 @@ import WhyChooseUs from "./pages/WhyChooseUs";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 
 function App() {
-  console.log("App component rendering"); // Debug log
-
   return (
     <Router>
       <ContextWrapper>
         <Toaster position="top-right" />
         <Routes>
           {/* Public Routes */}
-          <Route exact path="/" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/celebrant-signup" element={<CelebrantSignup />} />
@@ -53,10 +51,7 @@ function App() {
 
           {/* Feature Pages */}
           <Route path="/custom-currency" element={<CustomCurrency />} />
-          <Route
-            path="/reconciliation-service"
-            element={<ReconciliationService />}
-          />
+          <Route path="/reconciliation-service" element={<ReconciliationService />} />
           <Route path="/vendor-kiosk-system" element={<VendorKiosk />} />
           <Route path="/foot-soldiers" element={<FootSoldiers />} />
 
@@ -65,6 +60,7 @@ function App() {
           <Route path="/customize-500" element={<Customize500 />} />
           <Route path="/customize-1000" element={<Customize1000 />} />
 
+          {/* Protected Routes */}
           {/* Admin Routes */}
           <Route
             path="/admin/*"
@@ -158,7 +154,7 @@ function App() {
           />
 
           {/* Fallback Route */}
-          <Route path="*" element={<Home />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </ContextWrapper>
     </Router>
