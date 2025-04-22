@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { MerchantSidebar } from "@/components/merchant/MerchantSidebar";
 import MerchantHeader from "@/components/merchant/MerchantHeader";
-import { Search } from "lucide-react";
+import { Search, Calendar, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -16,6 +16,27 @@ import { getAuth } from "@/lib/util";
 import { format } from "date-fns";
 import { BASE_URL } from "@/config";
 import { Skeleton } from "@/components/ui/skeleton";
+import PropTypes from "prop-types";
+
+const EmptyState = ({ searchQuery }) => (
+  <div className="text-center py-12">
+    <div className="flex justify-center mb-4">
+      <div className="p-3 bg-gray-100 rounded-full">
+        <Calendar className="w-8 h-8 text-gray-400" />
+      </div>
+    </div>
+    <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
+    <p className="text-gray-500 max-w-sm mx-auto">
+      {searchQuery 
+        ? "No events match your search criteria. Try adjusting your search."
+        : "You haven't created any events yet. Events will appear here once they're created."}
+    </p>
+  </div>
+);
+
+EmptyState.propTypes = {
+  searchQuery: PropTypes.string.isRequired,
+};
 
 export default function EventHistory() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -150,8 +171,8 @@ export default function EventHistory() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-6 text-gray-500">
-                      {searchQuery ? 'No events found matching your search.' : 'No events found.'}
+                    <TableCell colSpan={5}>
+                      <EmptyState searchQuery={searchQuery} />
                     </TableCell>
                   </TableRow>
                 )}

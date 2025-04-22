@@ -41,7 +41,7 @@ export default function WhyChooseUs() {
     {
       icon: Users,
       title: "Trusted by Happy Celebrants",
-      content: "Weddings, birthdays, baby showers, graduations we've been part of them all. And our customers always say the same thing: &quot;This made our day feel so much more special.&quot; We take care of the little things so you can enjoy every big moment.",
+      content: "Weddings, birthdays, baby showers, graduations we've been part of them all. And our customers always say the same thing: 'This made our day feel so much more special.' We take care of the little things so you can enjoy every big moment.",
       bgColor: "bg-green-50",
       iconColor: "text-green-500"
     },

@@ -47,6 +47,7 @@ const demoTransactions = [
     eventId: 'EVT001',
     amount: '50,000',
     machineId: 'MCH001',
+    virtualAccountId: 'VA001',
     invoice: 'https://example.com/invoice1'
   },
   {
@@ -54,6 +55,7 @@ const demoTransactions = [
     eventId: 'EVT002',
     amount: '75,000',
     machineId: 'MCH002',
+    virtualAccountId: 'VA002',
     invoice: 'https://example.com/invoice2'
   },
   {
@@ -61,6 +63,7 @@ const demoTransactions = [
     eventId: 'EVT003',
     amount: '100,000',
     machineId: 'MCH003',
+    virtualAccountId: 'VA001',
     invoice: 'https://example.com/invoice3'
   },
   {
@@ -68,6 +71,7 @@ const demoTransactions = [
     eventId: 'EVT004',
     amount: '25,000',
     machineId: 'MCH001',
+    virtualAccountId: 'VA003',
     invoice: null
   },
   {
@@ -75,6 +79,7 @@ const demoTransactions = [
     eventId: 'EVT005',
     amount: '150,000',
     machineId: 'MCH002',
+    virtualAccountId: 'VA002',
     invoice: 'https://example.com/invoice5'
   }
 ];
@@ -174,6 +179,7 @@ export default function TransactionHistory() {
                     <TableRow>
                       <TableHead className="w-[200px] text-left">Event ID</TableHead>
                       <TableHead className="w-[150px] text-left">Amount</TableHead>
+                      <TableHead className="w-[150px] text-left">Virtual Account</TableHead>
                       <TableHead className="w-[200px] text-left">Machine ID</TableHead>
                       <TableHead className="w-[100px] text-left">Invoice</TableHead>
                     </TableRow>
@@ -186,6 +192,9 @@ export default function TransactionHistory() {
                         </TableCell>
                         <TableCell className="text-left whitespace-nowrap">
                           ₦{transaction.amount}
+                        </TableCell>
+                        <TableCell className="text-left whitespace-nowrap">
+                          {transaction.virtualAccountId}
                         </TableCell>
                         <TableCell className="text-left whitespace-nowrap">
                           {transaction.machineId}

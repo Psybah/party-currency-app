@@ -24,6 +24,7 @@ import TermsOfService from "./pages/TermsOfService";
 import MerchantTransactionHistory from "./pages/merchant/TransactionHistory";
 import MerchantEventHistory from "./pages/merchant/EventHistory";
 import MerchantSettings from "./pages/merchant/Settings";
+import VirtualAccount from "./pages/merchant/VirtualAccount";
 import AdminDashboard from "./pages/admin/Dashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
@@ -78,6 +79,15 @@ function App() {
           />
 
           {/* Merchant Routes */}
+          <Route
+            path="/merchant/virtual-account"
+            element={
+              <PrivateRoute userType="merchant">
+                <VirtualAccount />
+              </PrivateRoute>
+            }
+          />
+          
           <Route
             path="/merchant/transactions"
             element={

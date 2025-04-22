@@ -10,7 +10,7 @@ export function TermsAndConditions() {
         Terms of Service
       </a>{" "}
       and{" "}
-      <a href="/privacy" className="text-gold hover:underline">
+      <a href="/privacy-policy" className="text-gold hover:underline">
         Privacy Policy
       </a>
       .
