@@ -4,26 +4,60 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CheckCircle2 } from "lucide-react";
 import PropTypes from "prop-types";
+import { BASE_URL } from "@/config";
+import { getAuth } from "@/lib/util";
+import { toast } from "sonner";
 
 export function CreateAccountModal({ isOpen, onClose, onSuccess, onViewDetails }) {
   const [isSuccess, setIsSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: "",
+    customer_name: "",
     bvn: "",
-    merchantId: "",
+    event_id: "",
   });
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: API integration will go here
-    setIsSuccess(true);
-    onSuccess({
-      ...formData,
-      accountNumber: "Generated Account Number", // Will come from API
-      accountName: formData.fullName,
-      dateCreated: new Date().toISOString(),
-      bankName: "Generated Bank Name", // Will come from API
-    });
+    setLoading(true);
+    setErrorMsg("");
+    try {
+      const { accessToken } = getAuth();
+      if (!accessToken) {
+        throw new Error('Authentication required');
+      }
+      const response = await fetch(`${BASE_URL}/merchant/create-reserved-account`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          event_id: formData.event_id,
+          customer_name: formData.customer_name,
+          bvn: formData.bvn
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || (data.response && data.response.requestSuccessful === false)) {
+        throw new Error(data.message || data.error || 'Failed to create account');
+      }
+      if (data.response && data.response.requestSuccessful) {
+        setIsSuccess(true);
+        onSuccess(data.response.responseBody || data.response);
+        toast.success('Virtual account created successfully');
+      } else {
+        setIsSuccess(true);
+        onSuccess(data);
+        toast.success('Virtual account created successfully');
+      }
+    } catch (error) {
+      setErrorMsg(error.message || 'Failed to create account');
+      toast.error(error.message || 'Failed to create account');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleInputChange = (e) => {
@@ -37,9 +71,9 @@ export function CreateAccountModal({ isOpen, onClose, onSuccess, onViewDetails }
   const handleClose = () => {
     setIsSuccess(false);
     setFormData({
-      fullName: "",
+      customer_name: "",
       bvn: "",
-      merchantId: "",
+      event_id: "",
     });
     onClose();
   };
@@ -53,41 +87,52 @@ export function CreateAccountModal({ isOpen, onClose, onSuccess, onViewDetails }
               <DialogTitle className="text-2xl font-playfair">Create Virtual Account</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-6 py-4">
+              {errorMsg && (
+                <div className="text-red-600 text-sm mb-2">{errorMsg}</div>
+              )}
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Full name</label>
+                  <label className="text-sm font-medium text-gray-700">Event ID</label>
                   <Input
-                    name="fullName"
-                    value={formData.fullName}
+                    name="event_id"
+                    value={formData.event_id}
                     onChange={handleInputChange}
-                    placeholder="Enter Your Full Name"
+                    placeholder="Enter Event ID"
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Bank verification number</label>
+                  <label className="text-sm font-medium text-gray-700">Customer Name</label>
+                  <Input
+                    name="customer_name"
+                    value={formData.customer_name}
+                    onChange={handleInputChange}
+                    placeholder="Enter Customer Name"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Bank Verification Number (BVN)</label>
                   <Input
                     name="bvn"
                     value={formData.bvn}
                     onChange={handleInputChange}
-                    placeholder="Enter Your BVN"
+                    placeholder="Enter BVN"
                     required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Merchant identification number</label>
-                  <Input
-                    name="merchantId"
-                    value={formData.merchantId}
-                    onChange={handleInputChange}
-                    placeholder="Enter Your merchant ID"
-                    required
+                    minLength={11}
+                    maxLength={11}
+                    pattern="[0-9]{11}"
+                    title="BVN must be 11 digits"
                   />
                 </div>
               </div>
               <div className="flex justify-end">
-                <Button type="submit" className="bg-gold hover:bg-gold/90 text-white">
-                  Create Account
+                <Button 
+                  type="submit" 
+                  className="bg-gold hover:bg-gold/90 text-white"
+                  disabled={loading}
+                >
+                  {loading ? "Creating..." : "Create Account"}
                 </Button>
               </div>
             </form>

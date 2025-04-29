@@ -1,17 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Button } from '../ui/button';
 import { CurrencyCanvas } from './CurrencyCanvas';
 import { debounce } from 'lodash';
+import { useLocation } from 'react-router-dom';
+import { getEvents } from '@/services/eventService';
 
 export function TextEditor({ side, initialTexts, onClose, onSave, denomination }) {
+  const location = useLocation();
   const [texts, setTexts] = useState(initialTexts || {
     celebration: 'Celebration of Life',
     currencyName: side === 'front' ? 'Party Currency' : '',
-    eventId: side === 'front' ? 'A2BB26789' : '',
+    eventId: '',
   });
+
+  useEffect(() => {
+    const fetchEventId = async () => {
+      // Check if we came from event creation
+      const fromEventId = location.state?.eventId;
+      if (fromEventId) {
+        setTexts(prev => ({ ...prev, eventId: fromEventId }));
+        return;
+      }
+
+      // Check session storage for recently created event
+      const lastCreatedEventId = sessionStorage.getItem('lastCreatedEventId');
+      if (lastCreatedEventId) {
+        setTexts(prev => ({ ...prev, eventId: lastCreatedEventId }));
+        return;
+      }
+
+      // If no event ID found, try to get most recent event
+      try {
+        const eventsData = await getEvents();
+        if (eventsData?.events?.length > 0) {
+          const mostRecent = eventsData.events[0];
+          setTexts(prev => ({ ...prev, eventId: mostRecent.event_id }));
+        }
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+      }
+    };
+
+    if (side === 'front') {
+      fetchEventId();
+    }
+  }, [side, location.state]);
 
   const updateText = debounce((key, value) => {
     setTexts(prev => ({ ...prev, [key]: value }));
@@ -62,6 +98,7 @@ export function TextEditor({ side, initialTexts, onClose, onSave, denomination }
               </div>
 
               {side === 'front' && (
+                <>
                 <div>
                   <Label htmlFor="currencyName" className="block mb-2 text-left">
                     Currency Name
@@ -77,9 +114,7 @@ export function TextEditor({ side, initialTexts, onClose, onSave, denomination }
                     Maximum 20 characters
                   </p>
                 </div>
-              )}
 
-              {side === 'front' && (
                 <div>
                   <Label htmlFor="eventId" className="block mb-2 text-left">
                     Event ID
@@ -91,9 +126,12 @@ export function TextEditor({ side, initialTexts, onClose, onSave, denomination }
                     className="bg-gray-100"
                   />
                   <p className="text-sm text-gray-500 mt-1 text-left">
-                    Event ID is automatically generated
+                      {texts.eventId 
+                        ? "Event ID is automatically linked to your event"
+                        : "No event linked - You can still customize the template and save it for later"}
                   </p>
                 </div>
+                </>
               )}
 
               <div className="flex justify-end gap-4">

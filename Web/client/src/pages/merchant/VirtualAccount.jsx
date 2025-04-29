@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { MerchantSidebar } from "@/components/merchant/MerchantSidebar";
 import MerchantHeader from "@/components/merchant/MerchantHeader";
-import { Eye, Trash2, Search, Plus, CreditCard, Loader2 } from "lucide-react";
+import { Eye, Trash2, Search, Plus, CreditCard } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -17,6 +18,9 @@ import { AccountDetailsModal } from "@/components/merchant/AccountDetailsModal";
 import { DeleteConfirmationModal } from "@/components/merchant/DeleteConfirmationModal";
 import { CreateAccountModal } from "@/components/merchant/CreateAccountModal";
 import { format } from "date-fns";
+import { BASE_URL } from "@/config";
+import { getAuth } from "@/lib/util";
+import { toast } from "sonner";
 
 export default function VirtualAccount() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -28,7 +32,8 @@ export default function VirtualAccount() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const handleSidebarStateChange = (event) => {
@@ -36,15 +41,53 @@ export default function VirtualAccount() {
     };
 
     window.addEventListener('sidebarStateChange', handleSidebarStateChange);
+    fetchAccounts();
     return () => {
       window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
     };
   }, []);
 
+  const fetchAccounts = async () => {
+    try {
+      setLoading(true);
+      const { accessToken } = getAuth();
+      if (!accessToken) {
+        throw new Error('Authentication required');
+      }
+
+      const response = await fetch(`${BASE_URL}/merchant/transactions`, {
+        headers: {
+          'Authorization': `Token ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data.error === 'account_reference is required') {
+        throw new Error('No virtual accounts found. Create one to get started.');
+      }
+
+      if (data.accounts) {
+        setAccounts(data.accounts);
+      } else if (Array.isArray(data)) {
+        setAccounts(data);
+      } else {
+        setAccounts([]);
+      }
+    } catch (error) {
+      console.error('Error fetching accounts:', error);
+      setError(error.message);
+      toast.error(error.message || 'Failed to fetch accounts');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Filter accounts based on search query
   const filteredAccounts = accounts.filter(account =>
-    account.eventId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    account.merchantId?.toLowerCase().includes(searchQuery.toLowerCase())
+    account.event_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    account.account_reference?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleCreateAccount = () => {
@@ -52,12 +95,9 @@ export default function VirtualAccount() {
   };
 
   const handleAccountCreated = (newAccount) => {
-    setAccounts(prev => [...prev, {
-      id: String(prev.length + 1),
-      dateCreated: new Date().toISOString(),
-      eventId: `EVT${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
-      ...newAccount
-    }]);
+    setAccounts(prev => [...prev, newAccount]);
+    setIsCreateModalOpen(false);
+    toast.success('Account created successfully');
   };
 
   const formatDate = (dateString) => {
@@ -73,15 +113,32 @@ export default function VirtualAccount() {
     setIsDetailsModalOpen(true);
   };
 
-  const handleDelete = (account) => {
-    setAccountToDelete(account);
-    setIsDeleteModalOpen(true);
-  };
+  const handleDelete = async (account) => {
+    try {
+      const { accessToken } = getAuth();
+      if (!accessToken) {
+        throw new Error('Authentication required');
+      }
 
-  const handleConfirmDelete = () => {
-    setAccounts(prev => prev.filter(acc => acc.id !== accountToDelete.id));
-    setIsDeleteModalOpen(false);
-    setAccountToDelete(null);
+      const response = await fetch(`${BASE_URL}/merchant/delete-reserved-account?account_reference=${account.account_reference}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Token ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || data.error || 'Failed to delete account');
+      }
+
+      setAccounts(prev => prev.filter(acc => acc.account_reference !== account.account_reference));
+      toast.success('Account deleted successfully');
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      toast.error(error.message || 'Failed to delete account');
+    }
   };
 
   const handleViewNewAccount = () => {
@@ -91,6 +148,20 @@ export default function VirtualAccount() {
       setIsDetailsModalOpen(true);
     }
   };
+
+  const TableRowSkeleton = () => (
+    <TableRow>
+      <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
+      <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
+      <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
+      <TableCell>
+        <div className="flex justify-end gap-2">
+          <Skeleton className="h-8 w-8 rounded-full" />
+          <Skeleton className="h-8 w-8 rounded-full" />
+        </div>
+      </TableCell>
+    </TableRow>
+  );
 
   const EmptyState = () => (
     <div className="text-center py-12">
@@ -112,16 +183,6 @@ export default function VirtualAccount() {
         <Plus className="w-5 h-5 mr-2" />
         Create Account
       </Button>
-    </div>
-  );
-
-  const LoadingState = () => (
-    <div className="text-center py-12">
-      <div className="flex justify-center mb-4">
-        <Loader2 className="w-8 h-8 text-bluePrimary animate-spin" />
-      </div>
-      <h3 className="text-lg font-medium text-gray-900 mb-2">Loading accounts...</h3>
-      <p className="text-gray-500">Please wait while we fetch your virtual accounts.</p>
     </div>
   );
 
@@ -149,7 +210,7 @@ export default function VirtualAccount() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   type="text"
-                  placeholder="Search by Event ID or Merchant ID"
+                  placeholder="Search by Event ID or Account Reference"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 pr-4 py-2 w-full md:w-[300px]"
@@ -167,7 +228,31 @@ export default function VirtualAccount() {
 
           <div className="bg-white rounded-lg shadow overflow-hidden">
             {loading ? (
-              <LoadingState />
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-left">Date created</TableHead>
+                    <TableHead className="text-left">Event ID</TableHead>
+                    <TableHead className="text-left">Account Reference</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <TableRowSkeleton key={i} />
+                  ))}
+                </TableBody>
+              </Table>
+            ) : error ? (
+              <div className="text-center py-12">
+                <p className="text-red-600">{error}</p>
+                <Button
+                  onClick={fetchAccounts}
+                  className="mt-4 bg-bluePrimary hover:bg-bluePrimary/90 text-white"
+                >
+                  Retry
+                </Button>
+              </div>
             ) : filteredAccounts.length === 0 ? (
               <EmptyState />
             ) : (
@@ -177,21 +262,21 @@ export default function VirtualAccount() {
                     <TableRow>
                       <TableHead className="text-left">Date created</TableHead>
                       <TableHead className="text-left">Event ID</TableHead>
-                      <TableHead className="text-left">Merchant ID</TableHead>
+                      <TableHead className="text-left">Account Reference</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredAccounts.map((account) => (
-                      <TableRow key={account.id} className="hover:bg-gray-50">
+                      <TableRow key={account.account_reference} className="hover:bg-gray-50">
                         <TableCell className="text-left">
-                          {formatDate(account.dateCreated)}
+                          {formatDate(account.created_at)}
                         </TableCell>
                         <TableCell className="text-left">
-                          {account.eventId}
+                          {account.event_id}
                         </TableCell>
                         <TableCell className="text-left">
-                          {account.merchantId}
+                          {account.account_reference}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
@@ -240,7 +325,7 @@ export default function VirtualAccount() {
           setIsDeleteModalOpen(false);
           setAccountToDelete(null);
         }}
-        onConfirm={handleConfirmDelete}
+        onConfirm={() => handleDelete(accountToDelete)}
       />
     </div>
   );

@@ -30,7 +30,7 @@ export const EventFormWithFeedback = () => {
     state: "",
     city: "",
     lga: "",
-    post_code: "",
+    postal_code: "",
     reconciliation_service: false,
   });
 
@@ -70,8 +70,13 @@ export const EventFormWithFeedback = () => {
           const payload = {
             event_name: eventData.event_name,
             event_type: eventData.event_type,
-            event_date: eventData.start_date,
-            address: `${eventData.street_address}, ${eventData.city}, ${eventData.state}`,
+            start_date: eventData.start_date,
+            end_date: eventData.end_date,
+            street_address: eventData.street_address,
+            city: eventData.city,
+            state: eventData.state,
+            postal_code: eventData.postal_code,
+            LGA: eventData.lga.toUpperCase(),
             reconciliation_service: eventData.reconciliation_service,
           };
 

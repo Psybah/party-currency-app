@@ -89,7 +89,7 @@ export function MerchantSignupForm() {
             email: values.email,
           }
         );
-        navigate("/merchant/transactions");
+        navigate("/merchant/virtual-account");
       } else {
         const errorData = formatErrorMessage(data);
         console.log("API Error response:", errorData);

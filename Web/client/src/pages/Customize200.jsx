@@ -1,24 +1,30 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
+import { toast } from "react-hot-toast";
 import DashboardSidebar from "../components/DashboardSidebar";
 import DashboardHeader from "../components/DashboardHeader";
 import { TextEditor } from "../components/currency/TextEditor";
 import { ImageEditor } from "../components/currency/ImageEditor";
 import { CurrencyCanvas } from "../components/currency/CurrencyCanvas";
+import { saveCurrency } from "../services/currencyService";
+import { useAuthenticated } from "@/lib/hooks";
+import { LoadingDisplay } from "@/components/LoadingDisplay";
 
 const Customize200 = () => {
   const navigate = useNavigate();
+  const authenticated = useAuthenticated();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showTextEditor, setShowTextEditor] = useState(false);
   const [showImageEditor, setShowImageEditor] = useState(false);
   const [currentSide, setCurrentSide] = useState("front");
+  const [isLoading, setIsLoading] = useState(false);
   const [currencyData, setCurrencyData] = useState({
     front: {
       texts: {
         celebration: "Celebration of Life",
         currencyName: "Party Currency",
-        eventId: "A2BB26789",
+        eventId: "",
       },
       portraitImage: null,
     },
@@ -51,6 +57,39 @@ const Customize200 = () => {
     }));
     setShowImageEditor(false);
   };
+
+  const handleSaveChanges = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Prepare data for saving
+      const saveData = {
+        texts: currencyData.front.texts,
+        backTexts: currencyData.back.texts,
+        portraitImage: currencyData.front.portraitImage,
+        backPortraitImage: currencyData.back.portraitImage,
+        denomination: "200"
+      };
+
+      await saveCurrency(saveData);
+      toast.success("Currency template saved successfully!");
+      navigate("/templates");
+    } catch (error) {
+      console.error('Error saving currency:', error);
+      if (error.message === 'Session expired. Please login again.') {
+        toast.error('Your session has expired. Please login again.');
+        navigate('/login');
+      } else {
+        toast.error("Failed to save currency template");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!authenticated) {
+    return <LoadingDisplay message="Checking authentication..." />;
+  }
 
   return (
     <div className="bg-white min-h-screen">
@@ -141,14 +180,13 @@ const Customize200 = () => {
 
           <div className="max-w-4xl mx-auto mt-8">
             <button
-              onClick={() => {
-                // Here you would typically save the currency data to your backend
-                console.log("Saving currency data:", currencyData);
-                navigate("/templates");
-              }}
-              className="w-full px-6 py-3 bg-bluePrimary text-white rounded-lg hover:bg-bluePrimary/90 transition-colors"
+              onClick={handleSaveChanges}
+              disabled={isLoading}
+              className={`w-full px-6 py-3 bg-bluePrimary text-white rounded-lg transition-colors ${
+                isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-bluePrimary/90'
+              }`}
             >
-              Save Changes
+              {isLoading ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </main>

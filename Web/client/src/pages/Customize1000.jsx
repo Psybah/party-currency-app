@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
+import { toast } from "react-hot-toast";
 import DashboardSidebar from "../components/DashboardSidebar";
 import DashboardHeader from "../components/DashboardHeader";
 import { TextEditor } from "../components/currency/TextEditor";
 import { ImageEditor } from "../components/currency/ImageEditor";
 import { CurrencyCanvas } from "../components/currency/CurrencyCanvas";
+import { saveCurrency } from "../services/currencyService";
 
 const Customize1000 = () => {
   const navigate = useNavigate();
@@ -13,13 +15,13 @@ const Customize1000 = () => {
   const [showTextEditor, setShowTextEditor] = useState(false);
   const [showImageEditor, setShowImageEditor] = useState(false);
   const [currentSide, setCurrentSide] = useState("front");
-
+  const [isLoading, setIsLoading] = useState(false);
   const [currencyData, setCurrencyData] = useState({
     front: {
       texts: {
         celebration: "Celebration of Life",
         currencyName: "Party Currency",
-        eventId: "A2BB26789",
+        eventId: "",
       },
       portraitImage: null,
     },
@@ -53,6 +55,30 @@ const Customize1000 = () => {
     setShowImageEditor(false);
   };
 
+  const handleSaveChanges = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Prepare data for saving
+      const saveData = {
+        texts: currencyData.front.texts,
+        backTexts: currencyData.back.texts,
+        portraitImage: currencyData.front.portraitImage,
+        backPortraitImage: currencyData.back.portraitImage,
+        denomination: "1000"
+      };
+
+      await saveCurrency(saveData);
+      toast.success("Currency template saved successfully!");
+      navigate("/templates");
+    } catch (error) {
+      console.error('Error saving currency:', error);
+      toast.error("Failed to save currency template");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="bg-white min-h-screen">
       <DashboardSidebar
@@ -72,7 +98,8 @@ const Customize1000 = () => {
             <span className="ml-2">Back to Templates</span>
           </button>
 
-          <div className="max-w-4xl mx-auto space-y-8">
+          <div className="max-w-4xl mx-auto space-y-8 md:space-y-12">
+            {/* Front Side */}
             <div className="space-y-4">
               <h3 className="text-xl font-semibold">Front Side</h3>
               <div className="relative border border-gray-200 rounded-lg p-4 bg-white">
@@ -106,6 +133,7 @@ const Customize1000 = () => {
               </div>
             </div>
 
+            {/* Back Side */}
             <div className="space-y-4">
               <h3 className="text-xl font-semibold">Back Side</h3>
               <div className="relative border border-gray-200 rounded-lg p-4 bg-white">
@@ -136,17 +164,19 @@ const Customize1000 = () => {
                     Change Image
                   </button>
                 </div>
+                </div>
               </div>
             </div>
 
+          <div className="max-w-4xl mx-auto mt-8">
             <button
-              onClick={() => {
-                console.log("Saving currency data:", currencyData);
-                navigate("/templates");
-              }}
-              className="w-full px-6 py-3 bg-bluePrimary text-white rounded-lg hover:bg-bluePrimary/90 transition-colors"
+              onClick={handleSaveChanges}
+              disabled={isLoading}
+              className={`w-full px-6 py-3 bg-bluePrimary text-white rounded-lg transition-colors ${
+                isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-bluePrimary/90'
+              }`}
             >
-              Save Changes
+              {isLoading ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </main>

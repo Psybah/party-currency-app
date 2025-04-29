@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { X, CheckCircle, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
-export function EventSuccessModal({ eventId, onClose, onNavigate }) {
+export function EventSuccessModal({ eventId, onClose }) {
   const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
 
   const handleCopy = async () => {
     try {
@@ -15,6 +17,13 @@ export function EventSuccessModal({ eventId, onClose, onNavigate }) {
     } catch (err) {
       toast.error("Failed to copy Event ID");
     }
+  };
+
+  const handleNavigateToTemplates = () => {
+    // Store the event ID in session storage for persistence across page reloads
+    sessionStorage.setItem('lastCreatedEventId', eventId);
+    // Navigate to templates with the event ID
+    navigate("/templates", { state: { fromEvent: true, eventId } });
   };
 
   return (
@@ -52,10 +61,7 @@ export function EventSuccessModal({ eventId, onClose, onNavigate }) {
         </div>
         <Button
           className="w-full bg-bluePrimary hover:bg-bluePrimary/90 text-white"
-          onClick={() => {
-            onClose();
-            onNavigate();
-          }}
+          onClick={handleNavigateToTemplates}
         >
           Choose Currency Template
         </Button>

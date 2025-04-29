@@ -30,10 +30,10 @@ export default function UserAvatar({ showName = false }) {
         <li
           className="hover:font-semibold hover:text-Primary transition-colors cursor-pointer select-none"
           onClick={() => {
-            navigate("/merchant/transactions");
+            navigate("/merchant/virtual-account");
           }}
         >
-          Transactions
+          Virtual Account
         </li>
         <li
           className="hover:font-semibold hover:text-Primary transition-colors cursor-pointer select-none"
