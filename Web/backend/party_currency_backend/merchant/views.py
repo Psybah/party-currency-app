@@ -114,7 +114,9 @@ def createReservedAccount(request):
         # Update the event to indicate it has a reserved account
         event.has_reserved_account = True
         event.save()
-            
+        user = request.user
+        user.virtual_account_reference=response["responseBody"]["accountReference"]
+        user.save()
         return Response({
             "message": "account created successfully",
             "account_details": {
@@ -176,4 +178,33 @@ def deleteReservedAccount(request, account_reference=None):
             
         return Response(error_response, status=status.HTTP_400_BAD_REQUEST)
     
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+@throttle_classes([UserThrottle])
+def get_active_reserved_account(request):
+    """
+    Retrieve the active virtual account reference for the authenticated user.
     
+    Args:
+        request: The HTTP request object containing user information
+        
+    Returns:
+        Response: JSON response with account reference or error message
+    """
+    try:
+        account_reference = request.user.virtual_account_reference
+        if account_reference is None:
+            return Response(
+                {"error": "No active virtual account found for this merchant"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        return Response(
+            {"account_reference": account_reference},
+            status=status.HTTP_200_OK
+        )
+    except AttributeError:
+        return Response(
+            {"error": "User authentication required"},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
