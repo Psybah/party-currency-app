@@ -17,13 +17,13 @@ export function EventLocationInfo({ formData, handleInputChange }) {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-left block">Post Code</label>
+        <label className="text-sm font-medium text-left block">Postal Code</label>
         <Input
           required
-          name="post_code"
-          value={formData.post_code}
+          name="postal_code"
+          value={formData.postal_code}
           onChange={handleInputChange}
-          placeholder="Enter post code"
+          placeholder="Enter postal code"
         />
       </div>
 

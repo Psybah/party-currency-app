@@ -23,11 +23,24 @@ export default function UserManagement() {
   const [loadingAction, setLoadingAction] = useState(null);
   const [actionError, setActionError] = useState(null);
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage]);
+  }, []); // Remove currentPage dependency since we'll handle pagination client-side
+
+  useEffect(() => {
+    // Filter and paginate users when search query changes
+    const filtered = users.filter(user => 
+      user?.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user?.role?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredUsers(filtered);
+    setCurrentPage(1); // Reset to first page when search changes
+  }, [searchQuery, users]);
 
   useEffect(() => {
     const handleSidebarStateChange = (event) => {
@@ -40,14 +53,53 @@ export default function UserManagement() {
     };
   }, []);
 
+  const formatDate = (timestamp) => {
+    if (!timestamp) return '--';
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return timestamp; // Return original if parsing fails
+    }
+  };
+
   const fetchUsers = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await adminApi.getUsers();
-      setUsers(data);
+      const response = await adminApi.getUsers();
+      
+      // Transform the data to match our needs
+      const transformedData = Array.isArray(response) ? response : response?.users || [];
+      const formattedUsers = transformedData.map(user => {
+        return {
+          id: user.username, // Use username as ID since it's the unique identifier
+          email: user.username,
+          name: user.name || '--',
+          role: user.role?.toLowerCase() || '--',
+          status: user.isActive ? 'Active' : 'Inactive',
+          last_activity: formatDate(user.last_login),
+          total_transaction: typeof user.total_transaction === 'number' 
+            ? `₦${user.total_transaction.toLocaleString()}`
+            : '₦0'
+        };
+      });
+
+      setUsers(formattedUsers);
+      setFilteredUsers(formattedUsers);
     } catch (err) {
+      console.error('Error fetching users:', err);
       setError(err.message || 'Failed to load users');
+      setUsers([]);
+      setFilteredUsers([]);
     } finally {
       setLoading(false);
     }
@@ -84,34 +136,75 @@ export default function UserManagement() {
     }
   };
 
+  const [actionFeedback, setActionFeedback] = useState({ message: '', type: '' });
+
+  const showFeedback = (message, type = 'success') => {
+    setActionFeedback({ message, type });
+    setTimeout(() => setActionFeedback({ message: '', type: '' }), 3000);
+  };
+
   const handleDelete = async () => {
+    if (!selectedUser?.id) {
+      setActionError('Username is required for deletion');
+      return;
+    }
     await handleActionWithLoading('delete', async () => {
-      await adminApi.deleteUser(selectedUser.email);
-      setShowDeleteDialog(false);
-      setSelectedUser(null);
-      fetchUsers(); // Refresh user list
+      try {
+        await adminApi.deleteUser(selectedUser.id);
+        setShowDeleteDialog(false);
+        setSelectedUser(null);
+        await fetchUsers();
+        showFeedback(`Successfully deleted user ${selectedUser.name || selectedUser.id}`);
+      } catch (error) {
+        console.error('Delete error:', error);
+        setActionError(error.message || 'Failed to delete user');
+      }
     });
   };
 
   const handleActivate = async () => {
+    if (!selectedUser?.id) {
+      setActionError('Username is required for activation');
+      return;
+    }
     await handleActionWithLoading('activate', async () => {
-      await adminApi.activateUser(selectedUser.email);
-      setShowActivateDialog(false);
-      setSelectedUser(null);
-      fetchUsers(); // Refresh user list
+      try {
+        await adminApi.activateUser(selectedUser.id);
+        setShowActivateDialog(false);
+        setSelectedUser(null);
+        await fetchUsers();
+        showFeedback(`Successfully activated user ${selectedUser.name || selectedUser.id}`);
+      } catch (error) {
+        console.error('Activate error:', error);
+        setActionError(error.message || 'Failed to activate user');
+      }
     });
   };
 
   const handleDeactivate = async () => {
+    if (!selectedUser?.id) {
+      setActionError('Username is required for deactivation');
+      return;
+    }
     await handleActionWithLoading('deactivate', async () => {
-      await adminApi.suspendUser(selectedUser.email);
-      setShowDeactivateDialog(false);
-      setSelectedUser(null);
-      fetchUsers(); // Refresh user list
+      try {
+        await adminApi.suspendUser(selectedUser.id);
+        setShowDeactivateDialog(false);
+        setSelectedUser(null);
+        await fetchUsers();
+        showFeedback(`Successfully deactivated user ${selectedUser.name || selectedUser.id}`);
+      } catch (error) {
+        console.error('Deactivate error:', error);
+        setActionError(error.message || 'Failed to deactivate user');
+      }
     });
   };
 
   const getActions = (user) => {
+    if (!user?.email) {
+      return []; // Don't show actions if email is missing
+    }
+
     const actions = [
       {
         id: 'delete',
@@ -120,7 +213,7 @@ export default function UserManagement() {
       }
     ];
 
-    if (user.status === 'active' || user.status === 'Active') {
+    if (user.status?.toLowerCase() === 'active') {
       actions.push({
         id: 'deactivate',
         label: 'Deactivate User',
@@ -137,14 +230,15 @@ export default function UserManagement() {
     return actions;
   };
 
-  const totalPages = 3; // This would come from your API
-
   const handlePageChange = (page) => {
-    setLoading(true);
     setCurrentPage(page);
-    // Here you would fetch data for the new page
-    setTimeout(() => setLoading(false), 500); // Simulating API call
   };
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentUsers = filteredUsers.slice(startIndex, endIndex);
 
   const EmptyState = () => (
     <div className="text-center py-12">
@@ -165,13 +259,25 @@ export default function UserManagement() {
   const LoadingState = () => (
     <div className="animate-pulse">
       {[...Array(5)].map((_, i) => (
-        <div key={i} className="flex items-center space-x-4 py-4 px-6 border-b">
-          <div className="h-4 bg-gray-200 rounded w-24"></div>
-          <div className="h-4 bg-gray-200 rounded w-32"></div>
-          <div className="h-4 bg-gray-200 rounded w-20"></div>
-          <div className="h-4 bg-gray-200 rounded w-16"></div>
-          <div className="h-4 bg-gray-200 rounded w-24"></div>
-          <div className="h-4 bg-gray-200 rounded w-24"></div>
+        <div key={i} className="flex items-center border-b py-4">
+          <div className="w-1/5">
+            <div className="h-4 bg-gray-200 rounded w-[150px]"></div>
+          </div>
+          <div className="w-1/5">
+            <div className="h-4 bg-gray-200 rounded w-[200px]"></div>
+          </div>
+          <div className="w-1/6">
+            <div className="h-4 bg-gray-200 rounded w-[80px]"></div>
+          </div>
+          <div className="w-1/6">
+            <div className="h-4 bg-gray-200 rounded w-[60px]"></div>
+          </div>
+          <div className="w-1/5">
+            <div className="h-4 bg-gray-200 rounded w-[140px]"></div>
+          </div>
+          <div className="w-1/5">
+            <div className="h-4 bg-gray-200 rounded w-[100px]"></div>
+          </div>
         </div>
       ))}
     </div>
@@ -190,6 +296,15 @@ export default function UserManagement() {
         <main className="p-6 space-y-6">
           <h1 className="text-2xl text-left font-semibold font-playfair">User Management</h1>
 
+          {actionFeedback.message && (
+            <div className={cn(
+              "fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all duration-500",
+              actionFeedback.type === 'success' ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+            )}>
+              {actionFeedback.message}
+            </div>
+          )}
+
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className="p-6 border-b">
               <div className="flex items-center justify-between">
@@ -197,40 +312,28 @@ export default function UserManagement() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
                     type="text"
-                    placeholder="User ID, Name, Role..."
+                    placeholder="Name, Email, Role..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4 py-2 w-[300px]"
+                    className="pl-10"
                   />
                 </div>
               </div>
             </div>
-            
-            {error ? (
-              <div className="p-6 text-center text-red-600">
-                <p>{error}</p>
-                <Button 
-                  variant="outline" 
-                  className="mt-4"
-                  onClick={() => {
-                    setError(null);
-                    // Retry fetching data
-                  }}
-                >
-                  Try Again
-                </Button>
-              </div>
-            ) : loading ? (
+
+            {loading ? (
               <LoadingState />
-            ) : users.length === 0 ? (
+            ) : error ? (
+              <div className="p-6 text-center text-red-500">{error}</div>
+            ) : !currentUsers || currentUsers.length === 0 ? (
               <EmptyState />
             ) : (
-              <div className="overflow-x-auto">
+              <div>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="text-left pl-10">User ID</TableHead>
-                      <TableHead className="text-left">Name</TableHead>
+                      <TableHead className="text-left pl-10">Name</TableHead>
+                      <TableHead className="text-left">Email</TableHead>
                       <TableHead className="text-left">Role</TableHead>
                       <TableHead className="text-left">Status</TableHead>
                       <TableHead className="text-left">Last Activity</TableHead>
@@ -239,15 +342,15 @@ export default function UserManagement() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {users.map((user, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="text-left pl-10">{user.id}</TableCell>
-                        <TableCell className="text-left">{user.name}</TableCell>
+                    {currentUsers.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="text-left pl-10">{user.name}</TableCell>
+                        <TableCell className="text-left">{user.email}</TableCell>
                         <TableCell className="text-left">{user.role}</TableCell>
                         <TableCell className="text-left">
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              user.status.toLowerCase() === "active"
+                              user.status?.toLowerCase() === "active"
                                 ? "bg-green-100 text-green-700"
                                 : "bg-red-100 text-red-700"
                             }`}
@@ -255,8 +358,8 @@ export default function UserManagement() {
                             {user.status}
                           </span>
                         </TableCell>
-                        <TableCell className="text-left">{user.lastActivity}</TableCell>
-                        <TableCell className="text-left">{user.transaction}</TableCell>
+                        <TableCell className="text-left">{user.last_activity}</TableCell>
+                        <TableCell className="text-left">{user.total_transaction}</TableCell>
                         <TableCell className="text-right pr-6">
                           <ActionMenu
                             actions={getActions(user)}
@@ -272,7 +375,7 @@ export default function UserManagement() {
               </div>
             )}
 
-            {users.length > 0 && (
+            {!loading && !error && filteredUsers.length > 0 && (
               <div className="p-4 flex items-center justify-center gap-2">
                 <Button
                   variant="outline"
@@ -320,6 +423,8 @@ export default function UserManagement() {
         onOpenChange={setShowDeleteDialog}
         onConfirm={handleDelete}
         error={actionError}
+        loading={loadingAction === 'delete'}
+        user={selectedUser}
       />
 
       <ActivateDialog
@@ -327,6 +432,8 @@ export default function UserManagement() {
         onOpenChange={setShowActivateDialog}
         onConfirm={handleActivate}
         error={actionError}
+        loading={loadingAction === 'activate'}
+        user={selectedUser}
       />
 
       <DeactivateDialog
@@ -334,6 +441,8 @@ export default function UserManagement() {
         onOpenChange={setShowDeactivateDialog}
         onConfirm={handleDeactivate}
         error={actionError}
+        loading={loadingAction === 'deactivate'}
+        user={selectedUser}
       />
     </div>
   );

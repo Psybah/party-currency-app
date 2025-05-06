@@ -11,6 +11,17 @@ const CURRENCY_AMOUNTS = {
   '1000': 'One Thousand'
 };
 
+// Text positions and styles
+const TEXT_STYLES = {
+  eventId: { 
+    fontSize: 40, // Increased font size for better legibility
+    fontFamily: 'Courier New', 
+    fill: '#D4AF37', // Gold color
+    charSpacing: 5,
+    lineHeight: 1.2,
+  }
+};
+
 export function CurrencyCanvas({ 
   templateImage,
   texts = {},
@@ -43,15 +54,7 @@ export function CurrencyCanvas({
         y: CANVAS_HEIGHT * 0.85,
         fontSize: 70,
         fontFamily: 'Playfair Display',
-      },
-      eventId: {
-        x: CANVAS_WIDTH - 50,
-        y: CANVAS_HEIGHT * 0.5,
-        fontSize: 24,
-        fontFamily: 'Montserrat',
-        angle: 90,
-        fill: '#D4AF37',
-      },
+      }
     },
     back: {
       celebration: {
@@ -177,6 +180,20 @@ export function CurrencyCanvas({
       });
       canvas.add(text);
     });
+
+    // Add event ID vertically
+    if (texts.eventId) {
+      const verticalText = texts.eventId.split('').join('\n');
+      const eventIdText = new fabric.Text(verticalText, {
+        ...TEXT_STYLES.eventId,
+        left: CANVAS_WIDTH - 70, // Position from right edge with padding
+        top: CANVAS_HEIGHT * 0.55, // Start from upper middle with padding
+        originX: 'center',
+        originY: 'center',
+        textAlign: 'center',
+      });
+      canvas.add(eventIdText);
+    }
 
     canvas.renderAll();
   }, [texts, side, denomination]);

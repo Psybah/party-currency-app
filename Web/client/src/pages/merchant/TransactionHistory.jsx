@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { MerchantSidebar } from "@/components/merchant/MerchantSidebar";
 import MerchantHeader from "@/components/merchant/MerchantHeader";
-import { Search, History, Download } from "lucide-react";
+import { Search, History, Download, AlertCircle, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -12,13 +12,85 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import PropTypes from 'prop-types';
+
+// Define PropTypes for the error state component
+const ErrorStateProps = {
+  message: PropTypes.string.isRequired,
+  onRetry: PropTypes.func.isRequired,
+};
+
+const ErrorState = ({ message, onRetry }) => (
+  <div className="text-center py-12">
+    <div className="flex justify-center mb-4">
+      <div className="p-3 bg-red-100 rounded-full">
+        <AlertCircle className="w-8 h-8 text-red-500" />
+      </div>
+    </div>
+    <h3 className="text-lg font-medium text-gray-900 mb-2">Failed to load transactions</h3>
+    <p className="text-gray-500 max-w-sm mx-auto mb-6">{message}</p>
+    <button
+      onClick={onRetry}
+      className="text-sm px-4 py-2 bg-bluePrimary text-white rounded-md hover:bg-bluePrimary/90"
+    >
+      Try Again
+    </button>
+  </div>
+);
+
+ErrorState.propTypes = ErrorStateProps;
+
+// Demo data
+const demoTransactions = [
+  {
+    id: '1',
+    eventId: 'EVT001',
+    amount: '50,000',
+    machineId: 'MCH001',
+    virtualAccountId: 'VA001',
+    invoice: 'https://example.com/invoice1'
+  },
+  {
+    id: '2',
+    eventId: 'EVT002',
+    amount: '75,000',
+    machineId: 'MCH002',
+    virtualAccountId: 'VA002',
+    invoice: 'https://example.com/invoice2'
+  },
+  {
+    id: '3',
+    eventId: 'EVT003',
+    amount: '100,000',
+    machineId: 'MCH003',
+    virtualAccountId: 'VA001',
+    invoice: 'https://example.com/invoice3'
+  },
+  {
+    id: '4',
+    eventId: 'EVT004',
+    amount: '25,000',
+    machineId: 'MCH001',
+    virtualAccountId: 'VA003',
+    invoice: null
+  },
+  {
+    id: '5',
+    eventId: 'EVT005',
+    amount: '150,000',
+    machineId: 'MCH002',
+    virtualAccountId: 'VA002',
+    invoice: 'https://example.com/invoice5'
+  }
+];
 
 export default function TransactionHistory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [error, setError] = useState(null);
+  const [transactions] = useState(demoTransactions);
 
   useEffect(() => {
     const handleSidebarStateChange = (event) => {
@@ -31,45 +103,15 @@ export default function TransactionHistory() {
     };
   }, []);
 
-  // Mock data - replace with actual API call
-  const transactions = [
-    {
-      eventId: "3FV56YGF",
-      amount: "50,000",
-      machineId: "234567890",
-      invoice: "↓",
-    },
-    {
-      eventId: "3FV56YGF",
-      amount: "50,000",
-      machineId: "234567890",
-      invoice: "↓",
-    },
-    {
-      eventId: "3FV56YGF",
-      amount: "50,000",
-      machineId: "234567890",
-      invoice: "↓",
-    },
-    {
-      eventId: "3FV56YGF",
-      amount: "50,000",
-      machineId: "234567890",
-      invoice: "↓",
-    },
-    {
-      eventId: "3FV56YGF",
-      amount: "50,000",
-      machineId: "234567890",
-      invoice: "↓",
-    },
-    {
-      eventId: "3FV56YGF",
-      amount: "50,000",
-      machineId: "234567890",
-      invoice: "↓",
-    },
-  ];
+  const LoadingState = () => (
+    <div className="text-center py-12">
+      <div className="flex justify-center mb-4">
+        <Loader2 className="w-8 h-8 text-bluePrimary animate-spin" />
+      </div>
+      <h3 className="text-lg font-medium text-gray-900 mb-2">Loading transactions...</h3>
+      <p className="text-gray-500">Please wait while we fetch your transaction history.</p>
+    </div>
+  );
 
   const EmptyState = () => (
     <div className="text-center py-12">
@@ -85,6 +127,11 @@ export default function TransactionHistory() {
           : "There are no transactions recorded yet."}
       </p>
     </div>
+  );
+
+  // Filter transactions based on search query
+  const filteredTransactions = transactions.filter(transaction =>
+    transaction.eventId.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -122,8 +169,8 @@ export default function TransactionHistory() {
             {loading ? (
               <LoadingState />
             ) : error ? (
-              <ErrorState message={error} onRetry={fetchTransactions} />
-            ) : transactions.length === 0 ? (
+              <ErrorState message={error} onRetry={() => setError(null)} />
+            ) : filteredTransactions.length === 0 ? (
               <EmptyState />
             ) : (
               <div className="overflow-x-auto">
@@ -132,13 +179,14 @@ export default function TransactionHistory() {
                     <TableRow>
                       <TableHead className="w-[200px] text-left">Event ID</TableHead>
                       <TableHead className="w-[150px] text-left">Amount</TableHead>
+                      <TableHead className="w-[150px] text-left">Virtual Account</TableHead>
                       <TableHead className="w-[200px] text-left">Machine ID</TableHead>
                       <TableHead className="w-[100px] text-left">Invoice</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {transactions.map((transaction, index) => (
-                      <TableRow key={index} className="hover:bg-gray-50">
+                    {filteredTransactions.map((transaction) => (
+                      <TableRow key={transaction.id} className="hover:bg-gray-50">
                         <TableCell className="text-left whitespace-nowrap">
                           {transaction.eventId}
                         </TableCell>
@@ -146,15 +194,21 @@ export default function TransactionHistory() {
                           ₦{transaction.amount}
                         </TableCell>
                         <TableCell className="text-left whitespace-nowrap">
+                          {transaction.virtualAccountId}
+                        </TableCell>
+                        <TableCell className="text-left whitespace-nowrap">
                           {transaction.machineId}
                         </TableCell>
                         <TableCell className="text-left">
-                          <button 
-                            className="text-bluePrimary hover:text-blueSecondary"
-                            aria-label="Download Invoice"
-                          >
-                            <Download className="h-4 w-4" />
-                          </button>
+                          {transaction.invoice && (
+                            <button 
+                              onClick={() => window.open(transaction.invoice, '_blank')}
+                              className="text-bluePrimary hover:text-blueSecondary"
+                              aria-label="Download Invoice"
+                            >
+                              <Download className="h-4 w-4" />
+                            </button>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}

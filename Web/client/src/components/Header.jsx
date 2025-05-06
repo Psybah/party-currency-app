@@ -116,10 +116,10 @@ const Header = () => {
 
           {/* Auth Buttons and User Avatar */}
           <div className="hidden md:flex items-center gap-4">
-            <UserAvatar auth={true} showName={true} />
+            <UserAvatar showName={true} />
           </div>
           <div className="md:hidden">
-            <UserAvatar auth={true} showName={false} />
+            <UserAvatar showName={false} />
           </div>
         </div>
       </div>

@@ -96,7 +96,7 @@ export default function LoginPage() {
             console.log('Login - Redirecting to admin dashboard');
             navigate("/admin/dashboard", { replace: true });
           } else if (userType === "merchant") {
-            navigate("/merchant/transactions", { replace: true });
+            navigate("/merchant/virtual-account", { replace: true });
           } else {
             navigate("/dashboard", { replace: true });
           }

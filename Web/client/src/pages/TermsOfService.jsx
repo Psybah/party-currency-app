@@ -90,8 +90,8 @@ export default function TermsOfService() {
             </ul>
              <p className="mt-4">
               Party Currency addresses key challenges associated with traditional cash spraying at events. When guests wish to participate in spraying, they purchase Party Currency Notes custom-designed, non-monetary tokens provided by the platform instead of using real cash. These notes are stylized to resemble traditional currency in appearance but are clearly marked with prominent disclaimers indicating that they are not legal tender.
-            </p>
-             <p>
+          </p>
+          <p>
               The full monetary value of the Party Currency Notes purchased by each guest is securely transferred to the event owner&apos;s designated bank account at the conclusion of the event. This ensures the event owner receives the intended financial support without loss or mismanagement. Meanwhile, guests are still able to partake in the cherished cultural tradition of spraying, using the symbolic notes in a festive and meaningful way.
             </p>
           </section>
@@ -198,7 +198,7 @@ export default function TermsOfService() {
                   <li>Fraud: Attempting to defraud Party Currency, other users, or third parties; or providing false, misleading, or inaccurate information to or about Party Currency.</li>
                   <li>Intellectual property infringement: Using or reproducing Party Currency&apos;s intellectual property—including names, logos, trademarks, or copyrighted material—without express written consent, or otherwise violating any third-party rights.</li>
                   <li>Abuse of other users: Interfering with, threatening, harassing, defaming, or otherwise violating the rights, privacy, or access of other users to the Services.</li>
-              </ul>
+                </ul>
           </section>
 
           <section className="mb-8">
@@ -221,7 +221,7 @@ export default function TermsOfService() {
                   <li>Dispute Resolution by Arbitration - For any and all controversies, disputes, demands, claims, or causes of action between you and us (including the interpretation and scope of this section and the arbitrability of the controversy, dispute, demand, claim, or cause of action) relating to the Services or these Terms, you and we agree to resolve any such controversy, dispute, demand, claim, or cause of action exclusively through binding and confidential arbitration. As used in this Section, &quot;we&quot; and &quot;us&quot; mean Party Currency and its affiliates, predecessors, successors, and assigns and all of its and their respective employees, officers, directors, agents, and representatives. In addition, &quot;we&quot; and &quot;us&quot; include any third party providing any product, service, or benefit in connection with the Services or these Terms if such third party is named as a co-party with us in any controversy, dispute, demand, claim, or cause of action subject to this Section. We and you shall use all reasonable endeavors to resolve amicably and in good faith any dispute arising out of or in connection with this Agreement. In the event that we and you are unable to reach a resolution, we and you shall mutually agree on the appointment of a sole arbitrator within fourteen (14) Business Days from when the dispute arises. Where we and you are unable to agree on the appointment of the Arbitrator, such sole arbitrator shall be appointed by the President, Nigerian Institute of Chartered Arbitrators (NICArb) on the application of either party. The venue of the arbitration shall be Lagos State, Nigeria and the language to be used in the arbitral proceedings shall be English. We and you agree that the decision of the Arbitrator shall be final and binding on both of us. Notwithstanding this agreement to arbitrate, either party may seek emergency equitable relief in court in order to maintain the status quo pending arbitration, and each party hereby agrees to submit to the jurisdiction of the court for such purpose. A request for interim measures will not be deemed a waiver of the obligation to arbitrate.</li>
                   <li>Changes to Terms of Service - You can review the most current version of the Terms of Service at any time on this page. We reserve the right, at our sole discretion, to update, change or replace any part of these Terms of Service by posting updates and changes to our website. It is your responsibility to check our website periodically for changes. Your continued use of or access to our website or the Service following the posting of any changes to these Terms of Service constitutes acceptance of those changes.</li>
                   <li>Change of Control - In the event that Party Currency is acquired by or merged with a third-party entity, we reserve the right, in any of these circumstances, to transfer or assign the information we have collected from you as part of such merger, acquisition, sale, or other change of control.</li>
-              </ul>
+                </ul>
           </section>
 
           <section className="mb-8">

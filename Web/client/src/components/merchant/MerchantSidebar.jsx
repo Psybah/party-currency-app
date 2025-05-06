@@ -1,11 +1,12 @@
-import React, { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { LogOut, PanelRightOpen, PanelLeftOpen, X, History, FileText, Settings } from "lucide-react";
+import { LogOut, PanelRightOpen, PanelLeftOpen, X, History, Settings, Wallet, CalendarDays } from "lucide-react";
 import { USER_PROFILE_CONTEXT } from "@/context";
 import { deleteAuth } from "@/lib/util";
 import SidebarLogo from "../sidebar/SidebarLogo";
 import LogoutConfirmation from "../sidebar/LogoutConfirmation";
 import { cn } from "@/lib/utils";
+import PropTypes from 'prop-types';
 
 export function MerchantSidebar({ isOpen, onClose }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -26,22 +27,27 @@ export function MerchantSidebar({ isOpen, onClose }) {
     navigate("/login");
   };
 
-  const navLinks = [
+  const navigation = [
     {
-      path: "/merchant/transactions",
+      name: "Virtual Account",
+      href: "/merchant/virtual-account",
+      icon: <Wallet className="w-5 h-5 min-w-[20px]" />,
+    },
+    {
+      name: "Transaction History",
+      href: "/merchant/transactions",
       icon: <History className="w-5 h-5 min-w-[20px]" />,
-      label: "Transaction History"
     },
     {
-      path: "/merchant/events",
-      icon: <FileText className="w-5 h-5 min-w-[20px]" />,
-      label: "Event History"
+      name: "Event History",
+      href: "/merchant/events",
+      icon: <CalendarDays className="w-5 h-5 min-w-[20px]" />,
     },
     {
-      path: "/merchant/settings",
+      name: "Settings",
+      href: "/merchant/settings",
       icon: <Settings className="w-5 h-5 min-w-[20px]" />,
-      label: "Settings"
-    }
+    },
   ];
 
   return (
@@ -68,19 +74,19 @@ export function MerchantSidebar({ isOpen, onClose }) {
         </div>
 
         <nav className="flex-1 space-y-2 px-3 py-4">
-          {navLinks.map((link) => (
+          {navigation.map((link) => (
             <Link
-              key={link.path}
-              to={link.path}
+              key={link.href}
+              to={link.href}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
-                location.pathname === link.path
+                location.pathname === link.href
                   ? "bg-white/20 text-white"
                   : "text-white/80 hover:bg-white/10 hover:text-white"
               )}
             >
               {link.icon}
-              {!isCollapsed && <span>{link.label}</span>}
+              {!isCollapsed && <span>{link.name}</span>}
             </Link>
           ))}
         </nav>
@@ -120,20 +126,20 @@ export function MerchantSidebar({ isOpen, onClose }) {
           </div>
 
           <nav className="flex-1 space-y-2 p-4">
-            {navLinks.map((link) => (
+            {navigation.map((link) => (
               <Link
-                key={link.path}
-                to={link.path}
+                key={link.href}
+                to={link.href}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
-                  location.pathname === link.path
+                  location.pathname === link.href
                     ? "bg-white/20 text-white"
                     : "text-white/80 hover:bg-white/10 hover:text-white"
                 )}
                 onClick={onClose}
               >
                 {link.icon}
-                <span>{link.label}</span>
+                <span>{link.name}</span>
               </Link>
             ))}
           </nav>
@@ -158,3 +164,8 @@ export function MerchantSidebar({ isOpen, onClose }) {
     </>
   );
 }
+
+MerchantSidebar.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+};

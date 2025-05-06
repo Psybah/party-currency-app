@@ -10,7 +10,6 @@ import { PasswordInputs } from "@/components/forms/PasswordInputs";
 import { PhoneInput } from "@/components/forms/PhoneInput";
 import { BusinessInfoInputs } from "@/components/merchant/BusinessInfoInputs";
 import { SignupSubmitButton } from "@/components/forms/SignupSubmitButton";
-import { SocialAuthButtons } from "@/components/forms/SocialAuthButtons";
 import { TermsAndConditions } from "@/components/forms/TermsAndConditions";
 import { signupMerchantApi } from "@/api/authApi";
 import { storeAuth } from "@/lib/util";
@@ -90,7 +89,7 @@ export function MerchantSignupForm() {
             email: values.email,
           }
         );
-        navigate("/merchant/transactions");
+        navigate("/merchant/virtual-account");
       } else {
         const errorData = formatErrorMessage(data);
         console.log("API Error response:", errorData);
@@ -248,7 +247,6 @@ export function MerchantSignupForm() {
         </form>
       </Form>
 
-      <SocialAuthButtons />
       <TermsAndConditions />
     </>
   );
