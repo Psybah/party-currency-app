@@ -139,45 +139,111 @@ def createReservedAccount(request):
 
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
-# @throttle_classes([UserThrottle])
+@throttle_classes([UserThrottle])
 def deleteReservedAccount(request, account_reference=None):
-    # If account_reference is not provided as a parameter, get it from query_params
-    if account_reference is None and request is not None:
-        account_reference = request.query_params.get("account_reference")
+    """
+    Delete a reserved account from Monnify.
     
-    if not account_reference:
-        return Response({
-            "error": "account_reference is required"
-        }, status=status.HTTP_400_BAD_REQUEST)
+    Args:
+        request: The HTTP request object
+        account_reference: Optional account reference from URL path parameter
     
-    headers = {
-        'Authorization': f"Bearer {MonnifyAuth.get_access_token()['token']}",
-        'Content-Type': 'application/json'
-    }
+    Query Parameters:
+        account_reference: The reference ID of the account to delete (if not provided in URL)
     
+    Returns:
+        Response: JSON response from Monnify API or error details
+    """
+    # Get account_reference from URL path param or query param
+    if account_reference is None:
+        if request is not None:
+            account_reference = request.query_params.get("account_reference")
+        else:
+            return {"error": "account_reference is required", "status_code": status.HTTP_400_BAD_REQUEST}
+    
+    # Validate input
+    if not account_reference or not isinstance(account_reference, str):
+        error_msg = "Valid account_reference is required"
+        return Response({"error": error_msg}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Get Monnify base URL from settings with fallback to env variable
+    base_url = getattr(os.getenv('MONNIFY_BASE_URL'))
+    if not base_url:
+        return Response(
+            {"error": "Service misconfiguration: API base URL not found"}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
+    # Prepare request
     try:
-        response = requests.delete(
-            f"{os.getenv('MONIFY_BASE_URL')}/bank-transfer/reserved-accounts/{account_reference}", 
-            headers=headers
-        ).json()
-        
-        # If this was called from the scheduler, return a simple response
-        if request is None:
-            return response
+        access_token = MonnifyAuth.get_access_token()
+        if not access_token or 'token' not in access_token:
+            return Response(
+                {"error": "Failed to authenticate with payment provider"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
             
-        return Response(response, status=status.HTTP_200_OK)
-    except Exception as e:
-        error_response = {
-            "error": str(e),
-            "response": response if 'response' in locals() else None
+        headers = {
+            'Authorization': f"Bearer {access_token['token']}",
+            'Content-Type': 'application/json'
         }
         
-        # If this was called from the scheduler, return the error response
+        
+        # Make API request
+        api_response = requests.delete(
+            f"{base_url}/bank-transfer/reserved-accounts/{account_reference}", 
+            headers=headers,
+            timeout=30  # Add timeout to prevent hanging
+        )
+        
+        # Check for HTTP errors
+        api_response.raise_for_status()
+        
+        # Parse response
+        response_data = api_response.json()
+        
+                
+        # Return appropriate response based on caller
         if request is None:
-            return error_response
-            
-        return Response(error_response, status=status.HTTP_400_BAD_REQUEST)
-    
+            return {"data": response_data, "status_code": status.HTTP_200_OK}
+        
+        return Response(response_data)
+        
+    except requests.exceptions.RequestException as req_err:
+        # Handle network/request errors
+        error_msg = f"Request to Monnify API failed: {str(req_err)}"
+        
+        if request is None:
+            return {"error": error_msg, "status_code": status.HTTP_503_SERVICE_UNAVAILABLE}
+        
+        return Response(
+            {"error": "Payment provider service unavailable", "detail": str(req_err)},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE
+        )
+        
+    except ValueError as json_err:
+        # Handle JSON parsing errors
+        error_msg = f"Invalid response from Monnify API: {str(json_err)}"
+        
+        if request is None:
+            return {"error": error_msg, "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR}
+        
+        return Response(
+            {"error": "Unexpected response from payment provider", "detail": str(json_err)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+        
+    except Exception as e:
+        # Catch-all for any other errors
+        error_msg = f"Error deleting reserved account {account_reference}: {str(e)}"
+
+        if request is None:
+            return {"error": error_msg, "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR}
+        
+        return Response(
+            {"error": "Failed to delete reserved account", "detail": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 # @throttle_classes([UserThrottle])
