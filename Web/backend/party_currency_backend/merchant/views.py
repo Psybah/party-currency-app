@@ -15,7 +15,7 @@ class UserThrottle(UserRateThrottle):
 # Create your views here.
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-@throttle_classes([UserThrottle])
+# @throttle_classes([UserThrottle])
 def getAllTransaction(request):
     headers = {
         'Authorization': f"Bearer {MonnifyAuth.get_access_token()['token']}",
@@ -74,7 +74,7 @@ def getAllTransaction(request):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-@throttle_classes([UserThrottle])
+# @throttle_classes([UserThrottle])
 def createReservedAccount(request):
     data = request.data
     event = Events.objects.get(event_id=data["event_id"])
@@ -139,7 +139,7 @@ def createReservedAccount(request):
 
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
-@throttle_classes([UserThrottle])
+# @throttle_classes([UserThrottle])
 def deleteReservedAccount(request, account_reference=None):
     # If account_reference is not provided as a parameter, get it from query_params
     if account_reference is None and request is not None:
@@ -180,7 +180,7 @@ def deleteReservedAccount(request, account_reference=None):
     
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-@throttle_classes([UserThrottle])
+# @throttle_classes([UserThrottle])
 def get_active_reserved_account(request):
     """
     Retrieve the active virtual account reference for the authenticated user.
