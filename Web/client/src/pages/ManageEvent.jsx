@@ -9,30 +9,6 @@ import EmptyState from "../components/events/EmptyState";
 import { useEffect } from "react";
 import { getEvents } from "@/services/eventService";
 
-// const events = [
-//   {
-//     id: "EVT001",
-//     name: "Oguntade 50th Birthday Celebration",
-//     date: "2024-04-15",
-//     status: "active",
-//   },
-//   {
-//     id: "EVT002",
-//     name: "Williams Wedding Anniversary",
-//     date: "2024-05-01",
-//     status: "active",
-//   },
-// ];
-
-// const events = [
-//   {
-//     id: "EVT003",
-//     name: "Johnson's Graduation Party",
-//     date: "2024-02-20",
-//     status: "concluded",
-//   },
-// ];
-
 // Create a skeleton loader component
 const EventCardSkeleton = () => (
   <div className="bg-white rounded-lg shadow-sm p-6 mb-4 animate-pulse">
