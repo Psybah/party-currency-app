@@ -173,17 +173,35 @@ def createReservedAccount(request):
         user.virtual_account_reference = response["responseBody"]["accountReference"]
         user.save()
         
+        # Get response body data
+        response_body = response.get("responseBody", {})
+        
+        # Extract account details from the nested 'accounts' array
+        account_details = {
+            "account_reference": response_body.get("accountReference", ""),
+            "account_name": response_body.get("accountName", ""),
+            "currency_code": response_body.get("currencyCode", "NGN"),
+            "reservation_reference": response_body.get("reservationReference", ""),
+            "reserved_account_type": response_body.get("reservedAccountType", ""),
+            "status": response_body.get("status", ""),
+            "created_on": response_body.get("createdOn", "")
+        }
+        
+        # Extract bank details from the first account in the accounts array
+        if "accounts" in response_body and len(response_body["accounts"]) > 0:
+            first_account = response_body["accounts"][0]
+            account_details.update({
+                "bank_code": first_account.get("bankCode", ""),
+                "bank_name": first_account.get("bankName", ""),
+                "account_number": first_account.get("accountNumber", ""),
+                "account_bank": first_account.get("bankName", "")  # Adding this for backward compatibility
+            })
+        
+        logger.info(f"Monnify account created successfully: {account_details['account_reference']}")
+        
         return Response({
             "message": "account created successfully",
-            "account_details": {
-                "account_reference": response["responseBody"]["accountReference"],
-                "account_name": response["responseBody"]["accountName"],
-                "account_number": response["responseBody"]["accountNumber"],
-                "account_bank": response["responseBody"]["accountBank"],
-                "account_currency": response["responseBody"]["accountCurrency"],
-                "account_type": response["responseBody"]["accountType"],
-                "account_status": response["responseBody"]["accountStatus"]
-            }
+            "account_details": account_details
         }, status=status.HTTP_200_OK)
                                                                             
     except requests.exceptions.RequestException as req_err:
@@ -318,8 +336,13 @@ def deleteReservedAccount(request, account_reference=None):
         # Check for HTTP errors
         api_response.raise_for_status()
         
-        # Parse response
-        response_data = api_response.json()
+        # Parse response - safely handle JSON parsing
+        try:
+            response_data = api_response.json()
+        except ValueError:
+            # Handle case where response is not JSON
+            response_data = {"message": "Account successfully deleted"}
+            logger.info("API response was not JSON, using default success message")
         
         # Update user data if successful
         if request is not None and hasattr(request, 'user'):
