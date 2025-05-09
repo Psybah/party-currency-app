@@ -131,9 +131,21 @@ def createReservedAccount(request):
         }, status=status.HTTP_200_OK)
                                                                             
     except Exception as e:
+        if 'response' in locals():
+             return Response({
+                    "message": "account created successfully",
+                    "account_details": {
+                "account_reference": response["responseBody"]["accountReference"],
+                "account_name": response["responseBody"]["accountName"],
+                "account_number": response["responseBody"]["accountNumber"],
+                "account_bank": response["responseBody"]["accountBank"],
+                "account_currency": response["responseBody"]["accountCurrency"],
+                "account_type": response["responseBody"]["accountType"],
+                "account_status": response["responseBody"]["accountStatus"]
+            }
+        }, status=status.HTTP_200_OK)
         return Response({
-            "error": str(e),
-            "response": response if 'response' in locals() else None
+            "error": str(e)
         }, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(["GET"])
