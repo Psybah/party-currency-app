@@ -263,11 +263,13 @@ def deleteReservedAccount(request, account_reference=None):
         api_response.raise_for_status()
         
         # Parse response
-        response_data = api_response.json()
+        user = request.user
+        user.virtual_account_reference=None
+        user.save()
         
         # Log success
         logger.info(f"Successfully deleted reserved account: {account_reference}")
-        
+        request.user.virtual_account_reference = None
         # Return appropriate response based on caller
         if request is None:
             return {"data": response_data, "status_code": status.HTTP_200_OK}
