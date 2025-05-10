@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import PropTypes from 'prop-types';
+import { getVirtualAccount, fetchTransactions } from "@/api/merchantApi";
 
 // Define PropTypes for the error state component
 const ErrorStateProps = {
@@ -49,38 +50,6 @@ const demoTransactions = [
     machineId: 'MCH001',
     virtualAccountId: 'VA001',
     invoice: 'https://example.com/invoice1'
-  },
-  {
-    id: '2',
-    eventId: 'EVT002',
-    amount: '75,000',
-    machineId: 'MCH002',
-    virtualAccountId: 'VA002',
-    invoice: 'https://example.com/invoice2'
-  },
-  {
-    id: '3',
-    eventId: 'EVT003',
-    amount: '100,000',
-    machineId: 'MCH003',
-    virtualAccountId: 'VA001',
-    invoice: 'https://example.com/invoice3'
-  },
-  {
-    id: '4',
-    eventId: 'EVT004',
-    amount: '25,000',
-    machineId: 'MCH001',
-    virtualAccountId: 'VA003',
-    invoice: null
-  },
-  {
-    id: '5',
-    eventId: 'EVT005',
-    amount: '150,000',
-    machineId: 'MCH002',
-    virtualAccountId: 'VA002',
-    invoice: 'https://example.com/invoice5'
   }
 ];
 
@@ -88,11 +57,37 @@ export default function TransactionHistory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [transactions] = useState(demoTransactions);
+  const [transactions, setTransactions] = useState([]);
+  const [accountReference, setAccountReference] = useState("");
 
   useEffect(() => {
+    const loadTransactionData = async () => {
+      try {
+        setLoading(true);
+        // Get virtual account data once
+        const accountData = await getVirtualAccount();
+        
+        if (accountData && accountData.account_reference) {
+          setAccountReference(accountData.account_reference);
+          
+          // Use the account reference to fetch transactions
+          const transactionData = await fetchTransactions(accountData.account_reference);
+          setTransactions(transactionData.transactions || []);
+        } else {
+          setError("No virtual account found");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError(error.message || "Failed to load transaction data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTransactionData();
+    
     const handleSidebarStateChange = (event) => {
       setSidebarCollapsed(event.detail.isCollapsed);
     };
@@ -169,7 +164,11 @@ export default function TransactionHistory() {
             {loading ? (
               <LoadingState />
             ) : error ? (
-              <ErrorState message={error} onRetry={() => setError(null)} />
+              <ErrorState message={error} onRetry={() => {
+                setError(null);
+                setLoading(true);
+                loadTransactionData();
+              }} />
             ) : filteredTransactions.length === 0 ? (
               <EmptyState />
             ) : (

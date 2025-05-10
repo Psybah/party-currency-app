@@ -33,7 +33,7 @@ export default function VirtualAccount() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [account, setAccount] = useState({ account_reference: "" });
+  const [accountReference, setAccountReference] = useState("");
   const [eventDetails, setEventDetails] = useState(null);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -43,6 +43,27 @@ export default function VirtualAccount() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const fetchAccountDetails = async () => {
+    try {
+      setLoading(true);
+      const accountData = await getVirtualAccount();
+      if (accountData) {
+        setAccountReference(accountData.account_reference);
+        // Fetch event details using account reference
+        if (accountData.account_reference) {
+          const eventData = await getEventByEventId(accountData.account_reference);
+          setEventDetails(eventData);
+        }
+      }
+      return accountData.account_reference;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error(error.message || "Failed to fetch data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const handleSidebarStateChange = (event) => {
       setSidebarCollapsed(event.detail.isCollapsed);
@@ -50,37 +71,32 @@ export default function VirtualAccount() {
 
     window.addEventListener("sidebarStateChange", handleSidebarStateChange);
     
-    const fetchData = async () => {
-      try {
-        const accountData = await getVirtualAccount();
-        if (accountData) {
-          setAccount(accountData);
-          // Fetch event details using account reference
-          if (accountData.account_reference) {
-            const eventData = await getEventByEventId(accountData.account_reference);
-            setEventDetails(eventData);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        toast.error(error.message || "Failed to fetch data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-    fetchTransactions();
+    fetchAccountDetails()
+    .then(account_reference => {
+      fetchTransactions(account_reference);
+    });
 
     return () => {
       window.removeEventListener("sidebarStateChange", handleSidebarStateChange);
     };
   }, []);
 
-  const handleAccountCreated = (newAccount) => {
-    setAccount((prev) => [...prev, newAccount]);
+  const handleAccountCreated = async (newAccount) => {
+    await fetchAccountDetails();
     setIsCreateModalOpen(false);
     toast.success("Account created successfully");
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      await deleteVirtualAccount(accountReference);
+      setAccountReference("");
+      setEventDetails(null);  
+      setIsDeleteModalOpen(false);
+      toast.success("Account deleted successfully");
+    } catch (error) {
+      toast.error(error.message || "Failed to delete account");
+    }
   };
 
   const formatDate = (dateString) => {
@@ -97,9 +113,8 @@ export default function VirtualAccount() {
   };
 
   const handleViewNewAccount = () => {
-    const latestAccount = account[account.length - 1];
-    if (latestAccount) {
-      setSelectedAccount(latestAccount);
+    if (accountReference) {
+      setSelectedAccount({ account_reference: accountReference });
       setIsDetailsModalOpen(true);
     }
   };
@@ -171,10 +186,14 @@ export default function VirtualAccount() {
             <h1 className="font-playfair font-semibold text-2xl">
               Virtual Account
             </h1>
-
           </div>
 
-          {account.account_reference ? (
+          {loading ? (
+            <div className="space-y-4">
+              <TableRowSkeleton />
+              <TableRowSkeleton />
+            </div>
+          ) : accountReference ? (
             <div className="relative bg-white shadow rounded-lg overflow-hidden p-6">
               <Button
                 className="top-4 right-4 absolute bg-red-600"
@@ -185,7 +204,7 @@ export default function VirtualAccount() {
               <div className="space-y-6">
                 <div className="flex justify-center items-center gap-5">
                   <PiggyBank className="w-8 h-8 text-gray-400" />
-                  <span className="text-lg font-medium">Account Reference: {account.account_reference}</span>
+                  <span className="text-lg font-medium">Account Reference: {accountReference}</span>
                 </div>
                 
                 {eventDetails && (
@@ -261,7 +280,7 @@ export default function VirtualAccount() {
         onClose={() => {
           setIsDeleteModalOpen(false);
         }}
-        onConfirm={() => deleteVirtualAccount(account.account_reference)}
+        onConfirm={handleDeleteAccount}
       />
     </div>
   );
