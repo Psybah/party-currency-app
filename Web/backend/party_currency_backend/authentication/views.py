@@ -128,7 +128,7 @@ def google_callback(request):
             #TODO: remove this after testing
             frontend_url="http://127.0.0.1:8080"
 
-            redirect_url = f"{frontend_url}?token={token.key}&user={user.type}"
+            redirect_url = f"{frontend_url}/google/auth?token={token.key}&user={user.type}"
             from django.http import HttpResponseRedirect
             return HttpResponseRedirect(redirect_url)
         else:
