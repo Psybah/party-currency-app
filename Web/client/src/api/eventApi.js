@@ -29,3 +29,23 @@ export async function createEventApi(body) {
   console.log("API Response:", data);
   return data;
 }
+
+// Get event by eventId
+export async function getEventByEventId(eventId) {
+  const url = new URL(`events/get/${eventId}`, BASE_URL);
+  const { accessToken } = getAuth();
+  
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Token ${accessToken}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to get event");
+  }
+
+  return data.event;
+}
