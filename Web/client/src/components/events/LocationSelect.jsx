@@ -9,35 +9,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'react-hot-toast';
-
-const fetchStates = async () => {
-	try {
-		const response = await fetch('https://nga-states-lga.onrender.com/fetch');
-		if (!response.ok) {
-			throw new Error('Failed to fetch states');
-		}
-		const data = await response.json();
-		return data;
-	} catch (error) {
-		console.error('Error fetching states:', error);
-		throw new Error('Unable to load states. Please try again later.');
-	}
-};
-
-const fetchLGAs = async (state) => {
-	if (!state) return [];
-	try {
-		const response = await fetch(`https://nga-states-lga.onrender.com/?state=${state}`);
-		if (!response.ok) {
-			throw new Error('Failed to fetch LGAs');
-		}
-		const data = await response.json();
-		return data;
-	} catch (error) {
-		console.error('Error fetching LGAs:', error);
-		throw new Error('Unable to load LGAs. Please try again later.');
-	}
-};
+import { fetchStates, fetchLGAs } from '@/api/locationApi';
 
 export function LocationSelect({ formData, handleInputChange }) {
 	const { data: states, isLoading: statesLoading } = useQuery({

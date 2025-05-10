@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllCurrencies } from '@/services/currencyService';
+import { getAllCurrencies } from '@/api/currencyApi';
 import { LoadingDisplay } from '@/components/LoadingDisplay';
 import { Download, Files, Edit, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';

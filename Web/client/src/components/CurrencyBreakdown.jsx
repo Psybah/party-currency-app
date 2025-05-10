@@ -4,16 +4,42 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Send, Plus, Minus } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { getEvents } from "@/api/eventApi";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-// const CurrencyBreakdown = ({ isEnabled = false }) => {
 const CurrencyBreakdown = () => {
   const [isEnabled, setIsEnabled] = useState(true);
   const [amount, setAmount] = useState("");
+  const [selectedEvent, setSelectedEvent] = useState("");
+  const [events, setEvents] = useState([]);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
   const [denominations, setDenominations] = useState({
     "1000": 0,
     "500": 0,
     "200": 0,
   });
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const data = await getEvents();
+        setEvents(data.events || []);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+        toast.error("Failed to load events. Please try again.");
+      } finally {
+        setIsLoadingEvents(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const handleAmountChange = (e) => {
     const value = e.target.value.replace(/[^0-9]/g, "");
@@ -75,6 +101,11 @@ const CurrencyBreakdown = () => {
       return;
     }
     
+    if (!selectedEvent) {
+      toast.error("Please select an event");
+      return;
+    }
+    
     const total = getTotal();
     if (total !== 100) {
       toast.error("Denomination percentages must add up to 100%");
@@ -82,9 +113,11 @@ const CurrencyBreakdown = () => {
     }
 
     const breakdown = calculateBreakdown();
-    console.log("Currency Breakdown:", breakdown);
     toast.success("Proceeding with currency breakdown");
   };
+
+  const isAmountValid = parseInt(amount) >= 1000;
+  const isFormValid = isAmountValid && getTotal() === 100 && selectedEvent;
 
   return (
     <div className={`space-y-6 p-6 rounded-lg border bg-white ${isEnabled ? "" : "opacity-50 pointer-events-none"}`}>
@@ -106,6 +139,11 @@ const CurrencyBreakdown = () => {
               className="pl-8"
             />
           </div>
+          {amount && !isAmountValid && (
+            <p className="text-sm text-red-500 mt-1">
+              Please enter an amount greater than or equal to ₦1,000
+            </p>
+          )}
         </div>
 
         <div className="space-y-4 mt-6">
@@ -130,6 +168,7 @@ const CurrencyBreakdown = () => {
                     size="icon"
                     className="h-8 w-8"
                     onClick={() => adjustPercentage(denomination, false)}
+                    disabled={!isAmountValid}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
@@ -140,6 +179,7 @@ const CurrencyBreakdown = () => {
                     size="icon"
                     className="h-8 w-8"
                     onClick={() => adjustPercentage(denomination, true)}
+                    disabled={!isAmountValid}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -149,10 +189,32 @@ const CurrencyBreakdown = () => {
           })}
         </div>
 
+        <div className="space-y-2">
+          <Label htmlFor="event" className="text-sm text-gray-600">
+            Select Event
+          </Label>
+          <Select
+            value={selectedEvent}
+            onValueChange={setSelectedEvent}
+            disabled={isLoadingEvents}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={isLoadingEvents ? "Loading events..." : "Select an event"} />
+            </SelectTrigger>
+            <SelectContent>
+              {events.map((event) => (
+                <SelectItem key={event.event_id} value={event.event_id}>
+                  {event.event_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <Button 
           onClick={handleProceed}
           className="w-full bg-bluePrimary hover:bg-bluePrimary/90 mt-6"
-          disabled={!amount || getTotal() !== 100}
+          disabled={!isFormValid}
         >
           Proceed to payment
           <Send className="ml-2 h-4 w-4" />

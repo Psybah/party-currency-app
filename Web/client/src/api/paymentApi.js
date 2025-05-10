@@ -7,7 +7,7 @@ import { BASE_URL } from "@/config";
 
 /**
  * @typedef {Object} PayResponse
- * @property {string} payment_link - The generated payment link
+ * @property {string} checkout_url - The generated payment link
  */
 
 /**

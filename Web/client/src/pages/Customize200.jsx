@@ -7,7 +7,7 @@ import DashboardHeader from "../components/DashboardHeader";
 import { TextEditor } from "../components/currency/TextEditor";
 import { ImageEditor } from "../components/currency/ImageEditor";
 import { CurrencyCanvas } from "../components/currency/CurrencyCanvas";
-import { saveCurrency } from "../services/currencyService";
+import { saveCurrency } from "../api/currencyApi";
 import { useAuthenticated } from "@/lib/hooks";
 import { LoadingDisplay } from "@/components/LoadingDisplay";
 

@@ -7,7 +7,7 @@ import EventCard from "../components/events/EventCard";
 import EventTabs from "../components/events/EventTabs";
 import EmptyState from "../components/events/EmptyState";
 import { useEffect } from "react";
-import { getEvents } from "@/services/eventService";
+import { getEvents } from "@/api/eventApi";
 
 // Create a skeleton loader component
 const EventCardSkeleton = () => (

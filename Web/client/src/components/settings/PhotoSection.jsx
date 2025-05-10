@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Avatar } from "antd";
 import { Upload, Camera } from "lucide-react";
-import { profileService } from "../../services/profileService";
+import { getProfile, uploadProfilePicture } from "../../api/profileApi";
 import toast from "react-hot-toast";
 
 export function PhotoSection({ onUpdatePhoto }) {
@@ -16,7 +16,7 @@ export function PhotoSection({ onUpdatePhoto }) {
 
   const fetchProfilePicture = async () => {
     try {
-      const data = await profileService.getProfilePicture();
+      const data = await getProfile();
       if (data && data.profile_picture) {
         setPreviewUrl(data.profile_picture);
       }
@@ -41,7 +41,7 @@ export function PhotoSection({ onUpdatePhoto }) {
         };
         reader.readAsDataURL(file);
 
-        const response = await profileService.uploadProfilePicture(file);
+        const response = await uploadProfilePicture(file);
         if (response.profile_picture) {
           setPreviewUrl(response.profile_picture);
           toast.success("Profile picture updated successfully");
