@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Send, Plus, Minus } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-const CurrencyBreakdown = ({ isEnabled = false }) => {
+// const CurrencyBreakdown = ({ isEnabled = false }) => {
+const CurrencyBreakdown = () => {
+  const [isEnabled, setIsEnabled] = useState(true);
   const [amount, setAmount] = useState("");
   const [denominations, setDenominations] = useState({
     "1000": 0,
@@ -18,33 +20,32 @@ const CurrencyBreakdown = ({ isEnabled = false }) => {
     setAmount(value);
   };
 
+  const calculateDenominationAmount = (percentage, totalAmount) => {
+    return Math.floor((percentage / 100) * totalAmount);
+  };
+
   const adjustPercentage = (denomination, increment) => {
     const step = 10;
     setDenominations((prev) => {
+      // Calculate new value with limits
       const newValue = Math.max(0, Math.min(100, prev[denomination] + (increment ? step : -step)));
       const diff = newValue - prev[denomination];
       
+      // If no change, return previous state
       if (diff === 0) return prev;
 
-      const otherDenoms = Object.keys(prev).filter(d => d !== denomination);
-      const remainingDiff = -diff;
-      
-      // Distribute the remaining difference among other denominations
+      // Create result with the updated denomination
       const result = { ...prev, [denomination]: newValue };
       
-      if (remainingDiff !== 0) {
-        const availableDenoms = otherDenoms.filter(d => 
-          increment ? result[d] >= step : result[d] > 0
-        );
-        
-        if (availableDenoms.length > 0) {
-          const adjustPerDenom = remainingDiff / availableDenoms.length;
-          availableDenoms.forEach(d => {
-            result[d] = Math.max(0, Math.min(100, result[d] + adjustPerDenom));
-          });
-        } else {
-          return prev; // Revert if we can't distribute
+      // If incrementing, check if total would exceed 100%
+      if (increment) {
+        const newTotal = Object.values(result).reduce((sum, val) => sum + val, 0);
+        if (newTotal > 100) {
+          // If exceeding 100%, don't allow the change
+          return prev;
         }
+      } else {
+        // If decrementing, we don't need additional logic as it won't exceed 100%
       }
       
       return result;
@@ -53,6 +54,19 @@ const CurrencyBreakdown = ({ isEnabled = false }) => {
 
   const getTotal = () => {
     return Object.values(denominations).reduce((sum, val) => sum + val, 0);
+  };
+
+  const calculateBreakdown = () => {
+    if (!amount) return {};
+    
+    const totalAmount = parseInt(amount);
+    const breakdown = {};
+    
+    Object.entries(denominations).forEach(([denomination, percentage]) => {
+      breakdown[denomination] = calculateDenominationAmount(percentage, totalAmount);
+    });
+    
+    return breakdown;
   };
 
   const handleProceed = () => {
@@ -67,8 +81,9 @@ const CurrencyBreakdown = ({ isEnabled = false }) => {
       return;
     }
 
+    const breakdown = calculateBreakdown();
+    console.log("Currency Breakdown:", breakdown);
     toast.success("Proceeding with currency breakdown");
-    // Handle the breakdown logic here
   };
 
   return (
@@ -94,32 +109,44 @@ const CurrencyBreakdown = ({ isEnabled = false }) => {
         </div>
 
         <div className="space-y-4 mt-6">
-          {Object.entries(denominations).map(([denomination, percentage]) => (
-            <div key={denomination} className="flex items-center justify-between gap-4">
-              <span className="w-16 text-gray-600">₦{denomination}</span>
-              <div className="flex items-center gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => adjustPercentage(denomination, false)}
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <span className="w-12 text-center">{percentage}%</span>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => adjustPercentage(denomination, true)}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
+          {Object.entries(denominations).map(([denomination, percentage]) => {
+            const breakdown = calculateBreakdown();
+            const denominationAmount = breakdown[denomination] || 0;
+            
+            return (
+              <div key={denomination} className="flex items-center justify-between gap-4">
+                <div className="flex flex-col">
+                  <span className="text-gray-600">₦{denomination}</span>
+                  {amount && (
+                    <span className="text-sm text-gray-500">
+                      Amount: ₦{denominationAmount}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => adjustPercentage(denomination, false)}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="w-12 text-center">{percentage}%</span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => adjustPercentage(denomination, true)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <Button 
