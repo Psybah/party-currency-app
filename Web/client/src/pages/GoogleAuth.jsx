@@ -26,7 +26,7 @@ export default function GoogleAuth() {
         }
 
         // Store authentication token and user type
-        storeAuth(token, userType.toLowerCase(), true);
+        storeAuth(token, userType.toLowerCase() || "customer", true);
         setStatus("Authentication successful. Loading your profile...");
 
         // Fetch user profile with the new token
