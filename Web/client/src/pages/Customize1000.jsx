@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { toast } from "react-hot-toast";
@@ -8,18 +8,32 @@ import { TextEditor } from "../components/currency/TextEditor";
 import { ImageEditor } from "../components/currency/ImageEditor";
 import { CurrencyCanvas } from "../components/currency/CurrencyCanvas";
 import { saveCurrency } from "../api/currencyApi";
+import { getEvents } from "../api/eventApi";
+import { useAuthenticated } from "@/lib/hooks";
+import { LoadingDisplay } from "@/components/LoadingDisplay";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Customize1000 = () => {
   const navigate = useNavigate();
+  const authenticated = useAuthenticated();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showTextEditor, setShowTextEditor] = useState(false);
   const [showImageEditor, setShowImageEditor] = useState(false);
   const [currentSide, setCurrentSide] = useState("front");
   const [isLoading, setIsLoading] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState("");
   const [currencyData, setCurrencyData] = useState({
     front: {
       texts: {
-        celebration: "Celebration of Life",
+        celebration: "Happy Birthday!",
         currencyName: "Party Currency",
         eventId: "",
       },
@@ -27,11 +41,58 @@ const Customize1000 = () => {
     },
     back: {
       texts: {
-        celebration: "Celebration of Life",
+        celebration: "Happy Birthday!",
       },
       portraitImage: null,
     },
   });
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setIsLoadingEvents(true);
+      try {
+        const data = await getEvents();
+        setEvents(data.events || []);
+        // If we have events, set the first one as default
+        if (data.events && data.events.length > 0) {
+          setSelectedEvent(data.events[0].event_id);
+          // Update currency data with the selected event ID
+          setCurrencyData(prev => ({
+            ...prev,
+            front: {
+              ...prev.front,
+              texts: {
+                ...prev.front.texts,
+                eventId: data.events[0].event_id
+              }
+            }
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching events:", error);
+        toast.error("Failed to load events. Please try again.");
+      } finally {
+        setIsLoadingEvents(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  const handleEventChange = (eventId) => {
+    setSelectedEvent(eventId);
+    // Update currency data with the selected event ID
+    setCurrencyData(prev => ({
+      ...prev,
+      front: {
+        ...prev.front,
+        texts: {
+          ...prev.front.texts,
+          eventId: eventId
+        }
+      }
+    }));
+  };
 
   const handleTextSave = (side, texts) => {
     setCurrencyData(prev => ({
@@ -56,6 +117,12 @@ const Customize1000 = () => {
   };
 
   const handleSaveChanges = async () => {
+    // Validate if an event is selected
+    if (!selectedEvent) {
+      toast.error("Please select an event before saving");
+      return;
+    }
+    
     try {
       setIsLoading(true);
       
@@ -65,6 +132,7 @@ const Customize1000 = () => {
         backTexts: currencyData.back.texts,
         portraitImage: currencyData.front.portraitImage,
         backPortraitImage: currencyData.back.portraitImage,
+        eventId: selectedEvent,
         denomination: "1000"
       };
 
@@ -73,11 +141,20 @@ const Customize1000 = () => {
       navigate("/templates");
     } catch (error) {
       console.error('Error saving currency:', error);
-      toast.error("Failed to save currency template");
+      if (error.message === 'Session expired. Please login again.') {
+        toast.error('Your session has expired. Please login again.');
+        navigate('/login');
+      } else {
+        toast.error("Failed to save currency template");
+      }
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (!authenticated) {
+    return <LoadingDisplay message="Checking authentication..." />;
+  }
 
   return (
     <div className="bg-white min-h-screen">
@@ -99,6 +176,45 @@ const Customize1000 = () => {
           </button>
 
           <div className="max-w-4xl mx-auto space-y-8 md:space-y-12">
+            {/* Event Selection */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold">Select Event</h3>
+              <div className="border border-gray-200 rounded-lg p-4 bg-white">
+                <div className="mb-4">
+                  <Select
+                    value={selectedEvent}
+                    onValueChange={handleEventChange}
+                    disabled={isLoadingEvents}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={isLoadingEvents ? "Loading events..." : "Select an event"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {events.length > 0 ? (
+                        events.map((event) => (
+                          <SelectItem key={event.event_id} value={event.event_id}>
+                            {event.event_name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-events" disabled>
+                          {isLoadingEvents ? "Loading..." : "No events found"}
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-sm text-gray-500 mt-2">
+                    {!selectedEvent && events.length > 0 && "Please select an event to link to this currency"}
+                    {events.length === 0 && !isLoadingEvents && (
+                      <span className="text-red-500">
+                        You need to <a href="/create-event" className="text-bluePrimary underline">create an event</a> first
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Front Side */}
             <div className="space-y-4">
               <h3 className="text-xl font-semibold">Front Side</h3>
@@ -164,16 +280,16 @@ const Customize1000 = () => {
                     Change Image
                   </button>
                 </div>
-                </div>
               </div>
             </div>
+          </div>
 
           <div className="max-w-4xl mx-auto mt-8">
             <button
               onClick={handleSaveChanges}
-              disabled={isLoading}
+              disabled={isLoading || !selectedEvent}
               className={`w-full px-6 py-3 bg-bluePrimary text-white rounded-lg transition-colors ${
-                isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-bluePrimary/90'
+                (isLoading || !selectedEvent) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-bluePrimary/90'
               }`}
             >
               {isLoading ? 'Saving...' : 'Save Changes'}

@@ -42,14 +42,7 @@ export default function GoogleAuth() {
         // Success message
         toast.success("Successfully signed in with Google!");
         
-        // Redirect based on user type
-        if (userType.toLowerCase() === "merchant") {
-          navigate("/merchant/virtual-account");
-        } else if (userType.toLowerCase() === "admin") {
-          navigate("/");
-        } else {
-          navigate("/");
-        }
+        navigate("/");
       } catch (error) {
         console.error("Google auth callback error:", error);
         setStatus("Authentication error. Please try again.");

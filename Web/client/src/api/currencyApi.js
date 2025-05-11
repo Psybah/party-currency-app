@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@/config';
+import { BASE_URL } from '@/config';
 import { getAuth } from '@/lib/util';
 
 /**
@@ -26,6 +26,8 @@ export async function saveCurrency(currencyData) {
   formData.append('currency_name', currencyData.texts.currencyName);
   formData.append('front_celebration_text', currencyData.texts.celebration);
   formData.append('back_celebration_text', currencyData.backTexts?.celebration || '');
+  formData.append('event_id', currencyData.eventId);
+  formData.append('denomination', currencyData.denomination || '200');
   
   // Add images if they exist
   if (currencyData.portraitImage) {
@@ -39,16 +41,12 @@ export async function saveCurrency(currencyData) {
     formData.append('back_image', backImageBlob);
   }
 
-  // Add event ID if it exists
-  if (currencyData.eventId) {
-    formData.append('event_id', currencyData.eventId);
-  }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/currencies/save-currency`, {
+    const response = await fetch(`${BASE_URL}/currencies/save-currency`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        'Authorization': `Token ${accessToken}`,
       },
       body: formData,
     });
@@ -79,9 +77,9 @@ export async function getAllCurrencies() {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/currencies/get-all-currencies`, {
+    const response = await fetch(`${BASE_URL}/currencies/get-all-currencies`, {
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        'Authorization': `Token ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
@@ -99,3 +97,102 @@ export async function getAllCurrencies() {
     throw error;
   }
 } 
+
+
+/**
+ * Gets currency by ID
+ * @param {string} currencyId - ID of the currency to fetch
+ * @returns {Promise<Object>} - Currency data
+ * @throws {Error} If request fails
+ */
+export async function getCurrencyById(currencyId) {
+  const { accessToken } = getAuth();
+  if (!accessToken) {
+    throw new Error('Authentication required');
+  }
+
+  try {
+    const response = await fetch(`${BASE_URL}/currencies/get-currency/?currency_id=${currencyId}`, {
+      headers: {
+        'Authorization': `Token ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Session expired. Please login again.');
+      }
+      throw new Error('Failed to fetch currency');
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Error fetching currency:', error);
+    throw error;
+  }
+}
+
+/**
+ * Updates an existing currency
+ * @param {string} currencyId - ID of the currency to update
+ * @param {Object} formData - Updated currency data
+ * @returns {Promise<Object>} - Updated currency data
+ * @throws {Error} If request fails
+ */
+export async function updateCurrency(currencyId, formData) {
+  const { accessToken } = getAuth();
+  if (!accessToken) {
+    throw new Error('Authentication required');
+  }
+
+  try {
+    const response = await fetch(`${BASE_URL}/currencies/update-currency/?currency_id=${currencyId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Token ${accessToken}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Session expired. Please login again.');
+      }
+      throw new Error('Failed to update currency');
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Error updating currency:', error);
+    throw error;
+  }
+}
+
+/**
+ * Deletes a currency
+ * @param {string} currencyId - ID of the currency to delete
+ * @returns {Promise<Object>} - Deletion response
+ * @throws {Error} If request fails
+ */
+export async function deleteCurrency(currencyId) {
+  const { accessToken } = getAuth();
+  if (!accessToken) {
+    throw new Error('Authentication required');
+  }
+
+  try {
+    const response = await fetch(`${BASE_URL}/currencies/delete-currency/${currencyId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Token ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return response.json();
+  } catch (error) {
+    console.error('Error deleting currency:', error);
+    throw error;
+  }
+}
