@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Send, Plus, Minus } from "lucide-react";
+import { Send, Plus, Minus, Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { getEvents } from "@/api/eventApi";
+import { createTransaction, generatePaymentLink } from "@/api/paymentApi";
 import {
   Select,
   SelectContent,
@@ -13,173 +14,144 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const DENOMINATION_VALUES = ["1000", "500", "200"]; // Defines order and available denominations
+
 const CurrencyBreakdown = () => {
-  const [isEnabled, setIsEnabled] = useState(true);
-  const [amount, setAmount] = useState("");
+  const [isEnabled, setIsEnabled] = useState(true); // Maintained from original, assuming parent control
   const [selectedEvent, setSelectedEvent] = useState("");
   const [events, setEvents] = useState([]);
   const [isLoadingEvents, setIsLoadingEvents] = useState(true);
-  const [denominations, setDenominations] = useState({
+  const [denominationCounts, setDenominationCounts] = useState({
     "1000": 0,
     "500": 0,
     "200": 0,
   });
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchEventsAsync = async () => {
+      setIsLoadingEvents(true);
       try {
         const data = await getEvents();
         setEvents(data.events || []);
       } catch (error) {
         console.error("Error fetching events:", error);
-        toast.error("Failed to load events. Please try again.");
+        toast.error(error.message || "Failed to load events. Please try again.");
       } finally {
         setIsLoadingEvents(false);
       }
     };
 
-    fetchEvents();
+    fetchEventsAsync();
   }, []);
 
-  const handleAmountChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/g, "");
-    setAmount(value);
+  const handleDenominationCountChange = (denominationKey, value) => {
+    const count = parseInt(value, 10);
+    setDenominationCounts((prevCounts) => ({
+      ...prevCounts,
+      [denominationKey]: Math.max(0, isNaN(count) ? 0 : count),
+    }));
   };
 
-  const calculateDenominationAmount = (percentage, totalAmount) => {
-    return Math.floor((percentage / 100) * totalAmount);
+  const adjustDenominationCount = (denominationKey, increment) => {
+    setDenominationCounts((prevCounts) => ({
+      ...prevCounts,
+      [denominationKey]: Math.max(0, prevCounts[denominationKey] + (increment ? 1 : -1)),
+    }));
   };
 
-  const adjustPercentage = (denomination, increment) => {
-    const step = 10;
-    setDenominations((prev) => {
-      // Calculate new value with limits
-      const newValue = Math.max(0, Math.min(100, prev[denomination] + (increment ? step : -step)));
-      const diff = newValue - prev[denomination];
-      
-      // If no change, return previous state
-      if (diff === 0) return prev;
+  const totalCalculatedAmount = useMemo(() => {
+    return DENOMINATION_VALUES.reduce((total, denomKey) => {
+      const count = denominationCounts[denomKey] || 0;
+      return total + parseInt(denomKey, 10) * count;
+    }, 0);
+  }, [denominationCounts]);
 
-      // Create result with the updated denomination
-      const result = { ...prev, [denomination]: newValue };
-      
-      // If incrementing, check if total would exceed 100%
-      if (increment) {
-        const newTotal = Object.values(result).reduce((sum, val) => sum + val, 0);
-        if (newTotal > 100) {
-          // If exceeding 100%, don't allow the change
-          return prev;
-        }
-      } else {
-        // If decrementing, we don't need additional logic as it won't exceed 100%
-      }
-      
-      return result;
-    });
-  };
-
-  const getTotal = () => {
-    return Object.values(denominations).reduce((sum, val) => sum + val, 0);
-  };
-
-  const calculateBreakdown = () => {
-    if (!amount) return {};
-    
-    const totalAmount = parseInt(amount);
-    const breakdown = {};
-    
-    Object.entries(denominations).forEach(([denomination, percentage]) => {
-      breakdown[denomination] = calculateDenominationAmount(percentage, totalAmount);
-    });
-    
-    return breakdown;
-  };
-
-  const handleProceed = () => {
-    if (!amount) {
-      toast.error("Please enter an amount");
-      return;
-    }
-    
+  const handleProceed = async () => {
     if (!selectedEvent) {
       toast.error("Please select an event");
       return;
     }
-    
-    const total = getTotal();
-    if (total !== 100) {
-      toast.error("Denomination percentages must add up to 100%");
+    if (totalCalculatedAmount <= 0) {
+      toast.error("Total amount must be greater than ₦0. Please add some notes.");
       return;
     }
 
-    const breakdown = calculateBreakdown();
-    toast.success("Proceeding with currency breakdown");
+    setIsProcessingPayment(true);
+    try {
+      
+      const transactionData = await createTransaction(
+        selectedEvent, // eventId
+        totalCalculatedAmount, // amount
+        denominationCounts // currency breakdown
+      );
+
+      if (transactionData && transactionData.payment_reference) {
+        const paymentLinkData = (await generatePaymentLink(transactionData.payment_reference)).responseBody;
+        if (paymentLinkData && paymentLinkData.checkoutUrl) {
+          toast.success("Redirecting to payment gateway...");
+          window.location.href = paymentLinkData.checkoutUrl;
+        } else {
+          const errorDetail = paymentLinkData?.message || paymentLinkData?.detail || "Failed to get payment link.";
+          throw new Error(errorDetail);
+        }
+      } else {
+        const errorDetail = transactionData?.message || transactionData?.detail || "Failed to create transaction.";
+        throw new Error(errorDetail);
+      }
+    } catch (error) {
+      console.error("Payment processing error:", error);
+      toast.error(error.message || "Payment processing failed. Please try again.");
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
-  const isAmountValid = parseInt(amount) >= 1000;
-  const isFormValid = isAmountValid && getTotal() === 100 && selectedEvent;
+  const isFormValid = selectedEvent && totalCalculatedAmount > 0 && !isProcessingPayment && !isLoadingEvents;
 
   return (
     <div className={`space-y-6 p-6 rounded-lg border bg-white ${isEnabled ? "" : "opacity-50 pointer-events-none"}`}>
       <h3 className="text-xl font-semibold text-bluePrimary">Currency Breakdown</h3>
       
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="amount" className="text-sm text-gray-600">
-            Enter Amount (1 party currency = 1 naira)
-          </Label>
-          <div className="relative mt-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₦</span>
-            <Input
-              id="amount"
-              type="text"
-              value={amount}
-              onChange={handleAmountChange}
-              placeholder="0.00"
-              className="pl-8"
-            />
-          </div>
-          {amount && !isAmountValid && (
-            <p className="text-sm text-red-500 mt-1">
-              Please enter an amount greater than or equal to ₦1,000
-            </p>
-          )}
-        </div>
-
-        <div className="space-y-4 mt-6">
-          {Object.entries(denominations).map(([denomination, percentage]) => {
-            const breakdown = calculateBreakdown();
-            const denominationAmount = breakdown[denomination] || 0;
-            
+      <div className="space-y-6"> {/* Increased spacing for sections */}
+        <div className="space-y-3"> {/* Consistent spacing for denomination items */}
+          {DENOMINATION_VALUES.map((denomKey) => {
+            const count = denominationCounts[denomKey] || 0;
+            const value = parseInt(denomKey, 10) * count;
             return (
-              <div key={denomination} className="flex items-center justify-between gap-4">
+              <div key={denomKey} className="flex items-center justify-between gap-4 py-3 border-b last:border-b-0">
                 <div className="flex flex-col">
-                  <span className="text-gray-600">₦{denomination}</span>
-                  {amount && (
-                    <span className="text-sm text-gray-500">
-                      Amount: ₦{denominationAmount}
-                    </span>
-                  )}
+                  <span className="text-md font-medium text-gray-700">₦{denomKey} Notes</span>
+                  <span className="text-sm text-gray-500">
+                    Value: ₦{value.toLocaleString()}
+                  </span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <Button
                     type="button"
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8"
-                    onClick={() => adjustPercentage(denomination, false)}
-                    disabled={!isAmountValid}
+                    className="h-9 w-9"
+                    onClick={() => adjustDenominationCount(denomKey, false)}
+                    disabled={isProcessingPayment || count === 0}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
-                  <span className="w-12 text-center">{percentage}%</span>
+                  <Input
+                    type="number"
+                    value={count.toString()}
+                    onChange={(e) => handleDenominationCountChange(denomKey, e.target.value)}
+                    className="w-20 text-center h-9"
+                    min="0"
+                    disabled={isProcessingPayment}
+                  />
                   <Button
                     type="button"
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8"
-                    onClick={() => adjustPercentage(denomination, true)}
-                    disabled={!isAmountValid}
+                    className="h-9 w-9"
+                    onClick={() => adjustDenominationCount(denomKey, true)}
+                    disabled={isProcessingPayment}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -189,35 +161,59 @@ const CurrencyBreakdown = () => {
           })}
         </div>
 
+        <div className="pt-4 border-t">
+          <div className="flex justify-between items-center">
+            <span className="text-lg font-semibold text-gray-800">Total Amount:</span>
+            <span className="text-xl font-bold text-bluePrimary">
+              ₦{totalCalculatedAmount.toLocaleString()}
+            </span>
+          </div>
+           {totalCalculatedAmount > 0 && totalCalculatedAmount < 100 && ( // Common minimum for some gateways is 100, not 1000
+             <p className="text-sm text-orange-500 mt-1">
+               Note: Some payment gateways have a minimum transaction amount (e.g., ₦100).
+             </p>
+           )}
+        </div>
+
         <div className="space-y-2">
-          <Label htmlFor="event" className="text-sm text-gray-600">
+          <Label htmlFor="event-select" className="text-sm text-gray-600"> {/* Added htmlFor */}
             Select Event
           </Label>
           <Select
             value={selectedEvent}
             onValueChange={setSelectedEvent}
-            disabled={isLoadingEvents}
+            disabled={isLoadingEvents || isProcessingPayment}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger id="event-select" className="w-full"> {/* Added id for Label */}
               <SelectValue placeholder={isLoadingEvents ? "Loading events..." : "Select an event"} />
             </SelectTrigger>
             <SelectContent>
-              {events.map((event) => (
-                <SelectItem key={event.event_id} value={event.event_id}>
-                  {event.event_name}
+              {events.length > 0 ? (
+                events.map((event) => (
+                  <SelectItem key={event.event_id} value={event.event_id}>
+                    {event.event_name}
+                  </SelectItem>
+                ))
+              ) : (
+                <SelectItem value="no-events" disabled>
+                  {isLoadingEvents ? "Loading..." : "No events found"}
                 </SelectItem>
-              ))}
+              )}
             </SelectContent>
           </Select>
         </div>
 
         <Button 
           onClick={handleProceed}
-          className="w-full bg-bluePrimary hover:bg-bluePrimary/90 mt-6"
+          className="w-full bg-bluePrimary hover:bg-bluePrimary/90 flex items-center justify-center"
           disabled={!isFormValid}
         >
+          {isProcessingPayment ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="mr-2 h-4 w-4" />
+          )}
           Proceed to payment
-          <Send className="ml-2 h-4 w-4" />
         </Button>
       </div>
     </div>
