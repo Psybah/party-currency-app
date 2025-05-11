@@ -31,6 +31,8 @@ import { AdminRouteGuard } from '@/components/AdminRouteGuard';
 import FAQ from "./pages/FAQ";
 import WhyChooseUs from "./pages/WhyChooseUs";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import NotFound from "./pages/NotFound";
+import GoogleAuth from "./pages/GoogleAuth";
 
 function App() {
   return (
@@ -154,8 +156,9 @@ function App() {
             }
           />
 
-          {/* Fallback Route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/google/auth" element={<GoogleAuth />} />
+          {/* Catch-all route for 404 */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </ContextWrapper>
     </Router>
