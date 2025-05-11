@@ -78,7 +78,6 @@ def calculate_amount():
         
     }
 @api_view(["POST"])
-@api_view(["POST"])
 def generate_transcation_ID(request):
     amount = calculate_amount()
     transaction = Transaction.objects.create(
