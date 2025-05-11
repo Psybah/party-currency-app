@@ -6,6 +6,7 @@ class Transaction(models.Model):
     customer_name = models.CharField(max_length=255, blank=True)
     customer_email = models.EmailField()
     event_id = models.CharField(max_length=255, blank=True)
+    user_id = models.CharField(max_length=255, blank=True)
     payment_reference = models.CharField(max_length=255, unique=True)
     transaction_reference = models.CharField(max_length=255, blank=True ,unique=True)
     payment_description = models.TextField(blank=True)

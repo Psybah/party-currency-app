@@ -14,6 +14,8 @@ from dotenv import load_dotenv
 from .utils import MonnifyAuth
 from rest_framework.permissions import AllowAny
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
+from authentication.models import CustomUser as CUser
+
 
 class UserThrottle(UserRateThrottle):
     scope = 'user'
@@ -76,41 +78,102 @@ def calculate_amount():
         
     }
 @api_view(["POST"])
+@api_view(["POST"])
 def generate_transcation_ID(request):
-    amount=calculate_amount()
-    transcation = Transaction.objects.create(
-                    amount=sum(amount.values()),    
-                    customer_name=f"{request.user.first_name} {request.user.last_name}",
-                    customer_email=request.user.email,
-                    payment_reference=f"party{int(time.time())}",
-                    payment_description=f"Payment for services {request.data['event_id']}",
-                    currency_code="NGN",
-                    contract_code=os.getenv("MONIFY_CONTRACT_CODE")
-        
-                        )
+    amount = calculate_amount()
+    transaction = Transaction.objects.create(
+        amount=sum(amount.values()),    
+        customer_name=f"{request.user.first_name} {request.user.last_name}",
+        customer_email=request.user.email,
+        payment_reference=f"party{int(time.time())}",
+        payment_description=f"Payment for services {request.data['event_id']}",
+        currency_code="NGN",
+        contract_code=os.getenv("MONIFY_CONTRACT_CODE"),  # Fixed the missing comma
+        event_id=request.data['event_id'],
+        user_id=request.user.email  # Storing user email as user_id
+    )
     
     return Response({
         "amount": amount,
-        "total": sum(calculate_amount().values()),
+        "total": sum(amount.values()),
         "currency_code": "NGN",
-        "payment_reference":transcation.payment_reference
-
+        "payment_reference": transaction.payment_reference
     })
-
 @api_view(["GET"])
 @throttle_classes([UserThrottle])
-
 @permission_classes([AllowAny])
 def callback(request):
-    transaction = Transaction.objects.get(payment_reference=request.data['payment_reference'])
-    transaction.status = request.data['status']
-    transaction.save()
-    event = Events.objects.get(event_id=request.data['event_id'])
-    event.transaction_id = request.data['payment_reference']
-    user = request.user
-    user.total_amount_spent += transaction.amount
-    user.save()
-    event.save()
-    return Response({"message": "payment successful", "transaction": transaction.status, "transaction_reference": transaction.transaction_reference}, status=status.HTTP_200_OK)
-
-
+    try:
+        # Get payment reference from query parameters
+        payment_reference = request.query_params.get("paymentReference")
+        
+        if not payment_reference:
+            return Response({"error": "Payment reference not provided"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Get transaction using payment reference
+        transaction = Transaction.objects.get(payment_reference=payment_reference)
+        
+        # Verify the transaction status with Monnify (optional, but recommended)
+        headers = {
+            'Authorization': f"Bearer {MonnifyAuth.get_access_token()['token']}",
+            'Content-Type': 'application/json'
+        }
+        
+        verification_response = requests.get(
+            f"{os.getenv('MONIFY_BASE_URL')}/merchant/transactions/query?paymentReference={payment_reference}",
+            headers=headers
+        )
+        
+        verification_data = verification_response.json()
+        
+        if verification_data.get('requestSuccessful') and verification_data['responseBody'].get('paymentStatus') == "PAID":
+            # Update transaction status
+            transaction.status = "successful"
+            transaction.save()
+            
+            # Update the event with transaction information
+            if transaction.event_id:
+                try:
+                    event = Events.objects.get(event_id=transaction.event_id)
+                    event.transaction_id = payment_reference
+                    event.save()
+                except Events.DoesNotExist:
+                    return Response({
+                        "message": "Payment successful but event not found", 
+                        "transaction": transaction.status
+                    }, status=status.HTTP_200_OK)
+            
+            # Update user's total amount spent
+            try:
+                # Since you're storing email as user_id, retrieve the user by email
+                user = CUser.objects.get(email=transaction.user_id)
+                user.total_amount_spent += transaction.amount
+                user.save()
+            except CUser.DoesNotExist:
+                # Continue processing even if user is not found
+                pass
+            except Exception as e:
+                # Log the error but continue processing
+                print(f"Error updating user total: {str(e)}")
+            
+            return Response({
+                "message": "Payment successful", 
+                "transaction": transaction.status, 
+                "transaction_reference": transaction.transaction_reference
+            }, status=status.HTTP_200_OK)
+        else:
+            # If verification failed or payment not successful
+            return Response({
+                "message": "Payment verification failed", 
+                "status": verification_data['responseBody'].get('paymentStatus', 'unknown')
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+    except Transaction.DoesNotExist:
+        return Response({
+            "error": "Transaction not found"
+        }, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({
+            "error": "An error occurred processing the callback",
+            "detail": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
