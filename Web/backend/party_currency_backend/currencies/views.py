@@ -9,11 +9,13 @@ from django.utils import timezone
 from datetime import datetime
 import pytz
 from google_drive.models import GoogleDriveFile
-from google_drive.utils import upload_file_to_drive
+from google_drive.utils import upload_file_to_drive, download_file_from_drive  # Added download function import
 from authentication.models import CustomUser
 from django.core.files.storage import default_storage
 import os
+import re  # Added for regex pattern matching
 from django.core.files.base import ContentFile
+from django.http import FileResponse, HttpResponse  # Added for file response
 from rest_framework import status
 from dotenv import load_dotenv
 import random
@@ -60,6 +62,20 @@ def upload_image(image_file, currency_id, image_type):
         if file_path and default_storage.exists(file_path):
             default_storage.delete(file_path)
         raise e
+
+
+def extract_file_id_from_url(drive_url):
+    """Extract file ID from Google Drive URL"""
+    if not drive_url:
+        return None
+    
+    # Pattern to match Google Drive file URLs
+    pattern = r'https://drive\.google\.com/file/d/([^/]+)'
+    match = re.search(pattern, drive_url)
+    
+    if match:
+        return match.group(1)
+    return None
 
 
 @api_view(["POST"])
@@ -131,6 +147,86 @@ def get_currency_by_id(request, id):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Currency.DoesNotExist:
         return Response({"error": "Currency not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(["POST"])
+@throttle_classes([AnonThrottle])
+@permission_classes([IsAuthenticated])
+def download_image_from_drive(request):
+    
+    # Get the Google Drive URL from request data
+    image_url = request.data.get("url")
+    if not image_url:
+        return Response(
+            {"error": "No URL provided in request data"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Get optional filename from request
+    custom_filename = request.data.get("filename", "downloaded_image")
+    
+    # Extract file ID from the Google Drive URL
+    file_id = extract_file_id_from_url(image_url)
+    if not file_id:
+        return Response(
+            {"error": "Invalid Google Drive URL format"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Create temporary directory if it doesn't exist
+    tmp_dir = os.path.join(default_storage.location, 'tmp')
+    os.makedirs(tmp_dir, exist_ok=True)
+    
+    # Generate a temporary file path
+    temp_file_path = os.path.join(tmp_dir, f"temp_download_{file_id}")
+    
+    try:
+        # Download the file from Google Drive
+        file_path = download_file_from_drive(file_id, temp_file_path)
+        
+        # Determine the file extension and MIME type
+        with open(file_path, 'rb') as f:
+            # Read first few bytes to determine file type
+            header = f.read(8)
+            f.seek(0)  # Reset file pointer
+            
+            # Get file content
+            file_content = f.read()
+        
+        # Clean up the temporary file
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        
+        # Determine content type based on file header
+        content_type = "application/octet-stream"  # Default
+        if header.startswith(b'\xFF\xD8'):
+            content_type = "image/jpeg"
+            extension = ".jpg"
+        elif header.startswith(b'\x89PNG'):
+            content_type = "image/png"
+            extension = ".png"
+        elif header.startswith(b'GIF87a') or header.startswith(b'GIF89a'):
+            content_type = "image/gif"
+            extension = ".gif"
+        elif header.startswith(b'%PDF'):
+            content_type = "application/pdf"
+            extension = ".pdf"
+        else:
+            extension = ""
+        
+        # Create the response with the file content
+        response = HttpResponse(file_content, content_type=content_type)
+        response['Content-Disposition'] = f'attachment; filename="{custom_filename}{extension}"'
+        
+        return response
+        
+    except Exception as e:
+        # Clean up in case of error
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 @api_view(["PUT"])
