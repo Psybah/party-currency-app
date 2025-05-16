@@ -6,6 +6,7 @@ import { LoadingDisplay } from '@/components/LoadingDisplay';
 import { Download, Files, Edit, PlusCircle, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'react-hot-toast';
+import { CurrencyImage } from '@/components/ui/CurrencyImage';
 import {
   Dialog,
   DialogContent,
@@ -14,7 +15,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-
+import { CurrencyCanvas } from './CurrencyCanvas';
+import { downloadCurrencyImage } from '@/components/ui/CurrencyImage';
 export function TemplateHistory() {
   const navigate = useNavigate();
   const [templates, setTemplates] = useState([]);
@@ -23,6 +25,7 @@ export function TemplateHistory() {
   const [error, setError] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState({ open: false, templateId: null });
   const [previewDialog, setPreviewDialog] = useState({ open: false, template: null });
+  const [templateImages, setTemplateImages] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,6 +48,25 @@ export function TemplateHistory() {
         
         setEvents(eventsMap);
         setTemplates(currencyData || []);
+
+        // Download images for each template
+        const imagesMap = {};
+        if (currencyData && currencyData.length > 0) {
+          await Promise.all(currencyData.map(async (template) => {
+            const denomination = template.denomination || getDenominationFromImageUrl(template.front_image) || '200';
+            try {
+              const frontImageUrl = await downloadCurrencyImage(template.front_image, denomination, 'front');
+              const backImageUrl = await downloadCurrencyImage(template.back_image, denomination, 'back');
+              imagesMap[template.currency_id] = {
+                front: frontImageUrl,
+                back: backImageUrl
+              };
+            } catch (err) {
+              console.error(`Error downloading images for template ${template.currency_id}:`, err);
+            }
+          }));
+        }
+        setTemplateImages(imagesMap);
         setError(null);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -176,32 +198,32 @@ export function TemplateHistory() {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+      <div className="flex flex-col gap-4 ">
         {templates.map((template) => {
           const denomination = template.denomination || getDenominationFromImageUrl(template.front_image) || '200';
+          const templateImage = templateImages[template.currency_id];
+          console.log('currency image', templateImage, template )
           return (
             <div
               key={template.currency_id}
               className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
             >
-              <div className="aspect-w-16 aspect-h-9 bg-gray-100 relative">
-                {template.front_image ? (
-                  <img
-                    src={template.front_image}
-                    alt={`Template ${denomination}`}
-                    className="object-cover w-full h-64"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = `/lovable-uploads/${denomination}-front.jpg`;
+              <div className=" bg-gray-100 relative">
+                <div className='w-full relative '>
+              <CurrencyCanvas
+                    templateImage="/lovable-uploads/200-front-template.png"
+                    texts={{
+                      eventId: template.event_id,
+                      currencyName: template.currency_name,
+                      celebration: template.front_celebration_text,
+                      dominationText:"200",
+
                     }}
+                    side="front"
+                    denomination={denomination}
+                    portraitImage={templateImage.front}
                   />
-                ) : (
-                  <img
-                    src={`/lovable-uploads/${denomination}-front.jpg`}
-                    alt={`Template ${denomination}`}
-                    className="object-cover w-full h-64"
-                  />
-                )}
+                </div>
                 
                 <div className="absolute top-2 right-2">
                   <span className="bg-gold text-white px-2 py-1 rounded text-xs font-semibold">
@@ -318,21 +340,20 @@ export function TemplateHistory() {
               <div>
                 <h3 className="font-medium mb-2">Front Side</h3>
                 <div className="border rounded-lg overflow-hidden">
-                  {previewDialog.template.front_image ? (
-                    <img 
-                      src={previewDialog.template.front_image} 
-                      alt="Front" 
+                  {templateImages[previewDialog.template.currency_id]?.front ? (
+                    <img
+                      src={templateImages[previewDialog.template.currency_id].front}
+                      alt="Front"
                       className="w-full h-auto"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        const denomination = getDenominationFromImageUrl(previewDialog.template.front_image) || '200';
-                        e.target.src = `/lovable-uploads/${denomination}-front.jpg`;
-                      }}
                     />
                   ) : (
-                    <div className="bg-gray-100 h-64 flex items-center justify-center">
-                      <p className="text-gray-500">No front image available</p>
-                    </div>
+                    <CurrencyImage
+                      driveUrl={previewDialog.template.front_image}
+                      alt="Front"
+                      className="w-full h-auto"
+                      denomination={getDenominationFromImageUrl(previewDialog.template.front_image) || '200'}
+                      side="front"
+                    />
                   )}
                 </div>
               </div>
@@ -340,21 +361,20 @@ export function TemplateHistory() {
               <div>
                 <h3 className="font-medium mb-2">Back Side</h3>
                 <div className="border rounded-lg overflow-hidden">
-                  {previewDialog.template.back_image ? (
-                    <img 
-                      src={previewDialog.template.back_image} 
-                      alt="Back" 
+                  {templateImages[previewDialog.template.currency_id]?.back ? (
+                    <img
+                      src={templateImages[previewDialog.template.currency_id].back}
+                      alt="Back"
                       className="w-full h-auto"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        const denomination = getDenominationFromImageUrl(previewDialog.template.front_image) || '200';
-                        e.target.src = `/lovable-uploads/${denomination}-back.jpg`;
-                      }}
                     />
                   ) : (
-                    <div className="bg-gray-100 h-64 flex items-center justify-center">
-                      <p className="text-gray-500">No back image available</p>
-                    </div>
+                    <CurrencyImage
+                      driveUrl={previewDialog.template.back_image}
+                      alt="Back"
+                      className="w-full h-auto"
+                      denomination={getDenominationFromImageUrl(previewDialog.template.front_image) || '200'}
+                      side="back"
+                    />
                   )}
                 </div>
               </div>
