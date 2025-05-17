@@ -259,7 +259,7 @@ export default function Settings() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="security">
+              {/* <TabsContent value="security">
                 <Card className="max-w-3xl">
                   <CardHeader className="text-left">
                     <CardTitle>Change Password</CardTitle>
@@ -304,7 +304,7 @@ export default function Settings() {
                     </form>
                   </CardContent>
                 </Card>
-              </TabsContent>
+              </TabsContent> */}
             </Tabs>
           </div>
         </main>
