@@ -1,3 +1,4 @@
+
 from django.shortcuts import render
 from  rest_framework.decorators import api_view,authentication_classes,permission_classes, throttle_classes
 from rest_framework.response import Response
@@ -64,30 +65,75 @@ def fetchUser(request):
 @throttle_classes([UserThrottle])
 @permission_classes([IsAuthenticated])
 def edit_user(request):
-     user = request.user
-     if (user.type == "user"):
-         if "firstname" in request.data:
-             user.firstname=request.data["firstname"]
-         if "lastname" in request.data:
-             user.firstname=request.data["lastname"]
-         if "phonenumber" in request.data:
-             user.phonenumber=request.data["phonenumber"]
-     elif (user.type == "merchant"):
-         if "business_type" in request.data:
-             user.business_type=request.data["business_type"]
-         if "location" in request.data:
-             user.location=request.data["location"]
-         if "firstname" in request.data:
-             user.firstname=request.data["firstname"]
-         if "lastname" in request.data:
-             user.firstname=request.data["lastname"]
-         if "phonenumber" in request.data:
-             user.phonenumber=request.data["phonenumber"]
+    """
+    Update user profile information based on user type.
+    
+    Args:
+        request: The HTTP request containing user data
+    
+    Returns:
+        Response: A success message or error details
+    """
+    try:
+        user = request.user
         
-     user.save()    
-     return Response({
-          "message":"edited"
-     }) 
+        # Check if user is authenticated
+        if not user.is_authenticated:
+            return Response({
+                "error": "Authentication required"
+            }, status=401)
+        
+        # Map request field names to model field names
+        field_mapping = {
+            # Common fields - map request names to model names
+            "firstname": "first_name",
+            "lastname": "last_name",
+            "phonenumber": "phone_number",
+            "email": "email",
+            "city": "city",
+            "country": "country",
+            "state": "state"
+        }
+        
+        # Additional merchant-specific fields
+        merchant_fields = ["business_type"]
+        
+        # Validate user type
+        if user.type not in ["user", "merchant"]:
+            return Response({
+                "error": f"Invalid user type: {user.type}"
+            }, status=400)
+        
+        # Update user fields
+        updated_fields = []
+        for request_field, model_field in field_mapping.items():
+            if request_field in request.data:
+                setattr(user, model_field, request.data[request_field])
+                updated_fields.append(request_field)
+        
+        # Handle merchant-specific fields
+        if user.type == "merchant":
+            for field in merchant_fields:
+                if field in request.data:
+                    setattr(user, field, request.data[field])
+                    updated_fields.append(field)
+        
+        # Save changes only if fields were updated
+        if updated_fields:
+            user.save()
+            return Response({
+                "message": "Profile updated successfully",
+                "updated_fields": updated_fields
+            }, status=200)
+        else:
+            return Response({
+                "message": "No changes made"
+            }, status=200)
+            
+    except Exception as e:
+        return Response({
+            "error": f"An error occurred: {str(e)}"
+        }, status=500)
 
      
 @api_view(["PUT"])

@@ -44,13 +44,13 @@ ALLOWED_HOSTS = [
 # If you need to allow all origins, use this instead of wildcard
 CORS_ORIGIN_ALLOW_ALL = True
 
-# Or specify exact origins
-CORS_ALLOWED_ORIGINS = [
-    'https://party-currency-app-production.up.railway.app',
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
+# # Or specify exact origins
+# CORS_ALLOWED_ORIGINS = [
+#     'https://party-currency-app-production.up.railway.app',
+#     'http://localhost:8000',
+#     'http://127.0.0.1:8000',
     
-]
+# ]
 #remove this asap TODO
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -211,7 +211,7 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '20/min',  # 15 requests per day for anonymous users
-        'user': '100/day'  # 100 requests per day for authenticated users
+        'anon': '20000000/day',  # 15 requests per day for anonymous users
+        'user': '10000000/day'  # 100 requests per day for authenticated users
     }
 }
