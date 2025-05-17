@@ -1,3 +1,4 @@
+
 from django.shortcuts import render
 from  rest_framework.decorators import api_view,authentication_classes,permission_classes, throttle_classes
 from rest_framework.response import Response
@@ -64,30 +65,72 @@ def fetchUser(request):
 @throttle_classes([UserThrottle])
 @permission_classes([IsAuthenticated])
 def edit_user(request):
-     user = request.user
-     if (user.type == "user"):
-         if "firstname" in request.data:
-             user.firstname=request.data["firstname"]
-         if "lastname" in request.data:
-             user.firstname=request.data["lastname"]
-         if "phonenumber" in request.data:
-             user.phonenumber=request.data["phonenumber"]
-     elif (user.type == "merchant"):
-         if "business_type" in request.data:
-             user.business_type=request.data["business_type"]
-         if "location" in request.data:
-             user.location=request.data["location"]
-         if "firstname" in request.data:
-             user.firstname=request.data["firstname"]
-         if "lastname" in request.data:
-             user.firstname=request.data["lastname"]
-         if "phonenumber" in request.data:
-             user.phonenumber=request.data["phonenumber"]
+    """
+    Update user profile information based on user type.
+    
+    Args:
+        request: The HTTP request containing user data
+    
+    Returns:
+        Response: A success message or error details
+    """
+    try:
+        user = request.user
         
-     user.save()    
-     return Response({
-          "message":"edited"
-     }) 
+        # Check if user is authenticated
+        if not user.is_authenticated:
+            return Response({
+                "error": "Authentication required"
+            }, status=401)
+        
+        # Common fields for both user types
+        common_fields = {
+            "firstname": "firstname",
+            "lastname": "lastname",
+            "phonenumber": "phonenumber"
+        }
+        
+        # Type-specific fields
+        type_specific_fields = {
+            "user": {},
+            "merchant": {
+                "business_type": "business_type",
+                "location": "location"
+            }
+        }
+        
+        # Validate user type
+        if user.type not in type_specific_fields:
+            return Response({
+                "error": f"Invalid user type: {user.type}"
+            }, status=400)
+        
+        # Get fields based on user type
+        fields_to_update = {**common_fields, **type_specific_fields[user.type]}
+        
+        # Update user fields
+        updated_fields = []
+        for field_name, user_attr in fields_to_update.items():
+            if field_name in request.data:
+                setattr(user, user_attr, request.data[field_name])
+                updated_fields.append(field_name)
+        
+        # Save changes only if fields were updated
+        if updated_fields:
+            user.save()
+            return Response({
+                "message": "Profile updated successfully",
+                "updated_fields": updated_fields
+            }, status=200)
+        else:
+            return Response({
+                "message": "No changes made"
+            }, status=200)
+            
+    except Exception as e:
+        return Response({
+            "error": f"An error occurred: {str(e)}"
+        }, status=500)
 
      
 @api_view(["PUT"])
