@@ -1,10 +1,12 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import PropTypes from 'prop-types';
 import { Avatar, Popover } from "antd";
 import { useNavigate, Link } from "react-router-dom";
 import { USER_PROFILE_CONTEXT } from "@/context";
 import { SIGNUP_CONTEXT } from "@/context";
 import { deleteAuth, getAuth } from "@/lib/util";
+import { getProfilePicture } from "@/api/profileApi";
+import { getDriveImage } from "@/api/utilApi";
 
 export default function UserAvatar({ showName = false }) {
   const { userProfile, setUserProfile } = useContext(USER_PROFILE_CONTEXT);
@@ -12,6 +14,34 @@ export default function UserAvatar({ showName = false }) {
   const navigate = useNavigate();
   const { userType } = getAuth();
   const isMerchant = userType === "merchant";
+  const [profileImage, setProfileImage] = useState(null);
+
+  useEffect(() => {
+    const fetchProfilePicture = async () => {
+      try {
+        const data = await getProfilePicture();
+        if (data && data.profile_picture) {
+          const objectUrl = await getDriveImage(data.profile_picture);
+          setProfileImage(objectUrl);
+        }
+      } catch (error) {
+        console.error("Error fetching profile picture:", error);
+      }
+    };
+
+    if (userProfile) {
+      fetchProfilePicture();
+    }
+  }, [userProfile]);
+
+  // Cleanup object URL when component unmounts
+  useEffect(() => {
+    return () => {
+      if (profileImage && profileImage.startsWith('blob:')) {
+        URL.revokeObjectURL(profileImage);
+      }
+    };
+  }, [profileImage]);
 
   const handleLogout = () => {
     setUserProfile(null);
@@ -19,13 +49,12 @@ export default function UserAvatar({ showName = false }) {
     navigate("/");
   };
 
-  useEffect(() => {
-    console.log("user Profile changed", userProfile);
-  }, [userProfile]);
-
   // Different options for merchant dashboard
   const merchantOptions = (
     <div>
+      <div className="p-4 border-b border-gray-200">
+        <p className="text-sm text-gray-600">{userProfile?.email}</p>
+      </div>
       <ul className="space-y-2 mx-2 px-2 min-w-[10ch]">
         <li
           className="hover:font-semibold hover:text-Primary transition-colors cursor-pointer select-none"
@@ -56,6 +85,9 @@ export default function UserAvatar({ showName = false }) {
   // Regular customer/celebrant options
   const regularOptions = (
     <div>
+      <div className="p-4 border-b border-gray-200">
+        <p className="text-sm text-gray-600">{userProfile?.email}</p>
+      </div>
       <ul className="space-y-2 mx-2 px-2 min-w-[10ch]">
         <li
           className="hover:font-semibold hover:text-Primary transition-colors cursor-pointer select-none"
@@ -106,10 +138,11 @@ export default function UserAvatar({ showName = false }) {
               </>
             )}
             <Avatar
+              src={profileImage}
               style={{ backgroundColor: "#334495", verticalAlign: "middle" }}
               size="default"
             >
-              <span className="font-semibold text-white">{name?.[0]}</span>
+              {!profileImage && <span className="font-semibold text-white">{name?.[0]}</span>}
             </Avatar>
           </div>
         </Popover>
