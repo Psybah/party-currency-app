@@ -6,7 +6,7 @@ import { Button } from '../ui/button';
 import { CurrencyCanvas } from './CurrencyCanvas';
 import { debounce } from 'lodash';
 import { useLocation } from 'react-router-dom';
-import { getEvents } from '@/services/eventService';
+import { getEvents } from '@/api/eventApi';
 
 export function TextEditor({ side, initialTexts, onClose, onSave, denomination }) {
   const location = useLocation();

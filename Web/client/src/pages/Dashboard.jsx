@@ -7,7 +7,7 @@ import StatsCard from "../components/StatsCard";
 import TransactionTable from "../components/TransactionTable";
 import { LoadingDisplay } from "../components/LoadingDisplay";
 import EmptyState from "../components/events/EmptyState";
-import { getEvents } from "../services/eventService";
+import { getEvents } from "../api/eventApi";
 
 export default function Dashboard() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

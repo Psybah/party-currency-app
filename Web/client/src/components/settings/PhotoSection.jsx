@@ -3,25 +3,35 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Avatar } from "antd";
 import { Upload, Camera } from "lucide-react";
-import { profileService } from "../../services/profileService";
+import { uploadProfilePicture } from "../../api/profileApi";
+import { getDriveImage } from "@/api/utilApi";
+import { Skeleton } from "@/components/ui/skeleton";
 import toast from "react-hot-toast";
-
+import { getProfilePicture } from "../../api/profileApi";
 export function PhotoSection({ onUpdatePhoto }) {
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
+  const [driveUrl, setDriveUrl] = useState(null);
 
   useEffect(() => {
     fetchProfilePicture();
   }, []);
 
   const fetchProfilePicture = async () => {
+    setIsLoading(true);
     try {
-      const data = await profileService.getProfilePicture();
+      const data = await getProfilePicture();
       if (data && data.profile_picture) {
-        setPreviewUrl(data.profile_picture);
+        setDriveUrl(data.profile_picture);
+        const objectUrl = await getDriveImage(data.profile_picture);
+        setPreviewUrl(objectUrl);
       }
     } catch (error) {
       console.error("Error fetching profile picture:", error);
+      toast.error("Failed to load profile picture");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -33,19 +43,23 @@ export function PhotoSection({ onUpdatePhoto }) {
         return;
       }
 
-      setIsLoading(true);
+      setIsUploading(true);
       try {
+        // Show local preview immediately
         const reader = new FileReader();
         reader.onloadend = () => {
           setPreviewUrl(reader.result);
         };
         reader.readAsDataURL(file);
 
-        const response = await profileService.uploadProfilePicture(file);
+        // Upload to server
+        const response = await uploadProfilePicture(file);
         if (response.profile_picture) {
-          setPreviewUrl(response.profile_picture);
+          setDriveUrl(response.profile_picture);
+          const objectUrl = await getDriveImage(response.profile_picture);
+          setPreviewUrl(objectUrl);
           toast.success("Profile picture updated successfully");
-          onUpdatePhoto && onUpdatePhoto(file);
+          onUpdatePhoto && onUpdatePhoto(response.profile_picture);
         } else {
           throw new Error("No profile picture URL in response");
         }
@@ -54,10 +68,33 @@ export function PhotoSection({ onUpdatePhoto }) {
         toast.error("Failed to update profile picture");
         await fetchProfilePicture(); // Refresh the current picture
       } finally {
-        setIsLoading(false);
+        setIsUploading(false);
       }
     }
   };
+
+  // Cleanup object URLs when component unmounts or URL changes
+  useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl text-left font-playfair font-semibold">Profile Photo</h2>
+        <div className="flex items-center gap-6">
+          <Skeleton className="w-[100px] h-[100px] rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[200px]" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -72,7 +109,9 @@ export function PhotoSection({ onUpdatePhoto }) {
           />
           <Label
             htmlFor="photo-upload"
-            className="absolute -bottom-2 -right-2 p-1.5 bg-white rounded-full shadow-lg cursor-pointer hover:bg-gray-50"
+            className={`absolute -bottom-2 -right-2 p-1.5 bg-white rounded-full shadow-lg cursor-pointer hover:bg-gray-50 ${
+              isUploading ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           >
             <Upload className="w-4 h-4" />
           </Label>
@@ -82,13 +121,16 @@ export function PhotoSection({ onUpdatePhoto }) {
             className="hidden"
             accept="image/*"
             onChange={handleFileChange}
-            disabled={isLoading}
+            disabled={isUploading}
           />
         </div>
         <div className="space-y-2">
           <p className="text-sm text-gray-500">
             Recommended: Square image, less than 5MB
           </p>
+          {isUploading && (
+            <p className="text-sm text-gray-500">Uploading profile picture...</p>
+          )}
         </div>
       </div>
     </div>

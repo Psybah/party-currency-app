@@ -8,7 +8,7 @@ import { ReconciliationSection } from "./ReconciliationSection";
 import { EventSuccessModal } from "./EventSuccessModal";
 import { showSuccess, showError, withFeedback } from "@/utils/feedback";
 import { formatErrorMessages } from "@/utils/feedback";
-import { createEvent } from "@/services/eventService";
+import { createEventApi } from "@/api/eventApi";
 import { useNavigate } from "react-router-dom";
 import { getAuth } from "@/lib/util";
 
@@ -80,7 +80,7 @@ export const EventFormWithFeedback = () => {
             reconciliation_service: eventData.reconciliation_service,
           };
 
-          const response = await createEvent(payload, accessToken);
+          const response = await createEventApi(payload, accessToken);
           return response;
         },
         {
