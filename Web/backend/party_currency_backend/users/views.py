@@ -83,19 +83,23 @@ def edit_user(request):
                 "error": "Authentication required"
             }, status=401)
         
-        # Common fields for both user types
+        # Common fields for both user types - match AbstractUser field names
         common_fields = {
-            "firstname": "firstname",
-            "lastname": "lastname",
-            "phonenumber": "phonenumber"
+            "first_name": "first_name",
+            "last_name": "last_name",
+            "phone_number": "phone_number",
+            "email": "email",
+            "city": "city",
+            "country": "country",
+            "state": "state"
         }
         
         # Type-specific fields
         type_specific_fields = {
             "user": {},
             "merchant": {
-                "business_type": "business_type",
-                "location": "location"
+                "business_type": "business_type"
+                # No location field in the model, removed
             }
         }
         
