@@ -6,7 +6,7 @@ import { LoadingDisplay } from '@/components/LoadingDisplay';
 import { Download, Files, Edit, PlusCircle, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'react-hot-toast';
-import { CurrencyImage } from '@/components/ui/CurrencyImage';
+import { CurrencyImage, downloadCurrencyImage } from '@/components/ui/CurrencyImage';
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { CurrencyCanvas } from './CurrencyCanvas';
-import { downloadCurrencyImage } from '@/components/ui/CurrencyImage';
+
 export function TemplateHistory() {
   const navigate = useNavigate();
   const [templates, setTemplates] = useState([]);
@@ -331,22 +331,31 @@ export function TemplateHistory() {
         open={previewDialog.open} 
         onOpenChange={(open) => setPreviewDialog(prev => ({ ...prev, open }))}
       >
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-[90vw] md:max-w-2xl max-h-[90vh] overflow-y-auto p-4">
           <DialogHeader>
             <DialogTitle>Template Preview</DialogTitle>
           </DialogHeader>
           
           {previewDialog.template && (
-            <div className="space-y-4">
+            <div className="space-y-4 overflow-y-auto">
               <div>
                 <h3 className="font-medium mb-2">Front Side</h3>
-                <div className="border rounded-lg overflow-hidden">
+                <div className="border rounded-lg overflow-hidden max-h-[300px] md:max-h-[400px] relative">
                   {templateImages[previewDialog.template.currency_id]?.front ? (
-                    <img
-                      src={templateImages[previewDialog.template.currency_id].front}
-                      alt="Front"
-                      className="w-full h-auto"
-                    />
+                    <div className="w-full relative">
+                      <CurrencyCanvas
+                        templateImage="/lovable-uploads/200-front-template.png"
+                        texts={{
+                          eventId: previewDialog.template.event_id,
+                          currencyName: previewDialog.template.currency_name,
+                          celebration: previewDialog.template.front_celebration_text,
+                          dominationText: getDenominationFromImageUrl(previewDialog.template.front_image) || "200",
+                        }}
+                        side="front"
+                        denomination={getDenominationFromImageUrl(previewDialog.template.front_image) || "200"}
+                        portraitImage={templateImages[previewDialog.template.currency_id].front}
+                      />
+                    </div>
                   ) : (
                     <CurrencyImage
                       driveUrl={previewDialog.template.front_image}
@@ -361,13 +370,22 @@ export function TemplateHistory() {
               
               <div>
                 <h3 className="font-medium mb-2">Back Side</h3>
-                <div className="border rounded-lg overflow-hidden">
+                <div className="border rounded-lg overflow-hidden max-h-[300px] md:max-h-[400px] relative">
                   {templateImages[previewDialog.template.currency_id]?.back ? (
-                    <img
-                      src={templateImages[previewDialog.template.currency_id].back}
-                      alt="Back"
-                      className="w-full h-auto"
-                    />
+                    <div className="w-full relative">
+                      <CurrencyCanvas
+                        templateImage="/lovable-uploads/200-back-template.png"
+                        texts={{
+                          eventId: previewDialog.template.event_id,
+                          currencyName: previewDialog.template.currency_name,
+                          celebration: previewDialog.template.back_celebration_text,
+                          dominationText: getDenominationFromImageUrl(previewDialog.template.back_image) || "200",
+                        }}
+                        side="back"
+                        denomination={getDenominationFromImageUrl(previewDialog.template.back_image) || "200"}
+                        portraitImage={templateImages[previewDialog.template.currency_id].back}
+                      />
+                    </div>
                   ) : (
                     <CurrencyImage
                       driveUrl={previewDialog.template.back_image}
@@ -380,7 +398,7 @@ export function TemplateHistory() {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="font-medium">Currency Name:</p>
                   <p>{previewDialog.template.currency_name || 'Not specified'}</p>
@@ -401,7 +419,7 @@ export function TemplateHistory() {
             </div>
           )}
           
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <Button
               variant="outline"
               onClick={() => setPreviewDialog({ open: false, template: null })}

@@ -77,7 +77,6 @@ export default function Settings() {
           <div className="space-y-8 mx-auto max-w-4xl">
             <PhotoSection onUpdatePhoto={handlePhotoUpdate} />
             <ProfileSection onUpdate={handleProfileUpdate} />
-            <SecuritySection onUpdatePassword={handlePasswordUpdate} />
           </div>
         </main>
       </div>
