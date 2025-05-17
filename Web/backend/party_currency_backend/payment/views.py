@@ -155,7 +155,6 @@ def callback(request):
                 # Log the error but continue processing
                 print(f"Error updating user total: {str(e)}")
             frontend_url = os.getenv("FRONTEND_URL")
-            frontend_url = "http:localhost:8080"
             redirect_url = f"{frontend_url}/dashboard?transaction_reference={transaction.transaction_reference}"
             from django.http import HttpResponseRedirect
             
