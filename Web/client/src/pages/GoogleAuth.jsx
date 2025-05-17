@@ -42,7 +42,7 @@ export default function GoogleAuth() {
         // Success message
         toast.success("Successfully signed in with Google!");
         
-        navigate("/");
+        navigate("/dashboard");
       } catch (error) {
         console.error("Google auth callback error:", error);
         setStatus("Authentication error. Please try again.");
