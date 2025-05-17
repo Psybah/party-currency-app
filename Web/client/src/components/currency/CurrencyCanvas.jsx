@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 
 // Currency dimensions (aspect ratio from the design)
@@ -32,6 +32,8 @@ export function CurrencyCanvas({
 }) {
   const canvasRef = useRef(null);
   const fabricCanvasRef = useRef(null);
+  const scaleCanvasRef = useRef(null);
+  const [isFabricCanvasObjectReady, setIsFabricCanvasObjectReady] = useState(false);
 
   // Text positions and styles
   const textConfig = {
@@ -69,75 +71,83 @@ export function CurrencyCanvas({
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    // Create a new canvas element and initialize fabric
     const canvasEl = canvasRef.current;
+    canvasEl.innerHTML = '';
     canvasEl.width = CANVAS_WIDTH;
     canvasEl.height = CANVAS_HEIGHT;
 
-    // Wait for next tick to ensure DOM is ready
-    setTimeout(() => {
-      const canvas = new fabric.Canvas(canvasEl, {
+    let initTimeoutId = null;
+
+    initTimeoutId = setTimeout(() => {
+      const fabricInstance = new fabric.Canvas(canvasEl, {
         width: CANVAS_WIDTH,
         height: CANVAS_HEIGHT,
         backgroundColor: '#ffffff',
         selection: false,
         preserveObjectStacking: true,
       });
+      fabricCanvasRef.current = fabricInstance;
 
-      fabricCanvasRef.current = canvas;
+      scaleCanvasRef.current = () => {
+        if (!fabricInstance || !fabricInstance.wrapperEl?.parentNode) return;
+        const container = fabricInstance.wrapperEl.parentNode;
+        
+        if (container.offsetWidth === 0 && container.clientWidth === 0) {
+            return; 
+        }
+        const containerWidth = container.offsetWidth || container.clientWidth;
 
-      // Scale canvas function
-      const scaleCanvas = () => {
-        const container = canvas.wrapperEl?.parentNode;
-        if (!container) return;
-
-        const containerWidth = container.offsetWidth;
         const scale = containerWidth / CANVAS_WIDTH;
 
-        // Fix for the scaling issue
-        canvas.setWidth(containerWidth);
-        canvas.setHeight(CANVAS_HEIGHT * scale);
-        canvas.setZoom(scale);
-        canvas.renderAll();
+        fabricInstance.setWidth(containerWidth);
+        fabricInstance.setHeight(CANVAS_HEIGHT * scale);
+        fabricInstance.setZoom(scale);
+        fabricInstance.renderAll();
       };
 
-      // Initial render
-      canvas.renderAll();
-      
-      // Load template image
       if (templateImage) {
         fabric.Image.fromURL(templateImage, (img) => {
           if (!img) {
-            console.error('Failed to load image:', templateImage);
+            console.error('Failed to load template image:', templateImage);
+            if (scaleCanvasRef.current) scaleCanvasRef.current();
+            setIsFabricCanvasObjectReady(true);
             return;
           }
-          img.scaleToWidth(canvas.width);
-          canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-          
-          // Make sure to call scaleCanvas after setting background image
-          setTimeout(scaleCanvas, 0);
-        });
+          img.scaleToWidth(fabricInstance.width); 
+          fabricInstance.setBackgroundImage(img, () => {
+            fabricInstance.renderAll();
+            if (scaleCanvasRef.current) scaleCanvasRef.current();
+            setIsFabricCanvasObjectReady(true);
+          }, { crossOrigin: 'anonymous' });
+        }, { crossOrigin: 'anonymous' });
+      } else {
+        if (scaleCanvasRef.current) scaleCanvasRef.current();
+        setIsFabricCanvasObjectReady(true);
       }
+      
+      window.addEventListener('resize', scaleCanvasRef.current);
 
-      // Add resize listener
-      window.addEventListener('resize', scaleCanvas);
-
-      // Cleanup
-      return () => {
-        window.removeEventListener('resize', scaleCanvas);
-        if (fabricCanvasRef.current) {
-          fabricCanvasRef.current.dispose();
-        }
-      };
     }, 0);
+
+    return () => {
+      clearTimeout(initTimeoutId);
+      if (scaleCanvasRef.current) {
+        window.removeEventListener('resize', scaleCanvasRef.current);
+      }
+      if (fabricCanvasRef.current) {
+        fabricCanvasRef.current.dispose();
+        fabricCanvasRef.current = null;
+      }
+      setIsFabricCanvasObjectReady(false);
+      scaleCanvasRef.current = null;
+    };
   }, [templateImage]);
 
   // Update texts when they change
   useEffect(() => {
     const canvas = fabricCanvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !isFabricCanvasObjectReady) return;
 
-    // Clear existing texts
     const objects = canvas.getObjects();
     objects.forEach(obj => {
       if (obj.type === 'text') {
@@ -145,7 +155,6 @@ export function CurrencyCanvas({
       }
     });
 
-    // Add denomination text first (uneditable)
     if (side === 'front') {
       const denominationText = new fabric.Text(CURRENCY_AMOUNTS[denomination], {
         left: textConfig.front.denominationText.x,
@@ -161,7 +170,6 @@ export function CurrencyCanvas({
       canvas.add(denominationText);
     }
 
-    // Add other texts
     Object.entries(texts).forEach(([key, value]) => {
       if (!value || !textConfig[side][key]) return;
 
@@ -181,13 +189,12 @@ export function CurrencyCanvas({
       canvas.add(text);
     });
 
-    // Add event ID vertically
     if (texts.eventId) {
       const verticalText = texts.eventId.split('').join('\n');
       const eventIdText = new fabric.Text(verticalText, {
         ...TEXT_STYLES.eventId,
-        left: CANVAS_WIDTH - 70, // Position from right edge with padding
-        top: CANVAS_HEIGHT * 0.55, // Start from upper middle with padding
+        left: CANVAS_WIDTH - 70,
+        top: CANVAS_HEIGHT * 0.55,
         originX: 'center',
         originY: 'center',
         textAlign: 'center',
@@ -195,26 +202,31 @@ export function CurrencyCanvas({
       canvas.add(eventIdText);
     }
 
-    canvas.renderAll();
-  }, [texts, side, denomination]);
+    if (Object.keys(texts).length > 0 || side === 'front') {
+        canvas.renderAll();
+    }
+  }, [texts, side, denomination, isFabricCanvasObjectReady]);
 
   // Update portrait image when it changes
   useEffect(() => {
     const canvas = fabricCanvasRef.current;
-    if (!canvas || !portraitImage) return;
+    if (!canvas || !isFabricCanvasObjectReady) return;
 
-    // Remove existing portrait
-    const objects = canvas.getObjects();
-    objects.forEach(obj => {
-      if (obj.type === 'image') {
-        canvas.remove(obj);
-      }
+    canvas.getObjects('image').forEach(obj => {
+      canvas.remove(obj);
     });
 
-    // Add new portrait based on side
+    if (!portraitImage) {
+      canvas.renderAll();
+      return;
+    }
+
     if (side === 'front') {
-      // Front side - oval portrait
       fabric.Image.fromURL(portraitImage, (img) => {
+        if (!img) {
+            console.error("Failed to load portrait image for front side:", portraitImage);
+            return;
+        }
         const clipPath = new fabric.Ellipse({
           rx: 270,
           ry: 350,
@@ -222,10 +234,9 @@ export function CurrencyCanvas({
           originY: 'center',
         });
 
-        // Calculate scaling to fill the oval
         const scaleX = (270 * 2) / img.width;
         const scaleY = (350 * 2) / img.height;
-        const scale = Math.max(scaleX, scaleY); // Use the larger scale to ensure full coverage
+        const scale = Math.max(scaleX, scaleY);
 
         img.set({
           left: CANVAS_WIDTH * 0.27,
@@ -241,11 +252,13 @@ export function CurrencyCanvas({
 
         canvas.add(img);
         canvas.renderAll();
-      });
+      }, { crossOrigin: 'anonymous' });
     } else {
-      // Back side - rectangular portrait with rounded corners
       fabric.Image.fromURL(portraitImage, (img) => {
-        // Create a rounded rectangle clip path
+        if (!img) {
+            console.error("Failed to load portrait image for back side:", portraitImage);
+            return;
+        }
         const rectWidth = 900;
         const rectHeight = 550;
         const radius = 50;
@@ -259,7 +272,6 @@ export function CurrencyCanvas({
           originY: 'center',
         });
 
-        // Calculate scaling to fill the rectangle
         const scaleX = rectWidth / img.width;
         const scaleY = rectHeight / img.height;
         const scale = Math.max(scaleX, scaleY);
@@ -278,7 +290,6 @@ export function CurrencyCanvas({
 
         canvas.add(img);
         
-        // Force a proper rescale after adding the image
         const container = canvas.wrapperEl?.parentNode;
         if (container) {
           const containerWidth = container.offsetWidth;
@@ -289,9 +300,9 @@ export function CurrencyCanvas({
         }
         
         canvas.renderAll();
-      });
+      }, { crossOrigin: 'anonymous' });
     }
-  }, [portraitImage, side]);
+  }, [portraitImage, side, isFabricCanvasObjectReady]);
 
   return (
     <div className="canvas-container w-full overflow-hidden relative" style={{ minHeight: '200px' }}>

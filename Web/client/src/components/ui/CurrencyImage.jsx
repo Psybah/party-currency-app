@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getCurrencyImage } from '@/api/currencyApi';
+import { getDriveImage } from '@/api/utilApi';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CurrencyCanvas } from '../currency/CurrencyCanvas';
 
@@ -10,11 +10,11 @@ export async function downloadCurrencyImage(driveUrl, denomination, side) {
   }
 
   try {
-    const objectUrl = await getCurrencyImage(driveUrl);
+    const objectUrl = await getDriveImage(driveUrl);
     return objectUrl;
   } catch (err) {
     console.error('Error loading currency image:', err);
-    return `/lovable-uploads/${denomination}-${side}.jpg`;
+    return ``;
   }
 }
 

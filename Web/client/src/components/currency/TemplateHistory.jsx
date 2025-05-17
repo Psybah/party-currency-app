@@ -217,6 +217,7 @@ export function TemplateHistory() {
                       currencyName: template.currency_name,
                       celebration: template.front_celebration_text,
                       dominationText:"200",
+             
 
                     }}
                     side="front"
