@@ -83,41 +83,40 @@ def edit_user(request):
                 "error": "Authentication required"
             }, status=401)
         
-        # Common fields for both user types - match AbstractUser field names
-        common_fields = {
-            "first_name": "first_name",
-            "last_name": "last_name",
-            "phone_number": "phone_number",
+        # Map request field names to model field names
+        field_mapping = {
+            # Common fields - map request names to model names
+            "firstname": "first_name",
+            "lastname": "last_name",
+            "phonenumber": "phone_number",
             "email": "email",
             "city": "city",
             "country": "country",
             "state": "state"
         }
         
-        # Type-specific fields
-        type_specific_fields = {
-            "user": {},
-            "merchant": {
-                "business_type": "business_type"
-                # No location field in the model, removed
-            }
-        }
+        # Additional merchant-specific fields
+        merchant_fields = ["business_type"]
         
         # Validate user type
-        if user.type not in type_specific_fields:
+        if user.type not in ["user", "merchant"]:
             return Response({
                 "error": f"Invalid user type: {user.type}"
             }, status=400)
         
-        # Get fields based on user type
-        fields_to_update = {**common_fields, **type_specific_fields[user.type]}
-        
         # Update user fields
         updated_fields = []
-        for field_name, user_attr in fields_to_update.items():
-            if field_name in request.data:
-                setattr(user, user_attr, request.data[field_name])
-                updated_fields.append(field_name)
+        for request_field, model_field in field_mapping.items():
+            if request_field in request.data:
+                setattr(user, model_field, request.data[request_field])
+                updated_fields.append(request_field)
+        
+        # Handle merchant-specific fields
+        if user.type == "merchant":
+            for field in merchant_fields:
+                if field in request.data:
+                    setattr(user, field, request.data[field])
+                    updated_fields.append(field)
         
         # Save changes only if fields were updated
         if updated_fields:
