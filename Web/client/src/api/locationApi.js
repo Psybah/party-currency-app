@@ -10,7 +10,7 @@ export const fetchStates = async () => {
       throw new Error('Failed to fetch states');
     }
     const data = await response.json();
-    return data.states;
+    return data;
   } catch (error) {
     console.error('Error fetching states:', error);
     throw error;
@@ -30,7 +30,7 @@ export const fetchLGAs = async (state) => {
       throw new Error('Failed to fetch LGAs');
     }
     const data = await response.json();
-    return data.lga;
+    return data;
   } catch (error) {
     console.error('Error fetching LGAs:', error);
     throw error;
