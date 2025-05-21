@@ -7,6 +7,7 @@ class CurrencySerializer(serializers.ModelSerializer):
         fields = [
             'currency_id',
             'currency_author',
+            'denomination',
             'event_id',
             'created_at',
             'updated_at',
