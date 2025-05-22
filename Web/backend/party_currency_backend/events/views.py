@@ -105,7 +105,7 @@ def EventCreate(request):
 def EventList(request):
     try:
         events = Events.objects.filter(event_author=request.user.username)
-        serializer = EventSerializer(events, many=True)
+        serializer = EventSerializerFull(events, many=True)
         
         # Fix serialized data to ensure dates are correct
         # This is only needed if your serializer doesn't handle dates correctly
