@@ -29,6 +29,15 @@ class Events(models.Model):
             ('cancelled', 'Cancelled')
         ]
     )
+    .payment_status = models.CharField(
+        max_length=50,
+        default='pending',
+        choices=[
+            ('successful', 'Successful'),
+            ('failed', 'Failed'),
+            ('refunded', 'Refunded')
+        ]
+    )
 
     def __str__(self):
         return f"{self.event_name} - {self.event_id}"

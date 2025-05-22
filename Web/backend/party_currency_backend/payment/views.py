@@ -46,7 +46,7 @@ class InitializeTransactionView(APIView):
 
         try:
             response = requests.post(
-                    f'{os.getenv('MONIFY_BASE_URL')}/merchant/transactions/init-transaction',
+                    f"{os.getenv('MONIFY_BASE_URL')}/merchant/transactions/init-transaction",
                     json=payload,
                     headers=headers
                 )
