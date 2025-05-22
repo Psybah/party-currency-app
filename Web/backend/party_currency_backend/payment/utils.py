@@ -31,7 +31,7 @@ class MonnifyAuth:
         
         try:
             response = requests.post(
-                f'{os.getenv('MONIFY_BASE_URL')}/auth/login',
+                f"{os.getenv('MONIFY_BASE_URL')}/auth/login",
                 headers=headers,
                 json={}
             )
