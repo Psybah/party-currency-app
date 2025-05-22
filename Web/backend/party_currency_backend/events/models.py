@@ -29,7 +29,7 @@ class Events(models.Model):
             ('cancelled', 'Cancelled')
         ]
     )
-    .payment_status = models.CharField(
+    payment_status = models.CharField(
         max_length=50,
         default='pending',
         choices=[
