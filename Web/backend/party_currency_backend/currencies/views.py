@@ -137,7 +137,7 @@ def get_all_currency(request):
     user = request.user
     currency = Currency.objects.filter(currency_author=user.username)
     serializer = CurrencySerializer(currency, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response({"currencies":serializer.data}, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
