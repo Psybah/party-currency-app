@@ -55,9 +55,24 @@ export default function ManageEvent() {
         return {
           id: event.event_id,
           name: event.event_name,
-          date: event.created_at || event.date,
-          status: event.status?.toLowerCase() || "active", // Default to active if no status
-          concluded: event.concluded || false // Add concluded property
+          description: event.event_description,
+          location: {
+            street: event.street_address,
+            city: event.city,
+            state: event.state,
+            postalCode: event.postal_code
+          },
+          dates: {
+            start: event.start_date,
+            end: event.end_date,
+            created: event.created_at
+          },
+          status: {
+            payment: event.payment_status?.toLowerCase() || "pending",
+            delivery: event.delivery_status?.toLowerCase() || "pending"
+          },
+          reconciliation: event.reconciliation || false,
+          concluded: event.concluded || false
         };
       });
       setEvents(events_fetched);

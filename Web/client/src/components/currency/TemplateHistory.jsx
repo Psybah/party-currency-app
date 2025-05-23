@@ -17,6 +17,13 @@ import {
 } from "@/components/ui/dialog";
 import { CurrencyCanvas } from './CurrencyCanvas';
 
+function getTemplateImage(denomination){
+  console.log('denomination', denomination)
+  if(denomination === 200) return '/lovable-uploads/200-front-template.png'
+  if(denomination === 500) return '/lovable-uploads/500-front-template.png'
+  if(denomination === 1000) return '/lovable-uploads/1000-front-template.png'
+  return '/lovable-uploads/200-front-template.png'
+}
 export function TemplateHistory() {
   const navigate = useNavigate();
   const [templates, setTemplates] = useState([]);
@@ -53,7 +60,7 @@ export function TemplateHistory() {
         const imagesMap = {};
         if (currencyData && currencyData.length > 0) {
           await Promise.all(currencyData.map(async (template) => {
-            const denomination = template.denomination || getDenominationFromImageUrl(template.front_image) || '200';
+            const denomination = template.denomination || '200';
             try {
               const frontImageUrl = await downloadCurrencyImage(template.front_image, denomination, 'front');
               const backImageUrl = await downloadCurrencyImage(template.back_image, denomination, 'back');
@@ -90,16 +97,6 @@ export function TemplateHistory() {
     return events[eventId] || 'Unknown Event';
   };
 
-  const getDenominationFromImageUrl = (url) => {
-    if (!url) return '200'; // Default
-    
-    if (url.includes('200')) return '200';
-    if (url.includes('500')) return '500';
-    if (url.includes('1000')) return '1000';
-    
-    // If no match found, return default
-    return '200';
-  };
 
   const handleDownload = async (template) => {
     try {
@@ -142,7 +139,7 @@ export function TemplateHistory() {
   };
 
   const handleEdit = (template) => {
-    const denomination = template.denomination || getDenominationFromImageUrl(template.front_image) || '200';
+    const denomination = template.denomination || '200'
     navigate(`/customize-${denomination}`, {
       state: { 
         templateId: template.currency_id,
@@ -200,7 +197,7 @@ export function TemplateHistory() {
     <>
       <div className="flex flex-col gap-4 ">
         {templates.map((template) => {
-          const denomination = template.denomination || getDenominationFromImageUrl(template.front_image) || '200';
+          const denomination = template.denomination || '200';
           const templateImage = templateImages[template.currency_id];
           console.log('currency image', templateImage, template )
           return (
@@ -211,7 +208,7 @@ export function TemplateHistory() {
               <div className=" bg-gray-100 relative">
                 <div className='w-full relative '>
               <CurrencyCanvas
-                    templateImage="/lovable-uploads/200-front-template.png"
+                    templateImage={getTemplateImage(denomination)}
                     texts={{
                       eventId: template.event_id,
                       currencyName: template.currency_name,
@@ -344,15 +341,15 @@ export function TemplateHistory() {
                   {templateImages[previewDialog.template.currency_id]?.front ? (
                     <div className="w-full relative">
                       <CurrencyCanvas
-                        templateImage="/lovable-uploads/200-front-template.png"
+                        templateImage={getTemplateImage(previewDialog.template.denomination)}
                         texts={{
                           eventId: previewDialog.template.event_id,
                           currencyName: previewDialog.template.currency_name,
                           celebration: previewDialog.template.front_celebration_text,
-                          dominationText: getDenominationFromImageUrl(previewDialog.template.front_image) || "200",
+                          dominationText: previewDialog.template.denomination || "200",
                         }}
                         side="front"
-                        denomination={getDenominationFromImageUrl(previewDialog.template.front_image) || "200"}
+                        denomination={previewDialog.template.denomination || "200"}
                         portraitImage={templateImages[previewDialog.template.currency_id].front}
                       />
                     </div>
@@ -361,7 +358,7 @@ export function TemplateHistory() {
                       driveUrl={previewDialog.template.front_image}
                       alt="Front"
                       className="w-full h-auto"
-                      denomination={getDenominationFromImageUrl(previewDialog.template.front_image) || '200'}
+                      denomination={previewDialog.template.denomination || '200'}
                       side="front"
                     />
                   )}
@@ -374,15 +371,15 @@ export function TemplateHistory() {
                   {templateImages[previewDialog.template.currency_id]?.back ? (
                     <div className="w-full relative">
                       <CurrencyCanvas
-                        templateImage="/lovable-uploads/200-back-template.png"
+                         templateImage={getTemplateImage(previewDialog.template.denomination)}
                         texts={{
                           eventId: previewDialog.template.event_id,
                           currencyName: previewDialog.template.currency_name,
                           celebration: previewDialog.template.back_celebration_text,
-                          dominationText: getDenominationFromImageUrl(previewDialog.template.back_image) || "200",
+                          dominationText: previewDialog.template.denomination || "200",
                         }}
                         side="back"
-                        denomination={getDenominationFromImageUrl(previewDialog.template.back_image) || "200"}
+                        denomination={previewDialog.template.denomination || "200"}
                         portraitImage={templateImages[previewDialog.template.currency_id].back}
                       />
                     </div>
@@ -391,7 +388,7 @@ export function TemplateHistory() {
                       driveUrl={previewDialog.template.back_image}
                       alt="Back"
                       className="w-full h-auto"
-                      denomination={getDenominationFromImageUrl(previewDialog.template.front_image) || '200'}
+                      denomination={previewDialog.template.denomination || '200'}
                       side="back"
                     />
                   )}

@@ -4,7 +4,7 @@ import { toast } from "react-hot-toast";
 import DashboardSidebar from "../components/DashboardSidebar";
 import DashboardHeader from "../components/DashboardHeader";
 import StatsCard from "../components/StatsCard";
-import TransactionTable from "../components/TransactionTable";
+import TransactionHistory from "../components/TransactionHistory";
 import { LoadingDisplay } from "../components/LoadingDisplay";
 import EmptyState from "../components/events/EmptyState";
 import { getEvents } from "../api/eventApi";
@@ -38,20 +38,22 @@ export default function Dashboard() {
 
   // Transform events into transaction format with proper date handling
   const transactions = events.map((event) => ({
-    id: event.event_id || "N/A",
-    amount: typeof event.amount === "number" ? event.amount : 0,
-    date: event.created_at || event.date || new Date().toISOString(), // Prioritize created_at or event date
-    status: event.status?.toLowerCase() || "pending",
-    invoiceUrl: `/api/invoices/${event.event_id}`,
+    event_id: event.event_id,
+    event_name: event.event_name,
+    city: event.city,
+    state: event.state,
+    start_date: event.start_date,
+    payment_status: event.payment_status?.toLowerCase() || "pending",
+    delivery_status: event.delivery_status?.toLowerCase() || "pending"
   }));
-
-  console.log("Transformed transactions:", transactions); // Debug log
 
   // Filter transactions based on search
   const filteredTransactions = transactions.filter(
     (transaction) =>
-      transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.status.toLowerCase().includes(searchTerm.toLowerCase())
+      transaction.event_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      transaction.event_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      transaction.payment_status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      transaction.delivery_status.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Add this effect to all dashboard pages
@@ -125,7 +127,7 @@ export default function Dashboard() {
                 {events.length === 0 ? (
                   <EmptyState type="ongoing" />
                 ) : (
-                  <TransactionTable
+                  <TransactionHistory
                     transactions={filteredTransactions}
                     onSearch={setSearchTerm}
                   />
