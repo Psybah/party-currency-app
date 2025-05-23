@@ -29,19 +29,78 @@ export function ImageEditor({ side, currentImage, onClose, onSave, denomination 
     reader.readAsDataURL(file);
   };
 
+  // const handleSave = () => {
+  //   if (editor) {
+  //     // Get the cropped canvas
+  //     const canvas = editor.getImageScaledToCanvas();
+  //     const ctx = canvas.getContext('2d');
+      
+  //     // Create mask based on side
+  //     ctx.globalCompositeOperation = 'destination-in';
+      
+  //     if (side === 'front') {
+  //       // Oval mask for front
+  //       ctx.beginPath();
+  //       ctx.ellipse(
+  //         canvas.width / 2,
+  //         canvas.height / 2,
+  //         canvas.width / 2.2,
+  //         canvas.height / 2.2,
+  //         0,
+  //         0,
+  //         2 * Math.PI
+  //       );
+  //       ctx.fill();
+  //     } else {
+  //       // Rounded rectangle mask for back
+  //       const radius = 40; // Increased from 30
+  //       const width = canvas.width - 40;
+  //       const height = canvas.height - 40;
+  //       const x = 20;
+  //       const y = 20;
+        
+  //       ctx.beginPath();
+  //       ctx.moveTo(x + radius, y);
+  //       ctx.lineTo(x + width - radius, y);
+  //       ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  //       ctx.lineTo(x + width, y + height - radius);
+  //       ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  //       ctx.lineTo(x + radius, y + height);
+  //       ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  //       ctx.lineTo(x, y + radius);
+  //       ctx.quadraticCurveTo(x, y, x + radius, y);
+  //       ctx.closePath();
+  //       ctx.fill();
+  //     }
+      
+  //     const croppedImage = canvas.toDataURL();
+  //     setPreviewUrl(croppedImage);
+  //     onSave(croppedImage);
+  //   }
+  // };
+
   const handleSave = () => {
     if (editor) {
       // Get the cropped canvas
       const canvas = editor.getImageScaledToCanvas();
       const ctx = canvas.getContext('2d');
       
+      // Create a new canvas for just the user's image
+      const userImageCanvas = document.createElement('canvas');
+      userImageCanvas.width = canvas.width;
+      userImageCanvas.height = canvas.height;
+      const userImageCtx = userImageCanvas.getContext('2d');
+      
+      // Draw the user's image
+      userImageCtx.drawImage(canvas, 0, 0);
+      
       // Create mask based on side
-      ctx.globalCompositeOperation = 'destination-in';
+      userImageCtx.globalCompositeOperation = 'destination-in';
       
       if (side === 'front') {
         // Oval mask for front
-        ctx.beginPath();
-        ctx.ellipse(
+        userImageCtx.beginPath();
+        userImageCtx.ellipse(
           canvas.width / 2,
           canvas.height / 2,
           canvas.width / 2.2,
@@ -50,35 +109,36 @@ export function ImageEditor({ side, currentImage, onClose, onSave, denomination 
           0,
           2 * Math.PI
         );
-        ctx.fill();
+        userImageCtx.fill();
       } else {
         // Rounded rectangle mask for back
-        const radius = 40; // Increased from 30
+        const radius = 40;
         const width = canvas.width - 40;
         const height = canvas.height - 40;
         const x = 20;
         const y = 20;
         
-        ctx.beginPath();
-        ctx.moveTo(x + radius, y);
-        ctx.lineTo(x + width - radius, y);
-        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-        ctx.lineTo(x + width, y + height - radius);
-        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-        ctx.lineTo(x + radius, y + height);
-        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-        ctx.lineTo(x, y + radius);
-        ctx.quadraticCurveTo(x, y, x + radius, y);
-        ctx.closePath();
-        ctx.fill();
+        userImageCtx.beginPath();
+        userImageCtx.moveTo(x + radius, y);
+        userImageCtx.lineTo(x + width - radius, y);
+        userImageCtx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        userImageCtx.lineTo(x + width, y + height - radius);
+        userImageCtx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        userImageCtx.lineTo(x + radius, y + height);
+        userImageCtx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        userImageCtx.lineTo(x, y + radius);
+        userImageCtx.quadraticCurveTo(x, y, x + radius, y);
+        userImageCtx.closePath();
+        userImageCtx.fill();
       }
       
-      const croppedImage = canvas.toDataURL();
-      setPreviewUrl(croppedImage);
-      onSave(croppedImage);
+      // Get the masked image data URL
+      const userImageDataUrl = userImageCanvas.toDataURL();
+      setPreviewUrl(userImageDataUrl);
+      onSave(userImageDataUrl);
     }
   };
-
+  
   const handleScaleChange = debounce((newScale) => {
     setScale(parseFloat(newScale));
   }, 50);
