@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import DashboardSidebar from '../components/DashboardSidebar';
 import DashboardHeader from '../components/DashboardHeader';
 import { LoadingDisplay } from '@/components/LoadingDisplay';
@@ -9,6 +9,7 @@ import { Terminal } from "lucide-react";
 import { getEventById, getCurrenciesByEventId } from '@/api/eventApi';
 import { downloadCurrencyImage } from '@/components/ui/CurrencyImage'; // Assuming this is the correct path
 import { CurrencyCanvas } from '@/components/currency/CurrencyCanvas';
+import PaymentModal from '@/components/PaymentModal';
 import { useAuthenticated } from '../lib/hooks';
 import { format } from 'date-fns';
 import { Calendar, MapPin, Info, CheckCircle2, XCircle, Tag, Users, Edit3, Palette, DollarSign } from 'lucide-react';
@@ -68,6 +69,7 @@ const StatusPill = ({ status }) => {
 export default function EventDetailPage() {
   const { eventId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const authenticated = useAuthenticated();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -78,6 +80,7 @@ export default function EventDetailPage() {
   const [associatedImages, setAssociatedImages] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   useEffect(() => {
     const handleSidebarStateChange = (event) => {
@@ -148,6 +151,13 @@ export default function EventDetailPage() {
 
     fetchEventData();
   }, [eventId, navigate]);
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    if (queryParams.get('action') === 'pay' && eventDetails && currencies.length > 0) {
+      setIsPaymentModalOpen(true);
+    }
+  }, [location.search, eventDetails, currencies]);
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
@@ -254,11 +264,37 @@ export default function EventDetailPage() {
                  <div>
                     <span className="font-medium text-sm text-gray-700 flex items-center mb-1"><Info className="w-4 h-4 mr-2 text-bluePrimary"/>Status:</span>
                     <div className="flex flex-wrap gap-2 mt-1">
-                        <StatusPill status={payment_status} />
-                        <StatusPill status={delivery_status} />
                         {reconciliation && <StatusPill status="Reconciled" />}
                     </div>
                 </div>
+              </div>
+
+              {/* Responsive bottom status and action section */}
+              <div className="flex flex-col sm:flex-row justify-between items-stretch mt-4 w-full gap-4">
+                {/* Status section bottom left */}
+                <div className="flex flex-col items-start">
+                  <span className="font-semibold text-gray-700 mb-1 flex items-center"><Info className="w-4 h-4 mr-1 text-bluePrimary"/> Payment Status</span>
+                  <div className="flex items-center gap-2 mb-2">
+                    <StatusPill status={payment_status} />
+                    <span className="text-sm text-gray-700 font-medium">{payment_status ? payment_status.charAt(0).toUpperCase() + payment_status.slice(1) : 'N/A'}</span>
+                  </div>
+                  <span className="font-semibold text-gray-700 mb-1 flex items-center"><Info className="w-4 h-4 mr-1 text-bluePrimary"/> Delivery Status</span>
+                  <div className="flex items-center gap-2">
+                    <StatusPill status={delivery_status} />
+                    <span className="text-sm text-gray-700 font-medium">{delivery_status ? delivery_status.charAt(0).toUpperCase() + delivery_status.slice(1) : 'N/A'}</span>
+                  </div>
+                </div>
+                {/* Make Payment button bottom right */}
+                {payment_status && payment_status.toLowerCase() === 'pending' && (
+                  <div className="flex items-end justify-end w-full sm:w-auto">
+                    <Button
+                      className="bg-bluePrimary text-white font-semibold px-6 py-2"
+                      onClick={() => setIsPaymentModalOpen(true)}
+                    >
+                      Make Payment
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -340,6 +376,19 @@ export default function EventDetailPage() {
           </div>
         </main>
       </div>
+      {/* Payment Modal */}
+      {eventDetails && currencies && (
+        <PaymentModal
+            isOpen={isPaymentModalOpen}
+            onClose={() => {
+                setIsPaymentModalOpen(false);
+                navigate(location.pathname, { replace: true });
+            }}
+            eventDetails={eventDetails}
+            currencies={currencies}
+            associatedImages={associatedImages}
+        />
+      )}
     </div>
   );
 }
