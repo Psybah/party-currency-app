@@ -153,7 +153,7 @@ def get_currency_by_id(request, id):
 
 
 
-@api_view(["POST"])
+@api_view(["GET"])
 @throttle_classes([AnonThrottle])
 @permission_classes([IsAuthenticated])
 def download_image_from_drive(request):
