@@ -143,6 +143,8 @@ def callback(request):
                 try:
                     event = Events.objects.get(event_id=transaction.event_id)
                     event.transaction_id = payment_reference
+                    event.payment_status='successful'
+                    event.delivery_status='pending'
                     event.save()
                 except Events.DoesNotExist:
                     return Response({
