@@ -159,7 +159,7 @@ def get_currency_by_id(request, id):
 def download_image_from_drive(request):
     
     # Get the Google Drive URL from request data
-    image_url = request.data.get("url")
+    image_url = request.query_params.get("url")
     if not image_url:
         return Response(
             {"error": "No URL provided in request data"},
