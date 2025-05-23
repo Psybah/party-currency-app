@@ -91,7 +91,8 @@ export async function getAllCurrencies() {
       throw new Error('Failed to fetch currencies');
     }
 
-    return response.json();
+    const data  = await response.json();
+    return data.currencies;
   } catch (error) {
     console.error('Error fetching currencies:', error);
     throw error;
