@@ -1,0 +1,345 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import DashboardSidebar from '../components/DashboardSidebar';
+import DashboardHeader from '../components/DashboardHeader';
+import { LoadingDisplay } from '@/components/LoadingDisplay';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Terminal } from "lucide-react";
+import { getEventById, getCurrenciesByEventId } from '@/api/eventApi';
+import { downloadCurrencyImage } from '@/components/ui/CurrencyImage'; // Assuming this is the correct path
+import { CurrencyCanvas } from '@/components/currency/CurrencyCanvas';
+import { useAuthenticated } from '../lib/hooks';
+import { format } from 'date-fns';
+import { Calendar, MapPin, Info, CheckCircle2, XCircle, Tag, Users, Edit3, Palette, DollarSign } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+
+// Helper function for CurrencyCanvas template image
+function getTemplateImage(denomination) {
+  const denStr = String(denomination);
+  if (denStr === '200') return '/lovable-uploads/200-front-template.png';
+  if (denStr === '500') return '/lovable-uploads/500-front-template.png';
+  if (denStr === '1000') return '/lovable-uploads/1000-front-template.png';
+  return '/lovable-uploads/200-front-template.png'; // Default
+}
+
+const DetailItem = ({ icon: Icon, label, value }) => (
+  <div className="flex items-start text-sm text-gray-700">
+    <Icon className="w-4 h-4 mr-2 mt-1 flex-shrink-0 text-bluePrimary" />
+    <span className="font-medium mr-1">{label}:</span>
+    <span>{value || 'N/A'}</span>
+  </div>
+);
+
+const StatusPill = ({ status }) => {
+  let bgColor = 'bg-gray-100';
+  let textColor = 'text-gray-700';
+  let Icon = Info;
+
+  switch (status?.toLowerCase()) {
+    case 'successful':
+    case 'completed':
+    case 'paid':
+      bgColor = 'bg-green-100';
+      textColor = 'text-green-700';
+      Icon = CheckCircle2;
+      break;
+    case 'pending':
+      bgColor = 'bg-yellow-100';
+      textColor = 'text-yellow-700';
+      Icon = Info; // Or a Clock icon if available/suitable
+      break;
+    case 'failed':
+    case 'cancelled':
+      bgColor = 'bg-red-100';
+      textColor = 'text-red-700';
+      Icon = XCircle;
+      break;
+  }
+  return (
+    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${bgColor} ${textColor}`}>
+      <Icon className="w-3 h-3 mr-1.5" />
+      {status ? status.charAt(0).toUpperCase() + status.slice(1) : 'N/A'}
+    </span>
+  );
+};
+
+
+export default function EventDetailPage() {
+  const { eventId } = useParams();
+  const navigate = useNavigate();
+  const authenticated = useAuthenticated();
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  
+  const [eventDetails, setEventDetails] = useState(null);
+  const [currencies, setCurrencies] = useState([]);
+  const [associatedImages, setAssociatedImages] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const handleSidebarStateChange = (event) => {
+      setSidebarCollapsed(event.detail.isCollapsed);
+    };
+    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
+    return () => {
+      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!eventId) return;
+
+    const fetchEventData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const eventData = await getEventById(eventId);
+        setEventDetails(eventData);
+        
+        // Fetch currencies associated with this event
+        try {
+          const currencyData = await getCurrenciesByEventId(eventId);
+          if (currencyData && currencyData.currency) {
+            setCurrencies(currencyData.currency);
+            
+            const imagesMap = {};
+            const downloadPromises = currencyData.currency.map(async (item) => {
+              const denomination = item.denomination || '200';
+              try {
+                let frontImageUrl = null;
+                if (item.front_image) {
+                  frontImageUrl = await downloadCurrencyImage(item.front_image, String(denomination), 'front');
+                }
+                let backImageUrl = null;
+                if (item.back_image) {
+                  backImageUrl = await downloadCurrencyImage(item.back_image, String(denomination), 'back');
+                }
+                imagesMap[item.currency_id] = { front: frontImageUrl, back: backImageUrl };
+              } catch (imgErr) {
+                console.error(`Error downloading images for currency ${item.currency_id}:`, imgErr);
+                imagesMap[item.currency_id] = { front: null, back: null }; // Store nulls on error
+              }
+            });
+            await Promise.all(downloadPromises);
+            setAssociatedImages(imagesMap);
+          } else {
+            setCurrencies([]);
+          }
+        } catch (currencyError) {
+          console.error('Error fetching currencies for event:', currencyError);
+          toast.error('Could not load currencies for this event.');
+          // We don't set main error here, event details might still be useful
+        }
+
+      } catch (err) {
+        console.error('Error fetching event details:', err);
+        setError(err.message || 'Failed to fetch event details.');
+        toast.error(err.message || 'Failed to load event details.');
+        if (err.message === 'Session expired. Please login again.') {
+            navigate('/login');
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEventData();
+  }, [eventId, navigate]);
+
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+
+  if (!authenticated) {
+    return <LoadingDisplay message="Authenticating..." />;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <DashboardSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+        <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"}`}>
+          <DashboardHeader toggleMobileMenu={toggleMobileMenu} />
+          <main className="p-6">
+            <LoadingDisplay message="Loading event details..." />
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+       <div className="flex flex-col min-h-screen">
+        <DashboardSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+        <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"}`}>
+          <DashboardHeader toggleMobileMenu={toggleMobileMenu} />
+          <main className="p-6">
+             <Alert variant="destructive" className="max-w-2xl mx-auto">
+                <Terminal className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>
+                  {error} Try refreshing the page or <Button variant="link" onClick={() => navigate('/dashboard')}>go back to dashboard</Button>.
+                </AlertDescription>
+              </Alert>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  if (!eventDetails) {
+     return (
+       <div className="flex flex-col min-h-screen">
+        <DashboardSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+        <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"}`}>
+          <DashboardHeader toggleMobileMenu={toggleMobileMenu} />
+          <main className="p-6">
+             <Alert className="max-w-2xl mx-auto">
+                <Terminal className="h-4 w-4" />
+                <AlertTitle>Event Not Found</AlertTitle>
+                <AlertDescription>
+                  The event you are looking for could not be found.
+                  <Button variant="link" onClick={() => navigate('/dashboard')}>Go back to dashboard</Button>.
+                </AlertDescription>
+              </Alert>
+          </main>
+        </div>
+      </div>
+    );
+  }
+  
+  const {
+    event_name,
+    event_description,
+    street_address,
+    city,
+    state: event_state, // aliased to avoid conflict with React state
+    postal_code,
+    start_date,
+    end_date,
+    created_at,
+    reconciliation,
+    payment_status,
+    delivery_status,
+  } = eventDetails;
+
+  return (
+    <div className="bg-gray-50 min-h-screen">
+      <DashboardSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"}`}>
+        <DashboardHeader toggleMobileMenu={toggleMobileMenu} pageTitle="Event Details" />
+        <main className="p-4 md:p-6 lg:p-8">
+          <div className="max-w-5xl mx-auto">
+            {/* Event Details Card */}
+            <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
+              <div className="flex flex-col md:flex-row justify-between items-start mb-4">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-800 font-playfair mb-1">{event_name}</h1>
+                  <p className="text-gray-600 text-md">{event_description}</p>
+                </div>
+                <div className="mt-3 md:mt-0 flex flex-col items-start md:items-end gap-2">
+                   <span className="text-xs text-gray-500">Event ID: {eventId}</span>
+                   <Button onClick={() => navigate(`/manage-event?edit=${eventId}`)} size="sm" variant="outline">
+                        <Edit3 className="w-3.5 h-3.5 mr-2"/> Edit Event
+                   </Button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mb-6">
+                <DetailItem icon={MapPin} label="Location" value={`${street_address}, ${city}, ${event_state} ${postal_code}`} />
+                <DetailItem icon={Calendar} label="Event Dates" value={`${format(new Date(start_date), "MMM dd, yyyy")} - ${format(new Date(end_date), "MMM dd, yyyy")}`} />
+                <DetailItem icon={Calendar} label="Created On" value={format(new Date(created_at), "MMM dd, yyyy 'at' hh:mm a")} />
+                 <div>
+                    <span className="font-medium text-sm text-gray-700 flex items-center mb-1"><Info className="w-4 h-4 mr-2 text-bluePrimary"/>Status:</span>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                        <StatusPill status={payment_status} />
+                        <StatusPill status={delivery_status} />
+                        {reconciliation && <StatusPill status="Reconciled" />}
+                    </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Associated Currencies Section */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-semibold text-gray-700 mb-2 font-playfair flex items-center">
+                <DollarSign className="w-6 h-6 mr-2 text-bluePrimary"/> Associated Currencies
+              </h2>
+              {currencies.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6">
+                  {currencies.map((currency) => (
+                    <div key={currency.currency_id} className="bg-white p-4 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+                      <h3 className="text-xl font-semibold text-gray-800 mb-1">{currency.currency_name || 'Unnamed Currency'}</h3>
+                      <p className="text-sm text-gray-500 mb-3">Denomination: <span className="font-medium text-bluePrimary">₦{currency.denomination}</span></p>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
+                        <div>
+                           <p className="text-xs text-gray-600 mb-1 font-medium">Front Side</p>
+                           {associatedImages[currency.currency_id]?.front || currency.front_image ? (
+                            <CurrencyCanvas
+                                templateImage={getTemplateImage(currency.denomination)}
+                                texts={{
+                                currencyName: currency.currency_name,
+                                celebration: currency.front_celebration_text,
+                                dominationText: String(currency.denomination),
+                                eventId: currency.event_id,
+                                }}
+                                side="front"
+                                denomination={String(currency.denomination)}
+                                portraitImage={associatedImages[currency.currency_id]?.front}
+                            />
+                            ) : <div className="text-center py-4 text-xs text-gray-400 italic border rounded-md">No front image</div>}
+                            {currency.front_celebration_text && <p className="mt-1 text-xs text-gray-500 truncate">"{currency.front_celebration_text}"</p>}
+                        </div>
+                        <div>
+                           <p className="text-xs text-gray-600 mb-1 font-medium">Back Side</p>
+                           {associatedImages[currency.currency_id]?.back || currency.back_image ? (
+                            <CurrencyCanvas
+                                templateImage={getTemplateImage(currency.denomination)} // Assuming back also uses a base template
+                                texts={{
+                                celebration: currency.back_celebration_text,
+                                eventId: currency.event_id,
+                                // Potentially other texts for back if applicable
+                                }}
+                                side="back"
+                                denomination={String(currency.denomination)}
+                                portraitImage={associatedImages[currency.currency_id]?.back}
+                            />
+                             ) : <div className="text-center py-4 text-xs text-gray-400 italic border rounded-md">No back image</div>}
+                             {currency.back_celebration_text && <p className="mt-1 text-xs text-gray-500 truncate">"{currency.back_celebration_text}"</p>}
+                        </div>
+                      </div>
+                       <div className="text-right mt-2">
+                            <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="text-bluePrimary hover:text-bluePrimary hover:bg-blue-50"
+                                onClick={() => navigate(`/templates?currencyId=${currency.currency_id}&eventId=${eventId}&denomination=${currency.denomination}`)} // Or to a specific customize page
+                            >
+                                <Palette className="w-3.5 h-3.5 mr-1.5"/> Customize this Currency
+                            </Button>
+                        </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white p-6 rounded-lg shadow text-center">
+                    <Tag className="w-12 h-12 text-gray-300 mx-auto mb-3"/>
+                    <p className="text-gray-500">No currencies have been designed for this event yet.</p>
+                    <Button className="mt-4" onClick={() => navigate('/templates')}>
+                        <Palette className="w-4 h-4 mr-2"/> Design a Currency
+                    </Button>
+                </div>
+              )}
+            </div>
+             <Button variant="outline" onClick={() => navigate('/manage-event')}>
+                Back to Manage Events
+            </Button>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}

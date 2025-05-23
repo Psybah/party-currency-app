@@ -53,7 +53,7 @@ export default function ManageEvent() {
       console.log({ events_fetched });
       events_fetched = events_fetched.events.map((event) => {
         return {
-          id: event.event_id,
+          event_id: event.event_id,
           name: event.event_name,
           description: event.event_description,
           location: {

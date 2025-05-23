@@ -58,6 +58,7 @@ export function UserCurrencies() {
 
         // Download images for each template
         const imagesMap = {};
+        console.log("downloading images", currencyData)
         if (currencyData && currencyData.length > 0) {
           const downloadPromises = currencyData.map(async (template) => {
             const denomination = template.denomination || '200';
@@ -68,6 +69,7 @@ export function UserCurrencies() {
                 front: frontImageUrl,
                 back: backImageUrl
               };
+              console.log("downloaded images", imagesMap)
             } catch (err) {
               console.error(`Error downloading images for template ${template.currency_id}:`, err);
             }

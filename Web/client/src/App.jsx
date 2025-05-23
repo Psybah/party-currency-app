@@ -34,6 +34,7 @@ import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 import GoogleAuth from "./pages/GoogleAuth";
 import MyCurrencies from "./pages/MyCurrencies";
+import EventDetailPage from "./pages/EventDetailPage";
 
 function App() {
   return (
@@ -137,6 +138,14 @@ function App() {
             element={
               <PrivateRoute userType="customer">
                 <ManageEvent />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/event/:eventId"
+            element={
+              <PrivateRoute userType="customer">
+                <EventDetailPage />
               </PrivateRoute>
             }
           />

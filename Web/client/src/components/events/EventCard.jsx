@@ -10,6 +10,8 @@ import {
   Check,
 } from "lucide-react";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom"; // Added for navigation
+import { useEffect } from "react";
 
 const StatusBadge = ({ status, type }) => {
   const getStatusColor = (status) => {
@@ -43,14 +45,17 @@ const StatusBadge = ({ status, type }) => {
 
 export default function EventCard({ event }) {
   const [copied, setCopied] = useState(false);
-
+  const navigate = useNavigate(); // Added for navigation
+useEffect(()=>{
+  console.log('event', event)
+},[])
   const formatDate = (dateString) => {
     return format(new Date(dateString), "MMM dd, yyyy");
   };
 
   const handleCopyId = async () => {
     try {
-      await navigator.clipboard.writeText(event.id);
+      await navigator.clipboard.writeText(event.event_id);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -67,7 +72,7 @@ export default function EventCard({ event }) {
           <div className="flex flex-col sm:flex-row sm:items-center gap-2">
             <h3 className="text-lg font-semibold text-gray-900 break-words">{event.name}</h3>
             <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-100 rounded-md w-fit">
-              <span className="text-xs font-mono text-gray-600 truncate">ID: {event.id}</span>
+              <span className="text-xs font-mono text-gray-600 truncate">ID: {event.event_id}</span>
               <button
                 onClick={handleCopyId}
                 className="p-1 hover:bg-gray-200 rounded transition-colors duration-200"
@@ -122,17 +127,17 @@ export default function EventCard({ event }) {
           )}
           {event.status.payment === "pending" && (
             <button
-              onClick={() => (window.location.href = `/payment/${event.id}`)}
+              onClick={() => (window.location.href = `/payment/${event.event_id}`)}
               className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-bluePrimary rounded-md hover:bg-bluePrimary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bluePrimary"
             >
               Make Payment
             </button>
           )}
           <button
-            onClick={() => (window.location.href = `/events/${event.id}`)}
+            onClick={() => navigate(`/event/${event.event_id}`)} // Updated navigation
             className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-bluePrimary rounded-md hover:bg-bluePrimary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bluePrimary"
           >
-            View Details
+            View Details 
           </button>
         </div>
       </div>
