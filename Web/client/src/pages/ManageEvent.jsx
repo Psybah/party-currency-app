@@ -68,7 +68,7 @@ export default function ManageEvent() {
             created: event.created_at
           },
           status: {
-            payment: event.payment_status?.toLowerCase() || "pending",
+            payment: event.payment_status?.toLowerCase() || "unpaid",
             delivery: event.delivery_status?.toLowerCase() || "pending"
           },
           reconciliation: event.reconciliation || false,
