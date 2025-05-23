@@ -89,6 +89,8 @@ def save_currency(request):
     event_id = request.data.get("event_id", "no_event")
     front_celebration_text = request.data.get("front_celebration_text")
     back_celebration_text = request.data.get("back_celebration_text")
+    # Get denomination from request data
+    denomination = request.data.get("denomination")
     
     front_image_url = None
     back_image_url = None
@@ -118,7 +120,8 @@ def save_currency(request):
         front_celebration_text=front_celebration_text,
         front_image=front_image_url,
         back_image=back_image_url,
-        back_celebration_text=back_celebration_text
+        back_celebration_text=back_celebration_text,
+        denomination=denomination  # Added denomination field
     )
     event = Events.objects.get(event_id=event_id)
     event.currency_id=currency_id
@@ -134,7 +137,7 @@ def get_all_currency(request):
     user = request.user
     currency = Currency.objects.filter(currency_author=user.username)
     serializer = CurrencySerializer(currency, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response({"currencies":serializer.data}, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
@@ -150,13 +153,13 @@ def get_currency_by_id(request, id):
 
 
 
-@api_view(["POST"])
+@api_view(["GET"])
 @throttle_classes([AnonThrottle])
 @permission_classes([IsAuthenticated])
 def download_image_from_drive(request):
     
     # Get the Google Drive URL from request data
-    image_url = request.data.get("url")
+    image_url = request.query_params.get("url")
     if not image_url:
         return Response(
             {"error": "No URL provided in request data"},
@@ -263,6 +266,16 @@ def update_currency(request, id):
             data["back_image"] = back_image_url
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    # Handle denomination update
+    if "denomination" in data:
+        try:
+            # Convert to integer if provided as string
+            if data["denomination"] is not None:
+                data["denomination"] = int(data["denomination"])
+        except ValueError:
+            return Response({"error": "Invalid denomination value. Must be 100, 200, 500, or 1000."}, 
+                            status=status.HTTP_400_BAD_REQUEST)
     
     # Update the currency
     serializer = CurrencySerializer(currency, data=data)

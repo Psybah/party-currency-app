@@ -46,7 +46,7 @@ class InitializeTransactionView(APIView):
 
         try:
             response = requests.post(
-                    f'{os.getenv('MONIFY_BASE_URL')}/merchant/transactions/init-transaction',
+                    f"{os.getenv('MONIFY_BASE_URL')}/merchant/transactions/init-transaction",
                     json=payload,
                     headers=headers
                 )
@@ -58,6 +58,10 @@ class InitializeTransactionView(APIView):
                    
                     transaction.transaction_reference = response_data['responseBody']['transactionReference']
                     transaction.save()
+                    event = Events.objects.get(event_id=transaction.event_id)
+                    event.payment_status='successful'
+                    event.delivery_status='pending'
+                    event.save()
 
             return Response(response_data, status=status.HTTP_200_OK)
 
@@ -80,6 +84,9 @@ def calculate_amount():
 @api_view(["POST"])
 def generate_transcation_ID(request):
     amount = calculate_amount()
+    event = Events.objects.get(event_id = request.data['event_id'])
+    if (event.payment_status  == 'successful' or event.payment_status  == 'Successful'):
+        return Response({'message':'event has been paid for '}, status=status.HTTP_400_BAD_REQUEST)
     transaction = Transaction.objects.create(
         amount=sum(amount.values()),    
         customer_name=f"{request.user.first_name} {request.user.last_name}",
@@ -105,6 +112,7 @@ def callback(request):
     try:
         # Get payment reference from query parameters
         payment_reference = request.query_params.get("paymentReference")
+        print(payment_reference)
         
         if not payment_reference:
             return Response({"error": "Payment reference not provided"}, status=status.HTTP_400_BAD_REQUEST)

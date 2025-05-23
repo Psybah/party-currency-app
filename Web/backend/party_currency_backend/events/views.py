@@ -105,7 +105,7 @@ def EventCreate(request):
 def EventList(request):
     try:
         events = Events.objects.filter(event_author=request.user.username)
-        serializer = EventSerializer(events, many=True)
+        serializer = EventSerializerFull(events, many=True)
         
         # Fix serialized data to ensure dates are correct
         # This is only needed if your serializer doesn't handle dates correctly
@@ -234,7 +234,7 @@ def save_currency(request):
 @permission_classes([IsAuthenticated])
 def get_currency(request):
     try:
-        event_id = request.data.get("event_id")
+        event_id = request.query_params.get("event_id")
         if not event_id:
             return Response(
                 {"error": "Missing event_id parameter"}, 
@@ -242,9 +242,9 @@ def get_currency(request):
             )
             
         event = Events.objects.get(event_id=event_id)
-        currency=Currency.objects.get(currency_id=event.currency_id)
-        serializer=CurrencySerializer(currency)
-        return Response({"message":"Currency retrieved successfully","currency":serializer.data},status=status.HTTP_200_OK)
+        currency = Currency.objects.filter(event_id=event_id)
+        serializer=CurrencySerializer(currency,many=True)
+        return Response({"message":"Currency retrieved successfully","event_id":event_id,"currency":serializer.data},status=status.HTTP_200_OK)
     except Events.DoesNotExist:
         return Response({"error":"Event not found"},status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
