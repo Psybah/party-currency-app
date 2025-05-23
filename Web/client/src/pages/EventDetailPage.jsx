@@ -104,7 +104,7 @@ export default function EventDetailPage() {
           const currencyData = await getCurrenciesByEventId(eventId);
           if (currencyData && currencyData.currency) {
             setCurrencies(currencyData.currency);
-            
+            console.log('currencyData for event', currencyData)
             const imagesMap = {};
             const downloadPromises = currencyData.currency.map(async (item) => {
               const denomination = item.denomination || '200';

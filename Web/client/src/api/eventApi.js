@@ -106,9 +106,8 @@ export async function getCurrenciesByEventId(eventId) {
   const { accessToken } = getAuth();
 
   try {
-    const response = await fetch(`${BASE_URL}/events/get-currency`, {
+    const response = await fetch(`${BASE_URL}/events/get-currency?event_id=${eventId}`, {
       method: 'GET',
-      body: JSON.stringify({ event_id: eventId }),
       headers: {
         'Authorization': `Token ${accessToken}`,
         'Content-Type': 'application/json',
