@@ -234,7 +234,7 @@ def save_currency(request):
 @permission_classes([IsAuthenticated])
 def get_currency(request):
     try:
-        event_id = request.data.get("event_id")
+        event_id = request.query_params.get("event_id")
         if not event_id:
             return Response(
                 {"error": "Missing event_id parameter"}, 
