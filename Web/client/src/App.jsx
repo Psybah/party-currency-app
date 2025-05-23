@@ -33,6 +33,7 @@ import WhyChooseUs from "./pages/WhyChooseUs";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 import GoogleAuth from "./pages/GoogleAuth";
+import MyCurrencies from "./pages/MyCurrencies";
 
 function App() {
   return (
@@ -144,6 +145,14 @@ function App() {
             element={
               <PrivateRoute userType="customer">
                 <Templates />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/my-currencies"
+            element={
+              <PrivateRoute userType="customer">
+                <MyCurrencies />
               </PrivateRoute>
             }
           />

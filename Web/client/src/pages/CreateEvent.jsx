@@ -83,6 +83,7 @@ export default function CreateEvent() {
       setEventId(data.event.event_id);
       setShowSuccessModal(true);
       toast.success("Event created successfully!");
+      navigate("/manage-event");
     } catch (error) {
       toast.error(error.message || "Failed to create event");
     } finally {

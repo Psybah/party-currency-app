@@ -6,9 +6,6 @@ import { useAuthenticated } from "../lib/hooks";
 import { LoadingDisplay } from "@/components/LoadingDisplay";
 import { Button } from "@/components/ui/button";
 import { CurrencyEditor } from "@/components/CurrencyEditor";
-import CurrencyBreakdown from "@/components/CurrencyBreakdown";
-import { TemplateHistory } from "@/components/currency/TemplateHistory";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Templates() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -79,54 +76,36 @@ export default function Templates() {
               Customize and manage your currency templates.
             </p>
 
-            <Tabs defaultValue="available" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="available">Available Templates</TabsTrigger>
-                <TabsTrigger value="saved">Saved Templates</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="available" className="space-y-6">
-                <div className="flex flex-col gap-6">
-                  {currencies.map((currency) => (
-                    <div
-                      key={currency.id}
-                      className="relative group bg-white rounded-lg shadow-md overflow-hidden"
-                    >
-                      <div className="relative">
-                        <img
-                          src={currency.image}
-                          alt={`${currency.denomination} denomination`}
-                          className="w-full h-auto"
-                        />
-                        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 via-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute bottom-4 right-4">
-                            <Button
-                              onClick={() => {
-                                setIsCustomized(true);
-                                navigate(currency.path);
-                              }}
-                              className="bg-bluePrimary hover:bg-bluePrimary/90 text-white font-medium"
-                            >
-                              Customize
-                            </Button>
-                          </div>
+            <div className="space-y-6">
+              <div className="flex flex-col gap-6">
+                {currencies.map((currency) => (
+                  <div
+                    key={currency.id}
+                    className="relative group bg-white rounded-lg shadow-md overflow-hidden"
+                  >
+                    <div className="relative">
+                      <img
+                        src={currency.image}
+                        alt={`${currency.denomination} denomination`}
+                        className="w-full h-auto"
+                      />
+                      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 via-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute bottom-4 right-4">
+                          <Button
+                            onClick={() => {
+                              navigate(currency.path);
+                            }}
+                            className="bg-bluePrimary hover:bg-bluePrimary/90 text-white font-medium"
+                          >
+                            Customize
+                          </Button>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-
-                <div className="mt-8">
-                  <CurrencyBreakdown isEnabled={isCustomized} />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="saved">
-                <div className="bg-white rounded-lg">
-                  <TemplateHistory />
-                </div>
-              </TabsContent>
-            </Tabs>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </main>
       </div>
