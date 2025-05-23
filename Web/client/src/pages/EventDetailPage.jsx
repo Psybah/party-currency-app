@@ -262,7 +262,6 @@ export default function EventDetailPage() {
                 <DetailItem icon={Calendar} label="Event Dates" value={`${format(new Date(start_date), "MMM dd, yyyy")} - ${format(new Date(end_date), "MMM dd, yyyy")}`} />
                 <DetailItem icon={Calendar} label="Created On" value={format(new Date(created_at), "MMM dd, yyyy 'at' hh:mm a")} />
                  <div>
-                    <span className="font-medium text-sm text-gray-700 flex items-center mb-1"><Info className="w-4 h-4 mr-2 text-bluePrimary"/>Status:</span>
                     <div className="flex flex-wrap gap-2 mt-1">
                         {reconciliation && <StatusPill status="Reconciled" />}
                     </div>
@@ -276,12 +275,10 @@ export default function EventDetailPage() {
                   <span className="font-semibold text-gray-700 mb-1 flex items-center"><Info className="w-4 h-4 mr-1 text-bluePrimary"/> Payment Status</span>
                   <div className="flex items-center gap-2 mb-2">
                     <StatusPill status={payment_status} />
-                    <span className="text-sm text-gray-700 font-medium">{payment_status ? payment_status.charAt(0).toUpperCase() + payment_status.slice(1) : 'N/A'}</span>
                   </div>
                   <span className="font-semibold text-gray-700 mb-1 flex items-center"><Info className="w-4 h-4 mr-1 text-bluePrimary"/> Delivery Status</span>
                   <div className="flex items-center gap-2">
                     <StatusPill status={delivery_status} />
-                    <span className="text-sm text-gray-700 font-medium">{delivery_status ? delivery_status.charAt(0).toUpperCase() + delivery_status.slice(1) : 'N/A'}</span>
                   </div>
                 </div>
                 {/* Make Payment button bottom right */}

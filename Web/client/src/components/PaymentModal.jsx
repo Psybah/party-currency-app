@@ -133,8 +133,9 @@ export default function PaymentModal({ isOpen, onClose, eventDetails, currencies
           {currencies.length > 0 ? (
             <div className="space-y-4 mb-6">
               {currencies.map(currency => (
-                <div key={currency.currency_id} className="bg-gray-50 p-4 rounded-md shadow-sm flex flex-col sm:flex-row items-center gap-4">
-                  <div className="w-full sm:w-1/3">
+                <div key={currency.currency_id} className="bg-gray-50 p-4 rounded-md shadow-sm flex flex-col sm:flex-row items-center gap-x-6 gap-y-4">
+                  {/* Image Container */}
+                  <div className="w-full sm:max-w-[160px] md:max-w-[180px] lg:max-w-[200px] flex-shrink-0">
                     {associatedImages[currency.currency_id]?.front || currency.front_image ? (
                        <CurrencyCanvas
                           templateImage={getTemplateImage(currency.denomination)}
@@ -148,23 +149,30 @@ export default function PaymentModal({ isOpen, onClose, eventDetails, currencies
                           denomination={String(currency.denomination)}
                           portraitImage={associatedImages[currency.currency_id]?.front}
                         />
-                    ) : <div className="text-center py-4 text-xs text-gray-400 italic border rounded-md h-full flex items-center justify-center">No front image</div>}
+                    ) : <div className="text-center py-4 text-xs text-gray-400 italic border rounded-md h-full flex items-center justify-center aspect-video bg-gray-200">No front image</div>}
                   </div>
-                  <div className="w-full sm:w-2/3">
-                    <p className="font-semibold text-gray-700">{currency.currency_name || 'Unnamed Currency'} - ₦{currency.denomination}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Button variant="outline" size="icon" onClick={() => handleQuantityChange(currency.currency_id, -1)} disabled={currencyQuantities[currency.currency_id] === 0}>
-                        <MinusCircle className="w-4 h-4" />
+
+                  {/* Text and Counter Container (takes remaining space) */}
+                  <div className="flex-1 w-full sm:w-auto flex flex-col sm:flex-row items-center justify-between gap-x-4 gap-y-3">
+                    {/* Text: Currency Name & Denomination */}
+                    <div className="text-center sm:text-left">
+                      <p className="font-semibold text-gray-700 text-lg">{currency.currency_name || 'Unnamed Currency'} - ₦{currency.denomination}</p>
+                    </div>
+
+                    {/* Counter Controls */}
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="icon" onClick={() => handleQuantityChange(currency.currency_id, -1)} disabled={(currencyQuantities[currency.currency_id] || 0) === 0} className="h-10 w-10">
+                        <MinusCircle className="w-5 h-5" />
                       </Button>
                       <input
                         type="number"
                         min="0"
                         value={currencyQuantities[currency.currency_id] || 0}
                         onChange={(e) => handleQuantityInputChange(currency.currency_id, e.target.value)}
-                        className="w-16 text-center border-gray-300 rounded-md shadow-sm focus:border-bluePrimary focus:ring-bluePrimary"
+                        className="w-20 h-10 text-center border-gray-300 rounded-md shadow-sm focus:border-bluePrimary focus:ring-bluePrimary text-lg"
                       />
-                      <Button variant="outline" size="icon" onClick={() => handleQuantityChange(currency.currency_id, 1)}>
-                        <PlusCircle className="w-4 h-4" />
+                      <Button variant="outline" size="icon" onClick={() => handleQuantityChange(currency.currency_id, 1)} className="h-10 w-10">
+                        <PlusCircle className="w-5 h-5" />
                       </Button>
                     </div>
                   </div>
