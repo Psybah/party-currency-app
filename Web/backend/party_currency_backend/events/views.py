@@ -242,9 +242,9 @@ def get_currency(request):
             )
             
         event = Events.objects.get(event_id=event_id)
-        currency=Currency.objects.get(currency_id=event.currency_id)
-        serializer=CurrencySerializer(currency)
-        return Response({"message":"Currency retrieved successfully","currency":serializer.data},status=status.HTTP_200_OK)
+        currency = Currency.objects.filter(event_id=event_id)
+        serializer=CurrencySerializer(currency,many=True)
+        return Response({"message":"Currency retrieved successfully","event_id":event_id,"currency":serializer.data},status=status.HTTP_200_OK)
     except Events.DoesNotExist:
         return Response({"error":"Event not found"},status=status.HTTP_404_NOT_FOUND)
     except Exception as e:

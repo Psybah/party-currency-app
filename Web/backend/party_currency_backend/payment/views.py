@@ -58,6 +58,10 @@ class InitializeTransactionView(APIView):
                    
                     transaction.transaction_reference = response_data['responseBody']['transactionReference']
                     transaction.save()
+                    event = Events.objects.get(event_id=transaction.event_id)
+                    event.payment_status='successful'
+                    event.delivery_status='pending'
+                    event.save()
 
             return Response(response_data, status=status.HTTP_200_OK)
 

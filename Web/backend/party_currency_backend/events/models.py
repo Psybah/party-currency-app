@@ -22,8 +22,9 @@ class Events(models.Model):
     has_reserved_account = models.BooleanField(default=False)  # New field to track reserved account status
     delivery_status = models.CharField(
         max_length=50,
-        default='pending',
+        default='pending payment',
         choices=[
+            ('pending payment','pending payment')
             ('pending', 'Pending'),
             ('delivered', 'Delivered'),
             ('cancelled', 'Cancelled')
