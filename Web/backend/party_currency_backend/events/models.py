@@ -24,7 +24,7 @@ class Events(models.Model):
         max_length=50,
         default='pending payment',
         choices=[
-            ('pending payment','pending payment')
+            ('pending payment','pending payment'),
             ('pending', 'Pending'),
             ('delivered', 'Delivered'),
             ('cancelled', 'Cancelled')
