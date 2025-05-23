@@ -9,15 +9,12 @@ import { getAuth } from '@/lib/util';
 
 export const getDriveImage = async (driveUrl) => {
   try {
-    const formData = new FormData();
-    formData.append('url', driveUrl);
-
-    const response = await fetch(`${BASE_URL}/currencies/download-image`, {
-      method: 'POST',
+    const encodedUrl = encodeURIComponent(driveUrl);
+    const response = await fetch(`${BASE_URL}/currencies/download-image?url=${encodedUrl}`, {
+      method: 'GET',
       headers: {
         'Authorization': `Token ${getAuth().accessToken}`,
       },
-      body: formData,
     });
 
     if (!response.ok) {

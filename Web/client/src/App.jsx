@@ -33,6 +33,8 @@ import WhyChooseUs from "./pages/WhyChooseUs";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 import GoogleAuth from "./pages/GoogleAuth";
+import MyCurrencies from "./pages/MyCurrencies";
+import EventDetailPage from "./pages/EventDetailPage";
 
 function App() {
   return (
@@ -140,10 +142,26 @@ function App() {
             }
           />
           <Route
+            path="/event/:eventId"
+            element={
+              <PrivateRoute userType="customer">
+                <EventDetailPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/templates"
             element={
               <PrivateRoute userType="customer">
                 <Templates />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/my-currencies"
+            element={
+              <PrivateRoute userType="customer">
+                <MyCurrencies />
               </PrivateRoute>
             }
           />

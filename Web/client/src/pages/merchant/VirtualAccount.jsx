@@ -27,7 +27,7 @@ import {
   deleteVirtualAccount,
   fetchTransactions,
 } from "@/api/merchantApi";
-import { getEventByEventId } from "@/api/eventApi";
+import { getEventById } from "@/api/eventApi";
 
 export default function VirtualAccount() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -51,7 +51,7 @@ export default function VirtualAccount() {
         setAccountReference(accountData.account_reference);
         // Fetch event details using account reference
         if (accountData.account_reference) {
-          const eventData = await getEventByEventId(accountData.account_reference);
+          const eventData = await getEventById(accountData.account_reference);
           setEventDetails(eventData);
         }
       }

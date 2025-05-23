@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { LogOut, PanelRightOpen, PanelLeftOpen, X } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { LogOut, PanelRightOpen, PanelLeftOpen, X, Coins, Palette } from "lucide-react";
 import { USER_PROFILE_CONTEXT } from "@/context";
 import { deleteAuth } from "@/lib/util";
 import SidebarLogo from "./sidebar/SidebarLogo";

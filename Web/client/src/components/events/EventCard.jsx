@@ -1,7 +1,17 @@
-import React from "react";
-import { Calendar, MapPin, Clock, CreditCard, Truck, CheckCircle2, Copy, Check } from "lucide-react";
+import React, { useState } from "react";
+import {
+  Calendar,
+  MapPin,
+  Clock,
+  CreditCard,
+  Truck,
+  CheckCircle2,
+  Copy,
+  Check,
+} from "lucide-react";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Added for navigation
+import { useEffect } from "react";
 
 const StatusBadge = ({ status, type }) => {
   const getStatusColor = (status) => {
@@ -18,8 +28,16 @@ const StatusBadge = ({ status, type }) => {
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(status)}`}>
-      {type === "payment" ? <CreditCard className="w-3 h-3 mr-1" /> : <Truck className="w-3 h-3 mr-1" />}
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+        status
+      )}`}
+    >
+      {type === "payment" ? (
+        <CreditCard className="w-3 h-3 mr-1" />
+      ) : (
+        <Truck className="w-3 h-3 mr-1" />
+      )}
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
   );
@@ -27,29 +45,34 @@ const StatusBadge = ({ status, type }) => {
 
 export default function EventCard({ event }) {
   const [copied, setCopied] = useState(false);
-
+  const navigate = useNavigate(); // Added for navigation
+useEffect(()=>{
+  console.log('event', event)
+},[])
   const formatDate = (dateString) => {
     return format(new Date(dateString), "MMM dd, yyyy");
   };
 
   const handleCopyId = async () => {
     try {
-      await navigator.clipboard.writeText(event.id);
+      await navigator.clipboard.writeText(event.event_id);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.error("Failed to copy text: ", err);
     }
   };
 
   return (
-    <div className="bg-[#FFFBF5] rounded-lg shadow-sm p-6 mb-4 hover:bg-[#FFF9F0] transition-colors duration-200">
-      <div className="flex justify-between items-start">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold text-gray-900">{event.name}</h3>
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-100 rounded-md">
-              <span className="text-xs font-mono text-gray-600">ID: {event.id}</span>
+    <div className="bg-[#FFFBF5] rounded-lg shadow-sm p-4 sm:p-6 mb-4 hover:bg-[#FFF9F0] transition-colors duration-200">
+      {/* Header: Name, ID, Status */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+        {/* Name, ID, Description */}
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <h3 className="text-lg font-semibold text-gray-900 break-words">{event.name}</h3>
+            <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-100 rounded-md w-fit">
+              <span className="text-xs font-mono text-gray-600 truncate">ID: {event.event_id}</span>
               <button
                 onClick={handleCopyId}
                 className="p-1 hover:bg-gray-200 rounded transition-colors duration-200"
@@ -63,46 +86,58 @@ export default function EventCard({ event }) {
               </button>
             </div>
           </div>
-          <p className="text-sm text-gray-600">{event.description}</p>
+          <p className="text-sm text-gray-600 mt-1 break-words">{event.description}</p>
         </div>
-        <div className="flex gap-2">
+        {/* Status Badges */}
+        <div className="flex flex-row sm:flex-col gap-2 mt-2 sm:mt-0">
           <StatusBadge status={event.status.payment} type="payment" />
           <StatusBadge status={event.status.delivery} type="delivery" />
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-3">
-          <div className="flex items-center text-sm text-gray-600">
-            <MapPin className="w-4 h-4 mr-2" />
+      {/* Details Section */}
+      <div className="mt-4 flex flex-col md:flex-row gap-4">
+        {/* Info */}
+        <div className="space-y-3 flex-1">
+          <div className="flex items-center text-sm text-gray-600 break-words">
+            <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
             <span>
               {event.location.street}, {event.location.city}, {event.location.state} {event.location.postalCode}
             </span>
           </div>
           <div className="flex items-center text-sm text-gray-600">
-            <Calendar className="w-4 h-4 mr-2" />
+            <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
             <span>
               {formatDate(event.dates.start)} - {formatDate(event.dates.end)}
             </span>
           </div>
           <div className="flex items-center text-sm text-gray-600">
-            <Clock className="w-4 h-4 mr-2" />
+            <Clock className="w-4 h-4 mr-2 flex-shrink-0" />
             <span>Created: {formatDate(event.dates.created)}</span>
           </div>
         </div>
 
-        <div className="flex items-center justify-end space-x-4">
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row md:flex-col gap-2 md:items-end sm:items-center items-stretch w-full md:w-auto">
           {event.reconciliation && (
             <div className="flex items-center text-sm text-green-600">
               <CheckCircle2 className="w-4 h-4 mr-1" />
               <span>Reconciled</span>
             </div>
           )}
+          {event.status.payment === "pending" && (
+            <button
+              onClick={() => navigate(`/event/${event.event_id}?action=pay`)}
+              className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-bluePrimary rounded-md hover:bg-bluePrimary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bluePrimary"
+            >
+              Make Payment
+            </button>
+          )}
           <button
-            onClick={() => window.location.href = `/events/${event.id}`}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            onClick={() => navigate(`/event/${event.event_id}`)} // Updated navigation
+            className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-bluePrimary rounded-md hover:bg-bluePrimary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bluePrimary"
           >
-            View Details
+            View Details 
           </button>
         </div>
       </div>

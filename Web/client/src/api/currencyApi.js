@@ -16,9 +16,6 @@ import { getAuth } from '@/lib/util';
  */
 export async function saveCurrency(currencyData) {
   const { accessToken } = getAuth();
-  if (!accessToken) {
-    throw new Error('Authentication required');
-  }
 
   const formData = new FormData();
   
@@ -108,9 +105,6 @@ export async function getAllCurrencies() {
  */
 export async function getCurrencyById(currencyId) {
   const { accessToken } = getAuth();
-  if (!accessToken) {
-    throw new Error('Authentication required');
-  }
 
   try {
     const response = await fetch(`${BASE_URL}/currencies/get-currency/?currency_id=${currencyId}`, {
@@ -178,9 +172,6 @@ export async function updateCurrency(currencyId, formData) {
  */
 export async function deleteCurrency(currencyId) {
   const { accessToken } = getAuth();
-  if (!accessToken) {
-    throw new Error('Authentication required');
-  }
 
   try {
     const response = await fetch(`${BASE_URL}/currencies/delete-currency/${currencyId}`, {

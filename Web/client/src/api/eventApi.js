@@ -42,7 +42,7 @@ export async function createEventApi(body) {
  * @returns {Promise<Object>} - Event data
  * @throws {Error} If request fails
  */
-export async function getEventByEventId(eventId) {
+export async function getEventById(eventId) {
   const url = new URL(`events/get/${eventId}`, BASE_URL);
   const { accessToken } = getAuth();
   
@@ -98,6 +98,29 @@ export async function getEvents() {
     return data;
   } catch (error) {
     console.error("Error in getEvents:", error); // Debug log
+    throw error;
+  }
+}
+
+export async function getCurrenciesByEventId(eventId) {
+  const { accessToken } = getAuth();
+
+  try {
+    const response = await fetch(`${BASE_URL}/events/get-currency?event_id=${eventId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Token ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch currencies');
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Error fetching currencies:', error);
     throw error;
   }
 }

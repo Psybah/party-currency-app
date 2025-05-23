@@ -53,7 +53,7 @@ export default function ManageEvent() {
       console.log({ events_fetched });
       events_fetched = events_fetched.events.map((event) => {
         return {
-          id: event.event_id,
+          event_id: event.event_id,
           name: event.event_name,
           description: event.event_description,
           location: {
@@ -68,7 +68,7 @@ export default function ManageEvent() {
             created: event.created_at
           },
           status: {
-            payment: event.payment_status?.toLowerCase() || "pending",
+            payment: event.payment_status?.toLowerCase() || "unpaid",
             delivery: event.delivery_status?.toLowerCase() || "pending"
           },
           reconciliation: event.reconciliation || false,
