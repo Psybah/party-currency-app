@@ -84,6 +84,9 @@ def calculate_amount():
 @api_view(["POST"])
 def generate_transcation_ID(request):
     amount = calculate_amount()
+    event = Events.objects.get(event_id = request.data['event_id'])
+    if (event.payment_status  == 'successful' or event.payment_status  == 'Successful'):
+        return Response({'message':'event has been paid for '}, status=status.HTTP_400_BAD_REQUEST)
     transaction = Transaction.objects.create(
         amount=sum(amount.values()),    
         customer_name=f"{request.user.first_name} {request.user.last_name}",
