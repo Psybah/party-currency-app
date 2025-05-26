@@ -201,7 +201,6 @@ def get_admin_statistics(request):
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=500)
 
- Event.objects.filter(delivery_status='pending')
 
 # NEW PAGINATED EVENTS VIEW
 @api_view(['GET'])
