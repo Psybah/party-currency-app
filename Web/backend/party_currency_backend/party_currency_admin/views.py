@@ -201,6 +201,7 @@ def get_admin_statistics(request):
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=500)
 
+ Event.objects.filter(delivery_status='pending')
 
 # NEW PAGINATED EVENTS VIEW
 @api_view(['GET'])
@@ -287,6 +288,90 @@ def get_events(request):
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=500)
 
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_pending_events(request):
+    if not request.user.is_superuser:
+        return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
+    
+    try:
+        # Get query parameters
+        page = request.GET.get('page', 1)
+        page_size = request.GET.get('page_size', 10)  # Default to 10 events per page
+        search = request.GET.get('search', '')
+        sort_by = request.GET.get('sort_by', '-created_at')  # Default sort by newest first
+        
+        # Convert to integers
+        try:
+            page = int(page)
+            page_size = int(page_size)
+        except ValueError:
+            return Response({'error': 'Invalid page or page_size parameter'}, status=400)
+        
+        # Limit page_size to prevent abuse
+        if page_size > 100:
+            page_size = 100
+        
+        # Start with all events
+        events_queryset = Event.objects.filter(delivery_status='pending')
+
+        
+        # Apply search filter if provided
+        if search:
+            events_queryset = events_queryset.filter(
+                Q(title__icontains=search) |
+                Q(description__icontains=search) |
+                Q(location__icontains=search)
+            )
+        
+        # Apply sorting
+        valid_sort_fields = ['created_at', '-created_at', 'title', '-title', 'date', '-date']
+        if sort_by in valid_sort_fields:
+            events_queryset = events_queryset.order_by(sort_by)
+        else:
+            events_queryset = events_queryset.order_by('-created_at')
+        
+        # Create paginator
+        paginator = Paginator(events_queryset, page_size)
+        total_pages = paginator.num_pages
+        total_count = paginator.count
+        
+        try:
+            events_page = paginator.page(page)
+        except PageNotAnInteger:
+            events_page = paginator.page(1)
+            page = 1
+        except EmptyPage:
+            events_page = paginator.page(paginator.num_pages)
+            page = paginator.num_pages
+        
+        # Serialize the events
+        serializer = EventSerializerFull(events_page, many=True)
+        
+        # Prepare response data
+        response_data = {
+            'events': serializer.data,
+            'pagination': {
+                'current_page': page,
+                'page_size': page_size,
+                'total_pages': total_pages,
+                'total_count': total_count,
+                'has_next': events_page.has_next(),
+                'has_previous': events_page.has_previous(),
+                'next_page': page + 1 if events_page.has_next() else None,
+                'previous_page': page - 1 if events_page.has_previous() else None,
+            },
+            'filters': {
+                'search': search,
+                'sort_by': sort_by
+            }
+        }
+        
+        return Response(response_data, status=200)
+        
+    except Exception as e:
+        return Response({'error': f'An error occurred: {str(e)}'}, status=500)
 
 # ALTERNATIVE: Offset-based pagination (if you prefer this approach)
 @api_view(['GET'])
@@ -309,7 +394,6 @@ def get_events_offset(request):
         
         # Start with all events
         events_queryset = Event.objects.all()
-        
         # Apply search filter if provided
         if search:
             events_queryset = events_queryset.filter(
@@ -357,3 +441,8 @@ def get_events_offset(request):
         
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=500)
+
+
+
+
+
