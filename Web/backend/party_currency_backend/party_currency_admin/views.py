@@ -6,7 +6,7 @@ from payment.models import Transaction
 from events.models import Events as Event
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from events.serisalizers import EventSerializerFull
+from events.serializers import EventSerializerFull
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 import math
