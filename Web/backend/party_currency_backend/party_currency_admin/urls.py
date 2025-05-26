@@ -9,6 +9,6 @@ urlpatterns = [
     path('get-admin-statistics', get_admin_statistics, name='get_admin_statistics'),
     path('get-events', get_events, name='get_events'),
     path('get-events-offset', get_events_offset, name='get_events_offset'),
-
 ]
+
 
