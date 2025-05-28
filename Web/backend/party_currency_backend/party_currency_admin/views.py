@@ -10,6 +10,7 @@ from events.serializers import EventSerializerFull
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 import math
+from authentication.serializers import UserSerializer2
 
 # Your existing views remain the same...
 
@@ -445,3 +446,49 @@ def get_events_offset(request):
 
 
 
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_user(request):
+        email =request.GET.get('email',None)
+        if not request.user.is_superuser:
+        
+            return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
+        if email is None:
+            return Response({'error': 'Email parameter is required.'}, status=400)
+
+        try :
+            user=CustomUser.objects.get(email=request.GET.get('email',None))
+            serializer = UserSerializer2(user)
+            
+            return Response({"message":"success","user":serializer.data},status=200)
+
+
+        except Exception as e:
+            return Response ({"message":"user not found","details":e.args},status=400)
+
+    
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def change_event_status(request):
+    statuses = ['pending','delivered','cancelled','pending payment']
+    if not request.user.is_superuser:
+        return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
+    
+    try:
+        event_id = request.data.get('event_id')
+        new_status = request.data.get('new_status')
+        if new_status not in statuses:
+            return Response({'error': 'Invalid status'}, status=400)
+        
+        event = Event.objects.get(event_id=event_id)
+        event.delivery_status = new_status
+        event.save()
+        
+        return Response({'message': 'Event status updated successfully'}, status=200)
+    
+    
+    except Exception as e:
+        return Response({'error': f'An error occurred: {str(e)}'}, status=500)
