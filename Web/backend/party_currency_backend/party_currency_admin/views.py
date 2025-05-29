@@ -11,7 +11,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 import math
 from authentication.serializers import UserSerializer2
-
+from payment.serializers import TransactionSerializer
 # Your existing views remain the same...
 
 @api_view(['GET'])
@@ -492,3 +492,38 @@ def change_event_status(request):
     
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=500)
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_event_transaction(request):
+    if not request.user.is_superuser:
+        return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
+    
+    try:
+        event_id = request.GET.get('event_id')
+        event = Event.objects.get(event_id=event_id)
+        transaction = Transaction.objects.get(event_id=event_id)
+        serializer = TransactionSerializer(transaction)
+        return Response({'message': 'Event transaction retrieved successfully', 'transaction': serializer.data}, status=200)
+    
+    except Exception as e:
+        return Response({'error': f'An error occurred: {str(e)}'}, status=500)
+    
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_all_successful_transactions(request):
+    if not request.user.is_superuser:
+        return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
+    
+    try:
+        page = request.GET.get('page', 1)
+        page_size = request.GET.get('page_size', 10)
+        transactions = Transaction.objects.filter(status='successful')
+        serializer = TransactionSerializer(transactions, many=True)
+        return Response({'message': 'All successful transactions retrieved successfully', 'transactions': serializer.data}, status=200)
+    
+    except Exception as e:
+        return Response({'error': f'An error occurred: {str(e)}'}, status=500)
+    

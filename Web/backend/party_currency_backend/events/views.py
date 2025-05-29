@@ -17,7 +17,8 @@ from django.core.files.base import ContentFile
 import random
 import string
 from currencies.serializers import CurrencySerializer
-
+from payment.serializers import TransactionSerializer
+from payment.models import Transaction
 # Create your views here.
 
 def generate_short_event_id(username):
@@ -249,3 +250,19 @@ def get_currency(request):
         return Response({"error":"Event not found"},status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({"error":f"Failed to retrieve currency: {str(e)}"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_event_transaction(request):
+    try:
+        event_id = request.GET.get('event_id')
+        event = Events.objects.get(event_id=event_id)
+        if not event.event_author == request.user.username:
+            return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
+        transaction = Transaction.objects.get(event_id=event_id)
+        serializer = TransactionSerializer(transaction)
+        return Response({'message': 'Event transaction retrieved successfully', 'transaction': serializer.data}, status=200)
+    except Exception as e:
+        return Response({'error': f'An error occurred: {str(e)}'}, status=500)
+    
+                
