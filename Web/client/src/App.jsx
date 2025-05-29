@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { ContextWrapper } from "./context";
 import { Toaster } from "react-hot-toast";
 import Home from "./pages/Home";
@@ -26,8 +31,9 @@ import MerchantSettings from "./pages/merchant/Settings";
 import VirtualAccount from "./pages/merchant/VirtualAccount";
 import AdminDashboard from "./pages/admin/Dashboard";
 import UserManagement from "./pages/admin/UserManagement";
+import EventManagement from "./pages/admin/EventManagement";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
-import { AdminRouteGuard } from '@/components/AdminRouteGuard';
+import { AdminRouteGuard } from "@/components/AdminRouteGuard";
 import FAQ from "./pages/FAQ";
 import WhyChooseUs from "./pages/WhyChooseUs";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
@@ -55,7 +61,10 @@ function App() {
 
           {/* Feature Pages */}
           <Route path="/custom-currency" element={<CustomCurrency />} />
-          <Route path="/reconciliation-service" element={<ReconciliationService />} />
+          <Route
+            path="/reconciliation-service"
+            element={<ReconciliationService />}
+          />
           <Route path="/vendor-kiosk-system" element={<VendorKiosk />} />
           <Route path="/foot-soldiers" element={<FootSoldiers />} />
 
@@ -72,9 +81,16 @@ function App() {
               <AdminRouteGuard>
                 <AdminProtectedRoute>
                   <Routes>
-                    <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+                    <Route
+                      path="/"
+                      element={<Navigate to="/admin/dashboard" replace />}
+                    />
                     <Route path="dashboard" element={<AdminDashboard />} />
-                    <Route path="user-management" element={<UserManagement />} />
+                    <Route
+                      path="user-management"
+                      element={<UserManagement />}
+                    />
+                    <Route path="events" element={<EventManagement />} />
                   </Routes>
                 </AdminProtectedRoute>
               </AdminRouteGuard>
@@ -90,7 +106,7 @@ function App() {
               </PrivateRoute>
             }
           />
-          
+
           <Route
             path="/merchant/transactions"
             element={

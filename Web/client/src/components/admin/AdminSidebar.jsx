@@ -1,8 +1,16 @@
-import React, { useState, useContext } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, LogOut, PanelRightOpen, PanelLeftOpen, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import SidebarLogo from '../sidebar/SidebarLogo';
+import React, { useState, useContext } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Users,
+  LogOut,
+  PanelRightOpen,
+  PanelLeftOpen,
+  X,
+  Calendar,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import SidebarLogo from "../sidebar/SidebarLogo";
 import { USER_PROFILE_CONTEXT } from "@/context";
 import { deleteAuth, clearAllAuth } from "@/lib/util";
 
@@ -14,9 +22,11 @@ export function AdminSidebar({ isOpen, onClose }) {
 
   const handleCollapse = (collapsed) => {
     setIsCollapsed(collapsed);
-    window.dispatchEvent(new CustomEvent('sidebarStateChange', { 
-      detail: { isCollapsed: collapsed } 
-    }));
+    window.dispatchEvent(
+      new CustomEvent("sidebarStateChange", {
+        detail: { isCollapsed: collapsed },
+      })
+    );
   };
 
   const handleLogout = () => {
@@ -25,8 +35,8 @@ export function AdminSidebar({ isOpen, onClose }) {
     // Clear user profile
     setUserProfile(null);
     // Clear any stored tokens
-    localStorage.removeItem('resetToken');
-    localStorage.removeItem('userType');
+    localStorage.removeItem("resetToken");
+    localStorage.removeItem("userType");
     // Force a page reload to clear any cached states
     window.location.href = "/";
   };
@@ -35,12 +45,17 @@ export function AdminSidebar({ isOpen, onClose }) {
     {
       path: "/admin/dashboard",
       icon: <LayoutDashboard className="w-5 h-5 min-w-[20px]" />,
-      label: "Dashboard"
+      label: "Dashboard",
     },
     {
       path: "/admin/user-management",
       icon: <Users className="w-5 h-5 min-w-[20px]" />,
-      label: "User Management"
+      label: "User Management",
+    },
+    {
+      path: "/admin/events",
+      icon: <Calendar className="w-5 h-5 min-w-[20px]" />,
+      label: "Events",
     },
   ];
 
