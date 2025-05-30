@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Copy,
   Check,
+  User,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -110,6 +111,12 @@ export default function EventCard({ event, type = "admin" }) {
               {event.postal_code}
             </span>
           </div>
+          {/* {type === "admin" && (
+            <div className="flex items-center text-sm text-gray-600 break-words">
+              <User className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span>Author: {event.event_author}</span>
+            </div>
+          )} */}
           <div className="flex items-center text-sm text-gray-600">
             <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
             <span>

@@ -194,6 +194,38 @@ const adminApi = {
       throw error.response?.data || error.message;
     }
   },
+
+  /**
+   * Fetches a user by their email address
+   * @param {string} email - The email address of the user to fetch
+   * @returns {Promise<{
+   *   message: string,
+   *   user: {
+   *     email: string,
+   *     first_name: string,
+   *     last_name: string,
+   *     phone_number: string,
+   *     type: string
+   *   }
+   * }>} The user data and success message
+   * @throws {Error} If the request fails
+   */
+  getUserByEmail: async (email) => {
+    try {
+      const { accessToken } = getAuth();
+      const response = await axios.get(`${BASE_URL}/admin/get-user`, {
+        params: { email },
+        headers: {
+          Authorization: `Token ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user by email:", error);
+      throw error.response?.data || error.message;
+    }
+  },
 };
 
 export default adminApi;

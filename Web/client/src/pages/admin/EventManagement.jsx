@@ -11,6 +11,10 @@ import {
   Package,
   ChevronLeft,
   ChevronRight,
+  User,
+  Phone,
+  Mail,
+  UserCircle,
 } from "lucide-react";
 import {
   Select,
@@ -19,6 +23,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import adminApi from "@/api/adminApi";
 import { cn } from "@/lib/utils";
 import { toast } from "react-hot-toast";
@@ -45,6 +56,14 @@ export default function EventManagement() {
   // State for delivery status changes
   const [selectedStatuses, setSelectedStatuses] = useState({});
   const [showUpdateButtons, setShowUpdateButtons] = useState({});
+
+  // State for user info dialog
+  const [userInfoDialog, setUserInfoDialog] = useState({
+    open: false,
+    loading: false,
+    user: null,
+    error: null,
+  });
 
   // Delivery status options
   const deliveryStatusOptions = [
@@ -158,6 +177,42 @@ export default function EventManagement() {
     }
   };
 
+  // Handle user info dialog
+  const handleViewUserInfo = async (userEmail) => {
+    setUserInfoDialog({
+      open: true,
+      loading: true,
+      user: null,
+      error: null,
+    });
+
+    try {
+      const response = await adminApi.getUserByEmail(userEmail);
+      setUserInfoDialog({
+        open: true,
+        loading: false,
+        user: response.user,
+        error: null,
+      });
+    } catch (error) {
+      setUserInfoDialog({
+        open: true,
+        loading: false,
+        user: null,
+        error: error.message || "Failed to fetch user information",
+      });
+    }
+  };
+
+  const closeUserInfoDialog = () => {
+    setUserInfoDialog({
+      open: false,
+      loading: false,
+      user: null,
+      error: null,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar
@@ -259,91 +314,128 @@ export default function EventManagement() {
                   <EventCard event={event} />
 
                   {/* Admin Controls for Delivery Status */}
-                  <Card className="p-4 bg-gold/30 border-gold rounded-b-lg rounded-t-none">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-700">
-                          Current Status:
-                        </span>
-                        <span
-                          className={cn(
-                            "px-2 py-1 rounded-full text-xs font-bold",
-                            event.delivery_status.includes("delivered") &&
-                              "bg-green-100 text-green-800",
-                            event.delivery_status.includes("in_transit") &&
-                              "bg-blue-100 text-blue-800",
-                            event.delivery_status.includes("processing") &&
-                              "bg-yellow-100 text-yellow-800",
-                            event.delivery_status.includes("pending") &&
-                              "bg-gray-300 text-gray-800",
-                            event.delivery_status.includes("cancelled") &&
-                              "bg-red-100 text-red-800",
-                            event.delivery_status.includes("on_hold") &&
-                              "bg-orange-100 text-orange-800"
-                          )}
+                  <Card className="p-3 sm:p-4 bg-gold/30 border-gold rounded-b-lg rounded-t-none">
+                    <div className="flex flex-col gap-3">
+                      {/* User Info Section */}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <UserCircle className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                          <span className="text-xs sm:text-sm font-medium text-gray-700">
+                            Author:
+                          </span>
+                          <span className="text-xs sm:text-sm text-gray-900 truncate">
+                            {event.event_author}
+                          </span>
+                        </div>
+                        <Button
+                          onClick={() => handleViewUserInfo(event.event_author)}
+                          variant="outline"
+                          size="sm"
+                          className="text-xs h-8 px-2 sm:px-3 flex-shrink-0"
                         >
-                          {deliveryStatusOptions.find(
-                            (opt) => opt.value === event.delivery_status
-                          )?.label || event.delivery_status}
-                        </span>
+                          <User className="w-3 h-3 mr-1" />
+                          <span className="hidden sm:inline">User Info</span>
+                          <span className="sm:hidden">User Info</span>
+                        </Button>
                       </div>
 
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-700">
-                            Change to:
-                          </span>
-                          <Select
-                            value={
-                              selectedStatuses[event.event_id] ||
-                              event.delivery_status
-                            }
-                            onValueChange={(value) =>
-                              handleStatusSelection(
-                                event.event_id,
-                                value,
-                                event.delivery_status
-                              )
-                            }
-                          >
-                            <SelectTrigger className="w-40">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {deliveryStatusOptions.map((option) => (
-                                <SelectItem
-                                  key={option.value}
-                                  value={option.value}
-                                >
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                      {/* Delivery Status Section */}
+                      <div className="flex flex-col gap-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs sm:text-sm font-medium text-gray-700">
+                              Status:
+                            </span>
+                            <span
+                              className={cn(
+                                "px-2 py-1 rounded-full text-xs font-bold",
+                                event.delivery_status.includes("delivered") &&
+                                  "bg-green-100 text-green-800",
+                                event.delivery_status.includes("in_transit") &&
+                                  "bg-blue-100 text-blue-800",
+                                event.delivery_status.includes("processing") &&
+                                  "bg-yellow-100 text-yellow-800",
+                                event.delivery_status.includes("pending") &&
+                                  "bg-gray-300 text-gray-800",
+                                event.delivery_status.includes("cancelled") &&
+                                  "bg-red-100 text-red-800",
+                                event.delivery_status.includes("on_hold") &&
+                                  "bg-orange-100 text-orange-800"
+                              )}
+                            >
+                              {deliveryStatusOptions.find(
+                                (opt) => opt.value === event.delivery_status
+                              )?.label || event.delivery_status}
+                            </span>
+                          </div>
                         </div>
 
-                        {showUpdateButtons[event.event_id] && (
-                          <Button
-                            onClick={() =>
-                              handleStatusUpdate(
-                                event.event_id,
-                                selectedStatuses[event.event_id]
-                              )
-                            }
-                            disabled={updatingStatus}
-                            size="sm"
-                            className="bg-bluePrimary hover:bg-bluePrimary/90"
-                          >
-                            {updatingStatus ? (
-                              <>
-                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
-                                Updating...
-                              </>
-                            ) : (
-                              "Update Status"
-                            )}
-                          </Button>
-                        )}
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs sm:text-sm font-medium text-gray-700 flex-shrink-0">
+                              Change to:
+                            </span>
+                            <Select
+                              value={
+                                selectedStatuses[event.event_id] ||
+                                event.delivery_status
+                              }
+                              onValueChange={(value) =>
+                                handleStatusSelection(
+                                  event.event_id,
+                                  value,
+                                  event.delivery_status
+                                )
+                              }
+                            >
+                              <SelectTrigger className="w-32 sm:w-40 h-8 text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {deliveryStatusOptions.map((option) => (
+                                  <SelectItem
+                                    key={option.value}
+                                    value={option.value}
+                                    className="text-xs"
+                                  >
+                                    {option.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {showUpdateButtons[event.event_id] && (
+                            <Button
+                              onClick={() =>
+                                handleStatusUpdate(
+                                  event.event_id,
+                                  selectedStatuses[event.event_id]
+                                )
+                              }
+                              disabled={updatingStatus}
+                              size="sm"
+                              className="bg-bluePrimary hover:bg-bluePrimary/90 h-8 px-2 sm:px-3 text-xs"
+                            >
+                              {updatingStatus ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1 text-white"></div>
+                                  <span className="hidden sm:inline">
+                                    Updating...
+                                  </span>
+                                  <span className="sm:hidden">...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="hidden sm:inline text-white">
+                                    Update Status
+                                  </span>
+                                  <span className="sm:hidden">Update</span>
+                                </>
+                              )}
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </Card>
@@ -429,6 +521,114 @@ export default function EventManagement() {
           )}
         </main>
       </div>
+
+      {/* User Info Dialog */}
+      <Dialog open={userInfoDialog.open} onOpenChange={closeUserInfoDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserCircle className="w-5 h-5" />
+              User Information
+            </DialogTitle>
+            <DialogDescription>
+              Contact details for the event author
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {userInfoDialog.loading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <span className="ml-3 text-gray-600">Loading user data...</span>
+              </div>
+            ) : userInfoDialog.error ? (
+              <div className="text-center py-8">
+                <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                <p className="text-red-600 font-medium">Error</p>
+                <p className="text-gray-600 text-sm">{userInfoDialog.error}</p>
+              </div>
+            ) : userInfoDialog.user ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <Mail className="w-4 h-4 text-gray-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Email</p>
+                    <p className="text-sm text-gray-900">
+                      {userInfoDialog.user.email}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <User className="w-4 h-4 text-gray-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">
+                      Full Name
+                    </p>
+                    <p className="text-sm text-gray-900">
+                      {userInfoDialog.user.first_name}{" "}
+                      {userInfoDialog.user.last_name}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <Phone className="w-4 h-4 text-gray-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">
+                      Phone Number
+                    </p>
+                    <p className="text-sm text-gray-900">
+                      {userInfoDialog.user.phone_number || "Not provided"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <UserCircle className="w-4 h-4 text-gray-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">
+                      User Type
+                    </p>
+                    <p className="text-sm text-gray-900 capitalize">
+                      {userInfoDialog.user.type || "Standard"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t">
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() =>
+                        window.open(`mailto:${userInfoDialog.user.email}`)
+                      }
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                    >
+                      <Mail className="w-3 h-3 mr-1" />
+                      Send Email
+                    </Button>
+                    {userInfoDialog.user.phone_number && (
+                      <Button
+                        onClick={() =>
+                          window.open(`tel:${userInfoDialog.user.phone_number}`)
+                        }
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                      >
+                        <Phone className="w-3 h-3 mr-1" />
+                        Call
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
