@@ -256,19 +256,6 @@ export function CelebrantSignupForm() {
         </form>
       </Form>
 
-      {/* Debug error display (can be removed in production) */}
-      {/* {(Object.keys(form.formState.errors).length > 0 ||
-        Object.keys(serverErrors).length > 0) && (
-        <div className="bg-red-50 mt-4 p-3 border border-red-300 rounded text-red-600">
-          <h4 className="font-bold">Form Validation Errors:</h4>
-          {Object.entries(form.formState.errors).map(([key, error]) => (
-            <p key={`form-${key}`}>
-              <strong>{key}</strong>: {error.message}
-            </p>
-          ))}
-        </div>
-      )} */}
-
       <SocialAuthButtons />
       <TermsAndConditions />
     </>
