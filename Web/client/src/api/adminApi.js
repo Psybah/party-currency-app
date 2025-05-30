@@ -4,6 +4,23 @@ import { BASE_URL } from "@/config";
 
 const adminApi = {
   // Get admin dashboard statistics
+  /**
+   * Fetches admin dashboard statistics
+   * @returns {Promise<{
+   *   total_active_users: number,
+   *   new_active_users_this_week: number,
+   *   new_active_users_previous_week: number,
+   *   percentage_increase: number,
+   *   total_completed_transactions: number,
+   *   total_pending_transactions: number,
+   *   transactions_this_week: number,
+   *   percentage_increase_transactions: number,
+   *   total_events: number,
+   *   events_this_week: number,
+   *   percentage_increase_events: number
+   * }>} Admin statistics data
+   * @throws {Error} If the request fails
+   */
   getAdminStatistics: async () => {
     try {
       const { accessToken } = getAuth();
@@ -180,7 +197,7 @@ const adminApi = {
       const { accessToken } = getAuth();
       const response = await axios.post(
         `${BASE_URL}/admin/change-event-status`,
-        { event_id: eventId, delivery_status: deliveryStatus },
+        { event_id: eventId, new_status: deliveryStatus },
         {
           headers: {
             Authorization: `Token ${accessToken}`,
@@ -223,6 +240,43 @@ const adminApi = {
       return response.data;
     } catch (error) {
       console.error("Error fetching user by email:", error);
+      throw error.response?.data || error.message;
+    }
+  },
+  /**
+   * Fetches all transactions from the admin API
+   * @returns {Promise<{
+   *   message: string,
+   *   transactions: Array<{
+   *     amount: string,
+   *     customer_name: string,
+   *     status: string,
+   *     event_id: string,
+   *     customer_email: string,
+   *     payment_reference: string,
+   *     payment_description: string,
+   *     currency_code: string,
+   *     contract_code: string,
+   *     breakdown: string
+   *   }>
+   * }>} The transactions data and success message
+   * @throws {Error} If the request fails
+   */
+  getAllTransactions: async () => {
+    try {
+      const { accessToken } = getAuth();
+      const response = await axios.get(
+        `${BASE_URL}/admin/get-all-transactions`,
+        {
+          headers: {
+            Authorization: `Token ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching all transactions:", error);
       throw error.response?.data || error.message;
     }
   },

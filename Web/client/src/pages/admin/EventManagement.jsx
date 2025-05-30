@@ -68,11 +68,9 @@ export default function EventManagement() {
   // Delivery status options
   const deliveryStatusOptions = [
     { value: "pending", label: "Pending" },
-    { value: "processing", label: "Processing" },
-    { value: "in_transit", label: "In Transit" },
     { value: "delivered", label: "Delivered" },
     { value: "cancelled", label: "Cancelled" },
-    { value: "on_hold", label: "On Hold" },
+    { value: "pending_payment", label: "Pending Payment" },
   ];
 
   // Listen for sidebar state changes
@@ -349,18 +347,14 @@ export default function EventManagement() {
                             <span
                               className={cn(
                                 "px-2 py-1 rounded-full text-xs font-bold",
-                                event.delivery_status.includes("delivered") &&
+                                event.delivery_status === "delivered" &&
                                   "bg-green-100 text-green-800",
-                                event.delivery_status.includes("in_transit") &&
-                                  "bg-blue-100 text-blue-800",
-                                event.delivery_status.includes("processing") &&
-                                  "bg-yellow-100 text-yellow-800",
-                                event.delivery_status.includes("pending") &&
+                                event.delivery_status === "pending" &&
                                   "bg-gray-300 text-gray-800",
-                                event.delivery_status.includes("cancelled") &&
+                                event.delivery_status === "cancelled" &&
                                   "bg-red-100 text-red-800",
-                                event.delivery_status.includes("on_hold") &&
-                                  "bg-orange-100 text-orange-800"
+                                event.delivery_status === "pending_payment" &&
+                                  "bg-yellow-100 text-yellow-800"
                               )}
                             >
                               {deliveryStatusOptions.find(
