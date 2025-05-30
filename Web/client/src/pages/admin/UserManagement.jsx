@@ -1,17 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { AdminSidebar } from '@/components/admin/AdminSidebar';
-import { AdminHeader } from '@/components/admin/AdminHeader';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import React, { useState, useEffect } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { UserCheck, UserMinus, Trash2, Search, ChevronLeft, ChevronRight, Users2 } from 'lucide-react';
-import { ActionMenu } from '@/components/admin/ActionMenu';
-import { DeleteDialog, ActivateDialog, DeactivateDialog } from '@/components/admin/ActionDialogs';
-import adminApi from '@/api/adminApi';
-import { cn } from '@/lib/utils';
+import {
+  UserCheck,
+  UserMinus,
+  Trash2,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Users2,
+} from "lucide-react";
+import { ActionMenu } from "@/components/admin/ActionMenu";
+import {
+  DeleteDialog,
+  ActivateDialog,
+  DeactivateDialog,
+} from "@/components/admin/ActionDialogs";
+import adminApi from "@/api/adminApi";
+import { cn } from "@/lib/utils";
 
 export default function UserManagement() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -24,7 +40,6 @@ export default function UserManagement() {
   const [actionError, setActionError] = useState(null);
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
@@ -33,40 +48,30 @@ export default function UserManagement() {
 
   useEffect(() => {
     // Filter and paginate users when search query changes
-    const filtered = users.filter(user => 
-      user?.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user?.role?.toLowerCase().includes(searchQuery.toLowerCase())
+    const filtered = users.filter(
+      (user) =>
+        user?.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user?.role?.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredUsers(filtered);
     setCurrentPage(1); // Reset to first page when search changes
   }, [searchQuery, users]);
 
-  useEffect(() => {
-    const handleSidebarStateChange = (event) => {
-      setSidebarCollapsed(event.detail.isCollapsed);
-    };
-
-    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
-    return () => {
-      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
-    };
-  }, []);
-
   const formatDate = (timestamp) => {
-    if (!timestamp) return '--';
+    if (!timestamp) return "--";
     try {
       const date = new Date(timestamp);
-      return date.toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
+      return date.toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
       });
     } catch (error) {
-      console.error('Error formatting date:', error);
+      console.error("Error formatting date:", error);
       return timestamp; // Return original if parsing fails
     }
   };
@@ -76,28 +81,31 @@ export default function UserManagement() {
     setError(null);
     try {
       const response = await adminApi.getUsers();
-      
+
       // Transform the data to match our needs
-      const transformedData = Array.isArray(response) ? response : response?.users || [];
-      const formattedUsers = transformedData.map(user => {
+      const transformedData = Array.isArray(response)
+        ? response
+        : response?.users || [];
+      const formattedUsers = transformedData.map((user) => {
         return {
           id: user.username, // Use username as ID since it's the unique identifier
           email: user.username,
-          name: user.name || '--',
-          role: user.role?.toLowerCase() || '--',
-          status: user.isActive ? 'Active' : 'Inactive',
+          name: user.name || "--",
+          role: user.role?.toLowerCase() || "--",
+          status: user.isActive ? "Active" : "Inactive",
           last_activity: formatDate(user.last_login),
-          total_transaction: typeof user.total_transaction === 'number' 
-            ? `₦${user.total_transaction.toLocaleString()}`
-            : '₦0'
+          total_transaction:
+            typeof user.total_transaction === "number"
+              ? `₦${user.total_transaction.toLocaleString()}`
+              : "₦0",
         };
       });
 
       setUsers(formattedUsers);
       setFilteredUsers(formattedUsers);
     } catch (err) {
-      console.error('Error fetching users:', err);
-      setError(err.message || 'Failed to load users');
+      console.error("Error fetching users:", err);
+      setError(err.message || "Failed to load users");
       setUsers([]);
       setFilteredUsers([]);
     } finally {
@@ -109,13 +117,13 @@ export default function UserManagement() {
     setSelectedUser(user);
     setActionError(null);
     switch (action) {
-      case 'delete':
+      case "delete":
         setShowDeleteDialog(true);
         break;
-      case 'activate':
+      case "activate":
         setShowActivateDialog(true);
         break;
-      case 'deactivate':
+      case "deactivate":
         setShowDeactivateDialog(true);
         break;
     }
@@ -128,74 +136,85 @@ export default function UserManagement() {
       await handler();
     } catch (error) {
       setActionError(
-        error.response?.data?.message || 
-        "An error occurred while performing this action. Please try again."
+        error.response?.data?.message ||
+          "An error occurred while performing this action. Please try again."
       );
     } finally {
       setLoadingAction(null);
     }
   };
 
-  const [actionFeedback, setActionFeedback] = useState({ message: '', type: '' });
+  const [actionFeedback, setActionFeedback] = useState({
+    message: "",
+    type: "",
+  });
 
-  const showFeedback = (message, type = 'success') => {
+  const showFeedback = (message, type = "success") => {
     setActionFeedback({ message, type });
-    setTimeout(() => setActionFeedback({ message: '', type: '' }), 3000);
+    setTimeout(() => setActionFeedback({ message: "", type: "" }), 3000);
   };
 
   const handleDelete = async () => {
     if (!selectedUser?.id) {
-      setActionError('Username is required for deletion');
+      setActionError("Username is required for deletion");
       return;
     }
-    await handleActionWithLoading('delete', async () => {
+    await handleActionWithLoading("delete", async () => {
       try {
         await adminApi.deleteUser(selectedUser.id);
         setShowDeleteDialog(false);
         setSelectedUser(null);
         await fetchUsers();
-        showFeedback(`Successfully deleted user ${selectedUser.name || selectedUser.id}`);
+        showFeedback(
+          `Successfully deleted user ${selectedUser.name || selectedUser.id}`
+        );
       } catch (error) {
-        console.error('Delete error:', error);
-        setActionError(error.message || 'Failed to delete user');
+        console.error("Delete error:", error);
+        setActionError(error.message || "Failed to delete user");
       }
     });
   };
 
   const handleActivate = async () => {
     if (!selectedUser?.id) {
-      setActionError('Username is required for activation');
+      setActionError("Username is required for activation");
       return;
     }
-    await handleActionWithLoading('activate', async () => {
+    await handleActionWithLoading("activate", async () => {
       try {
         await adminApi.activateUser(selectedUser.id);
         setShowActivateDialog(false);
         setSelectedUser(null);
         await fetchUsers();
-        showFeedback(`Successfully activated user ${selectedUser.name || selectedUser.id}`);
+        showFeedback(
+          `Successfully activated user ${selectedUser.name || selectedUser.id}`
+        );
       } catch (error) {
-        console.error('Activate error:', error);
-        setActionError(error.message || 'Failed to activate user');
+        console.error("Activate error:", error);
+        setActionError(error.message || "Failed to activate user");
       }
     });
   };
 
   const handleDeactivate = async () => {
     if (!selectedUser?.id) {
-      setActionError('Username is required for deactivation');
+      setActionError("Username is required for deactivation");
       return;
     }
-    await handleActionWithLoading('deactivate', async () => {
+    await handleActionWithLoading("deactivate", async () => {
       try {
         await adminApi.suspendUser(selectedUser.id);
         setShowDeactivateDialog(false);
         setSelectedUser(null);
         await fetchUsers();
-        showFeedback(`Successfully deactivated user ${selectedUser.name || selectedUser.id}`);
+        showFeedback(
+          `Successfully deactivated user ${
+            selectedUser.name || selectedUser.id
+          }`
+        );
       } catch (error) {
-        console.error('Deactivate error:', error);
-        setActionError(error.message || 'Failed to deactivate user');
+        console.error("Deactivate error:", error);
+        setActionError(error.message || "Failed to deactivate user");
       }
     });
   };
@@ -207,23 +226,23 @@ export default function UserManagement() {
 
     const actions = [
       {
-        id: 'delete',
-        label: 'Delete User',
-        icon: Trash2
-      }
+        id: "delete",
+        label: "Delete User",
+        icon: Trash2,
+      },
     ];
 
-    if (user.status?.toLowerCase() === 'active') {
+    if (user.status?.toLowerCase() === "active") {
       actions.push({
-        id: 'deactivate',
-        label: 'Deactivate User',
-        icon: UserMinus
+        id: "deactivate",
+        label: "Deactivate User",
+        icon: UserMinus,
       });
     } else {
       actions.push({
-        id: 'activate',
-        label: 'Activate User',
-        icon: UserCheck
+        id: "activate",
+        label: "Activate User",
+        icon: UserCheck,
       });
     }
 
@@ -249,7 +268,7 @@ export default function UserManagement() {
       </div>
       <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
       <p className="text-gray-500 max-w-sm mx-auto mb-6">
-        {searchQuery 
+        {searchQuery
           ? "No users match your search criteria. Try adjusting your filters."
           : "There are no users in the system yet."}
       </p>
@@ -285,145 +304,151 @@ export default function UserManagement() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AdminSidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
-      
-      <div className={cn(
-        "transition-all duration-300",
-        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
-      )}>
-        <AdminHeader toggleMobileMenu={() => setIsMobileMenuOpen(true)} />
-        
-        <main className="p-6 space-y-6">
-          <h1 className="text-2xl text-left font-semibold font-playfair">User Management</h1>
+      <main className="p-6 space-y-6">
+        <h1 className="text-2xl text-left font-semibold font-playfair">
+          User Management
+        </h1>
 
-          {actionFeedback.message && (
-            <div className={cn(
+        {actionFeedback.message && (
+          <div
+            className={cn(
               "fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all duration-500",
-              actionFeedback.type === 'success' ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-            )}>
-              {actionFeedback.message}
+              actionFeedback.type === "success"
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            )}
+          >
+            {actionFeedback.message}
+          </div>
+        )}
+
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="p-6 border-b">
+            <div className="flex items-center justify-between">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Name, Email, Role..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+          </div>
+
+          {loading ? (
+            <LoadingState />
+          ) : error ? (
+            <div className="p-6 text-center text-red-500">{error}</div>
+          ) : !currentUsers || currentUsers.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-left pl-10">Name</TableHead>
+                    <TableHead className="text-left">Email</TableHead>
+                    <TableHead className="text-left">Role</TableHead>
+                    <TableHead className="text-left">Status</TableHead>
+                    <TableHead className="text-left">Last Activity</TableHead>
+                    <TableHead className="text-left">
+                      Total Transaction
+                    </TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {currentUsers.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="text-left pl-10">
+                        {user.name}
+                      </TableCell>
+                      <TableCell className="text-left">{user.email}</TableCell>
+                      <TableCell className="text-left">{user.role}</TableCell>
+                      <TableCell className="text-left">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            user.status?.toLowerCase() === "active"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          {user.status}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-left">
+                        {user.last_activity}
+                      </TableCell>
+                      <TableCell className="text-left">
+                        {user.total_transaction}
+                      </TableCell>
+                      <TableCell className="text-right pr-6">
+                        <ActionMenu
+                          actions={getActions(user)}
+                          onAction={(action) => handleAction(action, user)}
+                          loading={loadingAction !== null}
+                          loadingAction={loadingAction}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="p-6 border-b">
-              <div className="flex items-center justify-between">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    type="text"
-                    placeholder="Name, Email, Role..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-            </div>
+          {!loading && !error && filteredUsers.length > 0 && (
+            <div className="p-4 flex items-center justify-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1 || loading}
+                className="text-gray-600 hover:bg-gray-100"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
 
-            {loading ? (
-              <LoadingState />
-            ) : error ? (
-              <div className="p-6 text-center text-red-500">{error}</div>
-            ) : !currentUsers || currentUsers.length === 0 ? (
-              <EmptyState />
-            ) : (
-              <div>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-left pl-10">Name</TableHead>
-                      <TableHead className="text-left">Email</TableHead>
-                      <TableHead className="text-left">Role</TableHead>
-                      <TableHead className="text-left">Status</TableHead>
-                      <TableHead className="text-left">Last Activity</TableHead>
-                      <TableHead className="text-left">Total Transaction</TableHead>
-                      <TableHead className="w-[50px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {currentUsers.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell className="text-left pl-10">{user.name}</TableCell>
-                        <TableCell className="text-left">{user.email}</TableCell>
-                        <TableCell className="text-left">{user.role}</TableCell>
-                        <TableCell className="text-left">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              user.status?.toLowerCase() === "active"
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
-                            }`}
-                          >
-                            {user.status}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-left">{user.last_activity}</TableCell>
-                        <TableCell className="text-left">{user.total_transaction}</TableCell>
-                        <TableCell className="text-right pr-6">
-                          <ActionMenu
-                            actions={getActions(user)}
-                            onAction={(action) => handleAction(action, user)}
-                            loading={loadingAction !== null}
-                            loadingAction={loadingAction}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-
-            {!loading && !error && filteredUsers.length > 0 && (
-              <div className="p-4 flex items-center justify-center gap-2">
+              {[...Array(totalPages)].map((_, i) => (
                 <Button
+                  key={i}
                   variant="outline"
                   size="sm"
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1 || loading}
-                  className="text-gray-600 hover:bg-gray-100"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                
-                {[...Array(totalPages)].map((_, i) => (
-                  <Button
-                    key={i}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(i + 1)}
-                    className={currentPage === i + 1 
+                  onClick={() => handlePageChange(i + 1)}
+                  className={
+                    currentPage === i + 1
                       ? "bg-bluePrimary text-white hover:bg-bluePrimary/90"
                       : "text-gray-600 hover:bg-gray-100"
-                    }
-                    disabled={loading}
-                  >
-                    {i + 1}
-                  </Button>
-                ))}
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages || loading}
-                  className="text-gray-600 hover:bg-gray-100"
+                  }
+                  disabled={loading}
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  {i + 1}
                 </Button>
-              </div>
-            )}
-          </div>
-        </main>
-      </div>
+              ))}
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages || loading}
+                className="text-gray-600 hover:bg-gray-100"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
+      </main>
 
       <DeleteDialog
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
         onConfirm={handleDelete}
         error={actionError}
-        loading={loadingAction === 'delete'}
+        loading={loadingAction === "delete"}
         user={selectedUser}
       />
 
@@ -432,7 +457,7 @@ export default function UserManagement() {
         onOpenChange={setShowActivateDialog}
         onConfirm={handleActivate}
         error={actionError}
-        loading={loadingAction === 'activate'}
+        loading={loadingAction === "activate"}
         user={selectedUser}
       />
 
@@ -441,7 +466,7 @@ export default function UserManagement() {
         onOpenChange={setShowDeactivateDialog}
         onConfirm={handleDeactivate}
         error={actionError}
-        loading={loadingAction === 'deactivate'}
+        loading={loadingAction === "deactivate"}
         user={selectedUser}
       />
     </div>

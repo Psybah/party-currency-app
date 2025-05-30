@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import DashboardSidebar from "../components/DashboardSidebar";
-import DashboardHeader from "../components/DashboardHeader";
 import { ProfileSection } from "../components/settings/ProfileSection";
 import { SecuritySection } from "../components/settings/SecuritySection";
 import { useAuthenticated } from "../lib/hooks";
@@ -9,20 +7,7 @@ import toast from "react-hot-toast";
 import { PhotoSection } from "../components/settings/PhotoSection";
 
 export default function Settings() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const authenticated = useAuthenticated();
-
-  useEffect(() => {
-    const handleSidebarStateChange = (event) => {
-      setSidebarCollapsed(event.detail.isCollapsed);
-    };
-
-    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
-    return () => {
-      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
-    };
-  }, []);
 
   const handleProfileUpdate = async (profileData) => {
     try {
@@ -63,23 +48,12 @@ export default function Settings() {
 
   return (
     <div className="bg-white min-h-screen">
-      <DashboardSidebar
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-      />
-      <div className={`transition-all duration-300 ${
-        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
-      }`}>
-        <DashboardHeader
-          toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        />
-        <main className="p-6">
-          <div className="space-y-8 mx-auto max-w-4xl">
-            <PhotoSection onUpdatePhoto={handlePhotoUpdate} />
-            <ProfileSection onUpdate={handleProfileUpdate} />
-          </div>
-        </main>
-      </div>
+      <main className="p-6">
+        <div className="space-y-8 mx-auto max-w-4xl">
+          <PhotoSection onUpdatePhoto={handlePhotoUpdate} />
+          <ProfileSection onUpdate={handleProfileUpdate} />
+        </div>
+      </main>
     </div>
   );
 }

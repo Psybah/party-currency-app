@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import DashboardSidebar from "@/components/DashboardSidebar";
-import DashboardHeader from "@/components/DashboardHeader";
 import { EventSuccessModal } from "@/components/events/EventSuccessModal";
 import { EventForm } from "@/components/events/EventForm";
 import { useAuthenticated } from "@/lib/hooks";
@@ -15,8 +13,6 @@ export default function CreateEvent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [eventId, setEventId] = useState("");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const authenticated = useAuthenticated();
 
   const [formData, setFormData] = useState({
@@ -31,17 +27,6 @@ export default function CreateEvent() {
     LGA: "",
     reconciliation_service: false,
   });
-
-  useEffect(() => {
-    const handleSidebarStateChange = (event) => {
-      setSidebarCollapsed(event.detail.isCollapsed);
-    };
-
-    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
-    return () => {
-      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
-    };
-  }, []);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -97,28 +82,17 @@ export default function CreateEvent() {
 
   return (
     <div className="bg-white min-h-screen">
-      <DashboardSidebar
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-      />
-      <div className={`transition-all duration-300 ${
-        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
-      }`}>
-        <DashboardHeader
-          toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      <main className="flex-1 mx-auto p-4 md:p-8 w-full max-w-4xl">
+        <h1 className="mb-8 font-playfair font-semibold text-2xl text-left">
+          Create Event
+        </h1>
+        <EventForm
+          formData={formData}
+          handleInputChange={handleInputChange}
+          handleSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
         />
-        <main className="flex-1 mx-auto p-4 md:p-8 w-full max-w-4xl">
-          <h1 className="mb-8 font-playfair font-semibold text-2xl text-left">
-            Create Event
-          </h1>
-          <EventForm
-            formData={formData}
-            handleInputChange={handleInputChange}
-            handleSubmit={handleSubmit}
-            isSubmitting={isSubmitting}
-          />
-        </main>
-      </div>
+      </main>
 
       {showSuccessModal && (
         <EventSuccessModal

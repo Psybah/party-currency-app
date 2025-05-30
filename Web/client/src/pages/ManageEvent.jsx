@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import DashboardSidebar from "../components/DashboardSidebar";
-import DashboardHeader from "../components/DashboardHeader";
 import { useAuthenticated } from "../lib/hooks";
 import { LoadingDisplay } from "../components/LoadingDisplay";
 import EventCard from "../components/events/EventCard";
@@ -27,27 +25,10 @@ const EventCardSkeleton = () => (
 );
 
 export default function ManageEvent() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState("ongoing");
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const authenticated = useAuthenticated();
-
-  // Add sidebar collapse listener
-  useEffect(() => {
-    const handleSidebarStateChange = (event) => {
-      setSidebarCollapsed(event.detail.isCollapsed);
-    };
-
-    window.addEventListener("sidebarStateChange", handleSidebarStateChange);
-    return () => {
-      window.removeEventListener(
-        "sidebarStateChange",
-        handleSidebarStateChange
-      );
-    };
-  }, []);
 
   const fetchEvents = async () => {
     setIsLoading(true);
@@ -105,27 +86,12 @@ export default function ManageEvent() {
 
   return (
     <div className="bg-white min-h-screen">
-      <DashboardSidebar
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-      />
-
-      <div
-        className={`transition-all duration-300 ${
-          sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
-        }`}
-      >
-        <DashboardHeader
-          toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        />
-
-        <main className="p-6">
-          <div className="mx-auto max-w-7xl">
-            <EventTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-            <div className="mt-6">{renderContent()}</div>
-          </div>
-        </main>
-      </div>
+      <main className="p-6">
+        <div className="mx-auto max-w-7xl">
+          <EventTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+          <div className="mt-6">{renderContent()}</div>
+        </div>
+      </main>
     </div>
   );
 }

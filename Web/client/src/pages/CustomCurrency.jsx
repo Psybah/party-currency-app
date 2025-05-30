@@ -71,37 +71,46 @@ const CustomCurrency = () => {
               currency—all directly from your phone.
             </p>
             <p>
-              This distinct approach engages your guests, creating shared memories
-              and amplifying the fun. The app gives you full control to make your 
-              event currency visually appealing and uniquely yours.
+              This distinct approach engages your guests, creating shared
+              memories and amplifying the fun. The app gives you full control to
+              make your event currency visually appealing and uniquely yours.
             </p>
             <p>
-              Our design team has developed intuitive customization tools, 
-              allowing you to manage your personalized currency from concept to 
-              completion. With just a few taps, you can bring an added level of joy 
-              and exclusivity to your event.
+              Our design team has developed intuitive customization tools,
+              allowing you to manage your personalized currency from concept to
+              completion. With just a few taps, you can bring an added level of
+              joy and exclusivity to your event.
             </p>
             <p>
-              <span className="font-bold font-playfair text-bluePrimary text-xl">Download the Party Currency app</span> today to start creating your
-              custom currency and make every event moment a lasting one.
+              <span className="font-bold font-playfair text-bluePrimary text-xl">
+                Download the Party Currency app
+              </span>{" "}
+              today to start creating your custom currency and make every event
+              moment a lasting one.
             </p>
           </div>
 
           {/* Call to Action */}
-          <div className="flex flex-row flex-wrap items-center justify-center 
-           gap-1 sm:gap-1 md:gap-6 mt-10 sm:mt-2 md:mt-8">
+          <div
+            className="flex flex-row flex-wrap items-center justify-center 
+           gap-1 sm:gap-1 md:gap-6 mt-10 sm:mt-2 md:mt-8"
+          >
             {/* Apple Store Button */}
-            <button className="flex items-center gap-2 px-2 py-1 sm:px-3 sm:py-2 
+            <button
+              className="flex items-center gap-2 px-2 py-1 sm:px-3 sm:py-2 
             md:px-5 md:py-2 bg-gold text-white text-xs sm:text-sm md:text-lg 
-            rounded-lg hover:bg-yellow-500 transition">
+            rounded-lg hover:bg-yellow-500 transition"
+            >
               <LazyImage
                 src={AppleIcon}
                 alt="Apple icon"
                 className="size-6 md:size-10 lg:size-12"
               />
               <div className="flex flex-col items-start leading-tight">
-                <span className="text-[10px] sm:text-xs md:text-sm 
-                lg:text-base font-playfair">
+                <span
+                  className="text-[10px] sm:text-xs md:text-sm 
+                lg:text-base font-playfair"
+                >
                   Download on the
                 </span>
                 <span className="text-sm sm:text-base md:text-lg lg:text-xl font-playfair">
@@ -110,17 +119,21 @@ const CustomCurrency = () => {
               </div>
             </button>
             {/* Google Play Button */}
-            <button className="flex items-center gap-2 px-2 py-1 sm:px-3 sm:py-2 
+            <button
+              className="flex items-center gap-2 px-2 py-1 sm:px-3 sm:py-2 
             md:px-5 md:py-2 bg-gold text-white text-xs sm:text-sm md:text-lg 
-            rounded-lg hover:bg-yellow-500 transition">
+            rounded-lg hover:bg-yellow-500 transition"
+            >
               <LazyImage
                 src={AndroidIcon}
                 alt="google icon"
                 className="size-6 md:size-10 lg:size-12"
               />
               <div className="flex flex-col items-start leading-tight">
-                <span className="text-[10px] sm:text-xs md:text-sm 
-                lg:text-base font-playfair">
+                <span
+                  className="text-[10px] sm:text-xs md:text-sm 
+                lg:text-base font-playfair"
+                >
                   Download on the
                 </span>
                 <span className="text-sm sm:text-base md:text-lg lg:text-xl font-playfair">
