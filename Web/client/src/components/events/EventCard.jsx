@@ -10,7 +10,7 @@ import {
   Check,
 } from "lucide-react";
 import { format } from "date-fns";
-import { useNavigate } from "react-router-dom"; // Added for navigation
+import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
 const StatusBadge = ({ status, type }) => {
@@ -45,10 +45,8 @@ const StatusBadge = ({ status, type }) => {
 
 export default function EventCard({ event }) {
   const [copied, setCopied] = useState(false);
-  const navigate = useNavigate(); // Added for navigation
-useEffect(()=>{
-  console.log('event', event)
-},[])
+  const navigate = useNavigate();
+
   const formatDate = (dateString) => {
     return format(new Date(dateString), "MMM dd, yyyy");
   };
@@ -70,9 +68,13 @@ useEffect(()=>{
         {/* Name, ID, Description */}
         <div className="flex-1 min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-            <h3 className="text-lg font-semibold text-gray-900 break-words">{event.name}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 break-words">
+              {event.event_name}
+            </h3>
             <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-100 rounded-md w-fit">
-              <span className="text-xs font-mono text-gray-600 truncate">ID: {event.event_id}</span>
+              <span className="text-xs font-mono text-gray-600 truncate">
+                ID: {event.event_id}
+              </span>
               <button
                 onClick={handleCopyId}
                 className="p-1 hover:bg-gray-200 rounded transition-colors duration-200"
@@ -86,12 +88,14 @@ useEffect(()=>{
               </button>
             </div>
           </div>
-          <p className="text-sm text-gray-600 mt-1 break-words">{event.description}</p>
+          <p className="text-sm text-gray-600 mt-1 break-words">
+            {event.event_description}
+          </p>
         </div>
         {/* Status Badges */}
         <div className="flex flex-row sm:flex-col gap-2 mt-2 sm:mt-0">
-          <StatusBadge status={event.status.payment} type="payment" />
-          <StatusBadge status={event.status.delivery} type="delivery" />
+          <StatusBadge status={event.payment_status} type="payment" />
+          <StatusBadge status={event.delivery_status} type="delivery" />
         </div>
       </div>
 
@@ -102,18 +106,19 @@ useEffect(()=>{
           <div className="flex items-center text-sm text-gray-600 break-words">
             <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
             <span>
-              {event.location.street}, {event.location.city}, {event.location.state} {event.location.postalCode}
+              {event.street_address}, {event.city}, {event.state}{" "}
+              {event.postal_code}
             </span>
           </div>
           <div className="flex items-center text-sm text-gray-600">
             <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
             <span>
-              {formatDate(event.dates.start)} - {formatDate(event.dates.end)}
+              {formatDate(event.start_date)} - {formatDate(event.end_date)}
             </span>
           </div>
           <div className="flex items-center text-sm text-gray-600">
             <Clock className="w-4 h-4 mr-2 flex-shrink-0" />
-            <span>Created: {formatDate(event.dates.created)}</span>
+            <span>Created: {formatDate(event.created_at)}</span>
           </div>
         </div>
 
@@ -125,19 +130,25 @@ useEffect(()=>{
               <span>Reconciled</span>
             </div>
           )}
-          {event.status.payment === "pending" && (
+          {event.payment_status === "pending" && (
             <button
-              onClick={() => navigate(`/event/${event.event_id}?action=pay`)}
+              onClick={() => {
+                console.log("clicked");
+                navigate(`/admin/events/${event.event_id}?action=pay`);
+              }}
               className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-bluePrimary rounded-md hover:bg-bluePrimary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bluePrimary"
             >
               Make Payment
             </button>
           )}
           <button
-            onClick={() => navigate(`/event/${event.event_id}`)} // Updated navigation
+            onClick={() => {
+              console.log("clicked", event);
+              navigate(`/admin/events/${event.event_id}`);
+            }}
             className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-bluePrimary rounded-md hover:bg-bluePrimary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bluePrimary"
           >
-            View Details 
+            View Details
           </button>
         </div>
       </div>

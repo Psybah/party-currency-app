@@ -6,22 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Search,
-  Calendar,
-  MapPin,
-  User,
+  Filter,
+  AlertCircle,
   Package,
-  CreditCard,
-  Truck,
   ChevronLeft,
   ChevronRight,
-  Filter,
-  CheckCircle2,
-  Clock,
-  XCircle,
-  AlertCircle,
-  Printer,
-  Ship,
-  Package2,
 } from "lucide-react";
 import {
   Select,
@@ -32,251 +21,13 @@ import {
 } from "@/components/ui/select";
 import adminApi from "@/api/adminApi";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 import { toast } from "react-hot-toast";
-
-// Status configuration
-const DELIVERY_STATUSES = [
-  {
-    value: "pending",
-    label: "Pending",
-    icon: Clock,
-    color: "bg-yellow-100 text-yellow-700",
-  },
-  {
-    value: "printing",
-    label: "Printing",
-    icon: Printer,
-    color: "bg-blue-100 text-blue-700",
-  },
-  {
-    value: "printed",
-    label: "Printed",
-    icon: Package2,
-    color: "bg-purple-100 text-purple-700",
-  },
-  {
-    value: "shipping",
-    label: "Shipping",
-    icon: Ship,
-    color: "bg-orange-100 text-orange-700",
-  },
-  {
-    value: "delivered",
-    label: "Delivered",
-    icon: CheckCircle2,
-    color: "bg-green-100 text-green-700",
-  },
-];
-
-const PAYMENT_STATUS_CONFIG = {
-  successful: { icon: CheckCircle2, color: "bg-green-100 text-green-700" },
-  pending: { icon: Clock, color: "bg-yellow-100 text-yellow-700" },
-  failed: { icon: XCircle, color: "bg-red-100 text-red-700" },
-  cancelled: { icon: XCircle, color: "bg-red-100 text-red-700" },
-};
-
-// Status Badge Component
-const StatusBadge = ({ status, type = "delivery" }) => {
-  if (type === "payment") {
-    const config =
-      PAYMENT_STATUS_CONFIG[status?.toLowerCase()] ||
-      PAYMENT_STATUS_CONFIG["pending"];
-    const Icon = config.icon;
-
-    return (
-      <span
-        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${config.color}`}
-      >
-        <Icon className="w-3 h-3 mr-1" />
-        {status?.charAt(0).toUpperCase() + status?.slice(1) || "Pending"}
-      </span>
-    );
-  }
-
-  const statusConfig =
-    DELIVERY_STATUSES.find((s) => s.value === status?.toLowerCase()) ||
-    DELIVERY_STATUSES[0];
-  const Icon = statusConfig.icon;
-
-  return (
-    <span
-      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig.color}`}
-    >
-      <Icon className="w-3 h-3 mr-1" />
-      {statusConfig.label}
-    </span>
-  );
-};
-
-// Event Card Component
-const EventCard = ({ event, onStatusUpdate, isUpdating }) => {
-  const [selectedStatus, setSelectedStatus] = useState(
-    event.delivery_status?.toLowerCase() || "pending"
-  );
-
-  const handleStatusChange = async (newStatus) => {
-    if (newStatus === selectedStatus) return;
-
-    try {
-      await onStatusUpdate(event.event_id, newStatus);
-      setSelectedStatus(newStatus);
-      toast.success("Delivery status updated successfully");
-    } catch (error) {
-      toast.error("Failed to update delivery status");
-      console.error("Error updating status:", error);
-    }
-  };
-
-  const formatDate = (dateString) => {
-    try {
-      return format(new Date(dateString), "MMM dd, yyyy");
-    } catch {
-      return "Invalid date";
-    }
-  };
-
-  const formatDateTime = (dateString) => {
-    try {
-      return format(new Date(dateString), "MMM dd, yyyy 'at' hh:mm a");
-    } catch {
-      return "Invalid date";
-    }
-  };
-
-  return (
-    <Card className="p-6 hover:shadow-md transition-shadow duration-200">
-      <div className="space-y-4">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-gray-900 truncate">
-              {event.event_name}
-            </h3>
-            <p className="text-sm text-gray-600 mt-1">
-              {event.event_description}
-            </p>
-            <div className="flex items-center gap-1 mt-2">
-              <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-gray-600">
-                ID: {event.event_id}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <CreditCard className="w-4 h-4 text-gray-400" />
-              <span className="text-sm font-medium text-gray-700">
-                Payment Status:
-              </span>
-              <StatusBadge status={event.payment_status} type="payment" />
-            </div>
-            <div className="flex items-center gap-2">
-              <Truck className="w-4 h-4 text-gray-400" />
-              <span className="text-sm font-medium text-gray-700">
-                Delivery Status:
-              </span>
-              <StatusBadge status={event.delivery_status} type="delivery" />
-            </div>
-          </div>
-        </div>
-
-        {/* Event Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div className="flex items-center gap-2 text-gray-600">
-            <User className="w-4 h-4 text-gray-400" />
-            <span className="font-medium">Author:</span>
-            <span className="truncate">{event.event_author}</span>
-          </div>
-
-          <div className="flex items-center gap-2 text-gray-600">
-            <Calendar className="w-4 h-4 text-gray-400" />
-            <span className="font-medium">Date:</span>
-            <span>
-              {formatDate(event.start_date)} - {formatDate(event.end_date)}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 text-gray-600">
-            <MapPin className="w-4 h-4 text-gray-400" />
-            <span className="font-medium">Location:</span>
-            <span className="truncate">
-              {event.city}, {event.state}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 text-gray-600">
-            <Calendar className="w-4 h-4 text-gray-400" />
-            <span className="font-medium">Created:</span>
-            <span>{formatDateTime(event.created_at)}</span>
-          </div>
-        </div>
-
-        {/* Address */}
-        <div className="text-sm">
-          <div className="flex items-start gap-2 text-gray-600">
-            <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-            <div>
-              <span className="font-medium">Address:</span>
-              <div className="ml-1">
-                <div className="text-gray-600">{event.street_address}</div>
-                <div className="text-gray-600">
-                  {event.city}, {event.state} {event.postal_code}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Delivery Status Update */}
-        <div className="border-t pt-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <Truck className="w-4 h-4 text-gray-400" />
-              <span className="text-sm font-medium text-gray-700">
-                Update Delivery Status:
-              </span>
-            </div>
-
-            <Select
-              value={selectedStatus}
-              onValueChange={handleStatusChange}
-              disabled={isUpdating}
-            >
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {DELIVERY_STATUSES.map((status) => {
-                  const Icon = status.icon;
-                  return (
-                    <SelectItem key={status.value} value={status.value}>
-                      <div className="flex items-center gap-2">
-                        <Icon className="w-4 h-4" />
-                        {status.label}
-                      </div>
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Additional Info */}
-        {event.reconciliation && (
-          <div className="flex items-center gap-2 text-sm text-blue-600">
-            <CheckCircle2 className="w-4 h-4" />
-            <span>Reconciliation enabled</span>
-          </div>
-        )}
-      </div>
-    </Card>
-  );
-};
+import { useNavigate } from "react-router-dom";
+import EventCard from "@/components/events/EventCard";
 
 // Main Component
 export default function EventManagement() {
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -363,7 +114,9 @@ export default function EventManagement() {
             : event
         )
       );
+      toast.success("Delivery status updated successfully");
     } catch (error) {
+      toast.error("Failed to update delivery status");
       throw error;
     } finally {
       setUpdatingStatus(false);
@@ -467,12 +220,7 @@ export default function EventManagement() {
           ) : (
             <div className="space-y-4">
               {events.map((event) => (
-                <EventCard
-                  key={event.event_id}
-                  event={event}
-                  onStatusUpdate={handleStatusUpdate}
-                  isUpdating={updatingStatus}
-                />
+                <EventCard key={event.event_id} event={event} />
               ))}
             </div>
           )}
@@ -483,7 +231,7 @@ export default function EventManagement() {
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div className="text-sm text-gray-600">
                   Showing page {pagination.current_page} of{" "}
-                  {pagination.total_pages}({pagination.total_count} total
+                  {pagination.total_pages} ({pagination.total_count} total
                   events)
                 </div>
 

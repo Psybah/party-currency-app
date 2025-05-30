@@ -91,6 +91,10 @@ function App() {
                       element={<UserManagement />}
                     />
                     <Route path="events" element={<EventManagement />} />
+                    <Route
+                      path="events/:eventId"
+                      element={<EventDetailPage />}
+                    />
                   </Routes>
                 </AdminProtectedRoute>
               </AdminRouteGuard>

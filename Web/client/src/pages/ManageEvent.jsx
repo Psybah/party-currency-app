@@ -40,9 +40,12 @@ export default function ManageEvent() {
       setSidebarCollapsed(event.detail.isCollapsed);
     };
 
-    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
+    window.addEventListener("sidebarStateChange", handleSidebarStateChange);
     return () => {
-      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
+      window.removeEventListener(
+        "sidebarStateChange",
+        handleSidebarStateChange
+      );
     };
   }, []);
 
@@ -56,23 +59,24 @@ export default function ManageEvent() {
           event_id: event.event_id,
           name: event.event_name,
           description: event.event_description,
+          author: event.event_author,
           location: {
             street: event.street_address,
             city: event.city,
             state: event.state,
-            postalCode: event.postal_code
+            postalCode: event.postal_code,
           },
           dates: {
             start: event.start_date,
             end: event.end_date,
-            created: event.created_at
+            created: event.created_at,
           },
           status: {
             payment: event.payment_status?.toLowerCase() || "unpaid",
-            delivery: event.delivery_status?.toLowerCase() || "pending"
+            delivery: event.delivery_status?.toLowerCase() || "pending",
           },
           reconciliation: event.reconciliation || false,
-          concluded: event.concluded || false
+          concluded: event.concluded || false,
         };
       });
       setEvents(events_fetched);
@@ -92,7 +96,7 @@ export default function ManageEvent() {
   }
 
   // Filter events based on active tab
-  const filteredEvents = events.filter(event => {
+  const filteredEvents = events.filter((event) => {
     if (activeTab === "ongoing") {
       return !event.concluded;
     } else {
@@ -118,7 +122,7 @@ export default function ManageEvent() {
     return (
       <div>
         {filteredEvents.map((event) => (
-          <EventCard key={event.id} event={event} />
+          <EventCard key={event.event_id} event={event} />
         ))}
       </div>
     );
@@ -131,9 +135,11 @@ export default function ManageEvent() {
         onClose={() => setIsMobileMenuOpen(false)}
       />
 
-      <div className={`transition-all duration-300 ${
-        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
-      }`}>
+      <div
+        className={`transition-all duration-300 ${
+          sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+        }`}
+      >
         <DashboardHeader
           toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         />
@@ -141,9 +147,7 @@ export default function ManageEvent() {
         <main className="p-6">
           <div className="mx-auto max-w-7xl">
             <EventTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-            <div className="mt-6">
-              {renderContent()}
-            </div>
+            <div className="mt-6">{renderContent()}</div>
           </div>
         </main>
       </div>
