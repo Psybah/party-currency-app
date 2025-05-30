@@ -12,6 +12,8 @@ import os
 from django.core.files.base import ContentFile
 from rest_framework import status
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
+from payment.serializers import TransactionSerializer
+from payment.models import Transaction
 
 # Add these classes for custom throttling
 class UserThrottle(UserRateThrottle):
@@ -174,3 +176,10 @@ def get_picture(request):
     })
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_transactions(request):
+    user = request.user
+    transactions = Transaction.objects.filter(customer_email=user.email)
+    serializer = TransactionSerializer(transactions, many=True)
+    return Response({'message': 'User transactions retrieved successfully', 'transactions': serializer.data}, status=200)

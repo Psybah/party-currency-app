@@ -94,6 +94,7 @@ def generate_transcation_ID(request):
         payment_reference=f"party{int(time.time())}",
         payment_description=f"Payment for services {request.data['event_id']}",
         currency_code="NGN",
+        breakdown=str(amount),
         contract_code=os.getenv("MONIFY_CONTRACT_CODE"),  # Fixed the missing comma
         event_id=request.data['event_id'],
         user_id=request.user.email  # Storing user email as user_id
@@ -143,6 +144,8 @@ def callback(request):
                 try:
                     event = Events.objects.get(event_id=transaction.event_id)
                     event.transaction_id = payment_reference
+                    event.payment_status='successful'
+                    event.delivery_status='pending'
                     event.save()
                 except Events.DoesNotExist:
                     return Response({

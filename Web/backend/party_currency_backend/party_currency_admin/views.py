@@ -1,13 +1,18 @@
 from django.shortcuts import render
-from  rest_framework.decorators import api_view,authentication_classes,permission_classes
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 from authentication.models import CustomUser
 from payment.models import Transaction
 from events.models import Events as Event
-from rest_framework.authentication import TokenAuthentication,SessionAuthentication
-from rest_framework.permissions import IsAuthenticated,AllowAny
-
-# Create your views here.
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from events.serializers import EventSerializerFull
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Q
+import math
+from authentication.serializers import UserSerializer2
+from payment.serializers import TransactionSerializer
+# Your existing views remain the same...
 
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
@@ -18,10 +23,10 @@ def get_users(request):
         
     users = CustomUser.objects.all()
     tran = Transaction.objects.filter(customer_email=request.user.email)
-    total = 0;
+    total = 0
     for t in tran:
-        if tran.status == 'success':
-            total+=t.amount
+        if t.status == 'success':  # Fixed bug: was tran.status instead of t.status
+            total += t.amount
         
     user_data = []
     for user in users:
@@ -53,6 +58,7 @@ def suspend_user(request, user_id):
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=500)
 
+
 @api_view(['PUT'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
@@ -69,6 +75,7 @@ def activate_user(request, user_id):
         return Response({'error': 'User not found'}, status=404)
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=500)
+
 
 @api_view(['DELETE'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
@@ -92,7 +99,6 @@ def delete_user(request, user_id):
         return Response({'error': 'User not found'}, status=404)
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=500)
-    
 
 
 from django.db.models import Count
@@ -195,3 +201,329 @@ def get_admin_statistics(request):
         
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=500)
+
+
+# NEW PAGINATED EVENTS VIEW
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_events(request):
+    if not request.user.is_superuser:
+        return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
+    
+    try:
+        # Get query parameters
+        page = request.GET.get('page', 1)
+        page_size = request.GET.get('page_size', 10)  # Default to 10 events per page
+        search = request.GET.get('search', '')
+        sort_by = request.GET.get('sort_by', '-created_at')  # Default sort by newest first
+        
+        # Convert to integers
+        try:
+            page = int(page)
+            page_size = int(page_size)
+        except ValueError:
+            return Response({'error': 'Invalid page or page_size parameter'}, status=400)
+        
+        # Limit page_size to prevent abuse
+        if page_size > 100:
+            page_size = 100
+        
+        # Start with all events
+        events_queryset = Event.objects.all()
+        
+        # Apply search filter if provided
+        if search:
+            events_queryset = events_queryset.filter(
+                Q(title__icontains=search) |
+                Q(description__icontains=search) |
+                Q(location__icontains=search)
+            )
+        
+        # Apply sorting
+        valid_sort_fields = ['created_at', '-created_at', 'title', '-title', 'date', '-date']
+        if sort_by in valid_sort_fields:
+            events_queryset = events_queryset.order_by(sort_by)
+        else:
+            events_queryset = events_queryset.order_by('-created_at')
+        
+        # Create paginator
+        paginator = Paginator(events_queryset, page_size)
+        total_pages = paginator.num_pages
+        total_count = paginator.count
+        
+        try:
+            events_page = paginator.page(page)
+        except PageNotAnInteger:
+            events_page = paginator.page(1)
+            page = 1
+        except EmptyPage:
+            events_page = paginator.page(paginator.num_pages)
+            page = paginator.num_pages
+        
+        # Serialize the events
+        serializer = EventSerializerFull(events_page, many=True)
+        
+        # Prepare response data
+        response_data = {
+            'events': serializer.data,
+            'pagination': {
+                'current_page': page,
+                'page_size': page_size,
+                'total_pages': total_pages,
+                'total_count': total_count,
+                'has_next': events_page.has_next(),
+                'has_previous': events_page.has_previous(),
+                'next_page': page + 1 if events_page.has_next() else None,
+                'previous_page': page - 1 if events_page.has_previous() else None,
+            },
+            'filters': {
+                'search': search,
+                'sort_by': sort_by
+            }
+        }
+        
+        return Response(response_data, status=200)
+        
+    except Exception as e:
+        return Response({'error': f'An error occurred: {str(e)}'}, status=500)
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_pending_events(request):
+    if not request.user.is_superuser:
+        return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
+    
+    try:
+        # Get query parameters
+        page = request.GET.get('page', 1)
+        page_size = request.GET.get('page_size', 10)  # Default to 10 events per page
+        search = request.GET.get('search', '')
+        sort_by = request.GET.get('sort_by', '-created_at')  # Default sort by newest first
+        
+        # Convert to integers
+        try:
+            page = int(page)
+            page_size = int(page_size)
+        except ValueError:
+            return Response({'error': 'Invalid page or page_size parameter'}, status=400)
+        
+        # Limit page_size to prevent abuse
+        if page_size > 100:
+            page_size = 100
+        
+        # Start with all events
+        events_queryset = Event.objects.filter(delivery_status='pending')
+
+        
+        # Apply search filter if provided
+        if search:
+            events_queryset = events_queryset.filter(
+                Q(title__icontains=search) |
+                Q(description__icontains=search) |
+                Q(location__icontains=search)
+            )
+        
+        # Apply sorting
+        valid_sort_fields = ['created_at', '-created_at', 'title', '-title', 'date', '-date']
+        if sort_by in valid_sort_fields:
+            events_queryset = events_queryset.order_by(sort_by)
+        else:
+            events_queryset = events_queryset.order_by('-created_at')
+        
+        # Create paginator
+        paginator = Paginator(events_queryset, page_size)
+        total_pages = paginator.num_pages
+        total_count = paginator.count
+        
+        try:
+            events_page = paginator.page(page)
+        except PageNotAnInteger:
+            events_page = paginator.page(1)
+            page = 1
+        except EmptyPage:
+            events_page = paginator.page(paginator.num_pages)
+            page = paginator.num_pages
+        
+        # Serialize the events
+        serializer = EventSerializerFull(events_page, many=True)
+        
+        # Prepare response data
+        response_data = {
+            'events': serializer.data,
+            'pagination': {
+                'current_page': page,
+                'page_size': page_size,
+                'total_pages': total_pages,
+                'total_count': total_count,
+                'has_next': events_page.has_next(),
+                'has_previous': events_page.has_previous(),
+                'next_page': page + 1 if events_page.has_next() else None,
+                'previous_page': page - 1 if events_page.has_previous() else None,
+            },
+            'filters': {
+                'search': search,
+                'sort_by': sort_by
+            }
+        }
+        
+        return Response(response_data, status=200)
+        
+    except Exception as e:
+        return Response({'error': f'An error occurred: {str(e)}'}, status=500)
+
+# ALTERNATIVE: Offset-based pagination (if you prefer this approach)
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_events_offset(request):
+    if not request.user.is_superuser:
+        return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
+    
+    try:
+        # Get query parameters
+        offset = int(request.GET.get('offset', 0))
+        limit = int(request.GET.get('limit', 10))
+        search = request.GET.get('search', '')
+        sort_by = request.GET.get('sort_by', '-created_at')
+        
+        # Limit the limit to prevent abuse
+        if limit > 100:
+            limit = 100
+        
+        # Start with all events
+        events_queryset = Event.objects.all()
+        # Apply search filter if provided
+        if search:
+            events_queryset = events_queryset.filter(
+                Q(title__icontains=search) |
+                Q(description__icontains=search) |
+                Q(location__icontains=search)
+            )
+        
+        # Apply sorting
+        valid_sort_fields = ['created_at', '-created_at', 'title', '-title', 'date', '-date']
+        if sort_by in valid_sort_fields:
+            events_queryset = events_queryset.order_by(sort_by)
+        else:
+            events_queryset = events_queryset.order_by('-created_at')
+        
+        # Get total count
+        total_count = events_queryset.count()
+        
+        # Apply offset and limit
+        events = events_queryset[offset:offset + limit]
+        
+        # Serialize the events
+        serializer = EventSerializerFull(events, many=True)
+        
+        # Calculate if there are more items
+        has_next = (offset + limit) < total_count
+        
+        # Prepare response data
+        response_data = {
+            'events': serializer.data,
+            'pagination': {
+                'offset': offset,
+                'limit': limit,
+                'total_count': total_count,
+                'has_next': has_next,
+                'next_offset': offset + limit if has_next else None,
+            },
+            'filters': {
+                'search': search,
+                'sort_by': sort_by
+            }
+        }
+        
+        return Response(response_data, status=200)
+        
+    except Exception as e:
+        return Response({'error': f'An error occurred: {str(e)}'}, status=500)
+
+
+
+
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_user(request):
+        email =request.GET.get('email',None)
+        if not request.user.is_superuser:
+        
+            return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
+        if email is None:
+            return Response({'error': 'Email parameter is required.'}, status=400)
+
+        try :
+            user=CustomUser.objects.get(email=request.GET.get('email',None))
+            serializer = UserSerializer2(user)
+            
+            return Response({"message":"success","user":serializer.data},status=200)
+
+
+        except Exception as e:
+            return Response ({"message":"user not found","details":e.args},status=400)
+
+    
+
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def change_event_status(request):
+    statuses = ['pending','delivered','cancelled','pending payment']
+    if not request.user.is_superuser:
+        return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
+    
+    try:
+        event_id = request.data.get('event_id')
+        new_status = request.data.get('new_status')
+        if new_status not in statuses:
+            return Response({'error': 'Invalid status'}, status=400)
+        
+        event = Event.objects.get(event_id=event_id)
+        event.delivery_status = new_status
+        event.save()
+        
+        return Response({'message': 'Event status updated successfully'}, status=200)
+    
+    
+    except Exception as e:
+        return Response({'error': f'An error occurred: {str(e)}'}, status=500)
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_event_transaction(request):
+    if not request.user.is_superuser:
+        return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
+    
+    try:
+        event_id = request.GET.get('event_id')
+        event = Event.objects.get(event_id=event_id)
+        transaction = Transaction.objects.get(event_id=event_id)
+        serializer = TransactionSerializer(transaction)
+        return Response({'message': 'Event transaction retrieved successfully', 'transaction': serializer.data}, status=200)
+    
+    except Exception as e:
+        return Response({'error': f'An error occurred: {str(e)}'}, status=500)
+    
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_all_successful_transactions(request):
+    if not request.user.is_superuser:
+        return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
+    
+    try:
+        page = request.GET.get('page', 1)
+        page_size = request.GET.get('page_size', 10)
+        transactions = Transaction.objects.filter(status='successful')
+        serializer = TransactionSerializer(transactions, many=True)
+        return Response({'message': 'All successful transactions retrieved successfully', 'transactions': serializer.data}, status=200)
+    
+    except Exception as e:
+        return Response({'error': f'An error occurred: {str(e)}'}, status=500)
+    

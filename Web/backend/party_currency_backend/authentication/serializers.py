@@ -106,3 +106,7 @@ class GoogleLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Token has expired")
         except jwt.InvalidTokenError:
             raise serializers.ValidationError("Invalid token")
+class UserSerializer2(serializers.ModelSerializer):
+    class Meta(object):
+        model=User
+        fields = ["email","first_name","last_name","phone_number","type"]

@@ -17,3 +17,4 @@ class Transaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     redirect_url = models.URLField(blank=True)
+    breakdown = models.CharField(max_length=555, default="")
