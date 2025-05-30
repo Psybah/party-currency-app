@@ -43,6 +43,11 @@ export default function EventManagement() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [confirmationDialog, setConfirmationDialog] = useState({
+    open: false,
+    eventId: null,
+    newStatus: null,
+  });
 
   // Pagination and filters
   const [currentPage, setCurrentPage] = useState(1);
@@ -144,6 +149,15 @@ export default function EventManagement() {
     }));
   };
 
+  // Handle status update confirmation
+  const handleStatusUpdateClick = (eventId, newStatus) => {
+    setConfirmationDialog({
+      open: true,
+      eventId,
+      newStatus,
+    });
+  };
+
   // Handle status update
   const handleStatusUpdate = async (eventId, newStatus) => {
     setUpdatingStatus(true);
@@ -170,6 +184,7 @@ export default function EventManagement() {
       throw error;
     } finally {
       setUpdatingStatus(false);
+      setConfirmationDialog({ open: false, eventId: null, newStatus: null });
     }
   };
 
@@ -383,7 +398,7 @@ export default function EventManagement() {
                         {showUpdateButtons[event.event_id] && (
                           <Button
                             onClick={() =>
-                              handleStatusUpdate(
+                              handleStatusUpdateClick(
                                 event.event_id,
                                 selectedStatuses[event.event_id]
                               )
@@ -595,6 +610,69 @@ export default function EventManagement() {
                 </div>
               </div>
             ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Status Update Confirmation Dialog */}
+      <Dialog
+        open={confirmationDialog.open}
+        onOpenChange={(open) => {
+          if (!open) {
+            setConfirmationDialog({
+              open: false,
+              eventId: null,
+              newStatus: null,
+            });
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm Status Update</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to change the delivery status to{" "}
+              <span className="font-semibold">
+                {deliveryStatusOptions.find(
+                  (opt) => opt.value === confirmationDialog.newStatus
+                )?.label || confirmationDialog.newStatus}
+              </span>
+              ?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex justify-end gap-3 mt-4">
+            <Button
+              variant="outline"
+              onClick={() =>
+                setConfirmationDialog({
+                  open: false,
+                  eventId: null,
+                  newStatus: null,
+                })
+              }
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() =>
+                handleStatusUpdate(
+                  confirmationDialog.eventId,
+                  confirmationDialog.newStatus
+                )
+              }
+              disabled={updatingStatus}
+              className="bg-bluePrimary hover:bg-bluePrimary/90"
+            >
+              {updatingStatus ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Updating...
+                </>
+              ) : (
+                "Confirm"
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

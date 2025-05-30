@@ -69,31 +69,31 @@ export default function LoginPage() {
         const userProfileResponse = await getProfileApi();
         if (userProfileResponse.ok) {
           const userProfileData = await userProfileResponse.json();
-          console.log('Login - User Profile Data:', userProfileData);
-          
+          console.log("Login - User Profile Data:", userProfileData);
+
           setUserProfile(userProfileData);
-          
+
           let userType = "customer";
-          
+
           // Check if user is admin type
           if (userProfileData.type?.toLowerCase() === "admin") {
             userType = "admin";
-            console.log('Login - Detected admin user');
+            console.log("Login - Detected admin user");
           }
           // Check if user is merchant type
           else if (userProfileData.type?.toLowerCase().startsWith("merchant")) {
             userType = "merchant";
-            console.log('Login - Detected merchant user');
+            console.log("Login - Detected merchant user");
           }
-          
-          console.log('Login - Setting user type:', userType);
-          
+
+          console.log("Login - Setting user type:", userType);
+
           // Store auth with user type
           storeAuth(accessToken, userType, true);
-          
+
           // Redirect based on user type
           if (userType === "admin") {
-            console.log('Login - Redirecting to admin dashboard');
+            console.log("Login - Redirecting to admin dashboard");
             navigate("/admin/dashboard", { replace: true });
           } else if (userType === "merchant") {
             navigate("/merchant/virtual-account", { replace: true });
@@ -288,7 +288,7 @@ export default function LoginPage() {
 
           <Button
             type="submit"
-            className="bg-[#1A1A1A] hover:bg-[#2D2D2D] w-full"
+            className="bg-[#1A1A1A] hover:bg-[#2D2D2D] w-full text-white"
             disabled={loading}
           >
             {loading ? "Signing in..." : "Sign in"}
