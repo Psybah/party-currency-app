@@ -42,6 +42,20 @@ export default function EventManagement() {
   const [sortBy, setSortBy] = useState("-created_at");
   const pageSize = 10;
 
+  // State for delivery status changes
+  const [selectedStatuses, setSelectedStatuses] = useState({});
+  const [showUpdateButtons, setShowUpdateButtons] = useState({});
+
+  // Delivery status options
+  const deliveryStatusOptions = [
+    { value: "pending", label: "Pending" },
+    { value: "processing", label: "Processing" },
+    { value: "in_transit", label: "In Transit" },
+    { value: "delivered", label: "Delivered" },
+    { value: "cancelled", label: "Cancelled" },
+    { value: "on_hold", label: "On Hold" },
+  ];
+
   // Listen for sidebar state changes
   useEffect(() => {
     const handleSidebarStateChange = (event) => {
@@ -101,11 +115,25 @@ export default function EventManagement() {
     fetchEvents(page, searchTerm, sortBy);
   };
 
+  // Handle status selection change
+  const handleStatusSelection = (eventId, newStatus, currentStatus) => {
+    setSelectedStatuses((prev) => ({
+      ...prev,
+      [eventId]: newStatus,
+    }));
+
+    // Show update button if status is different from current
+    setShowUpdateButtons((prev) => ({
+      ...prev,
+      [eventId]: newStatus !== currentStatus,
+    }));
+  };
+
   // Handle status update
   const handleStatusUpdate = async (eventId, newStatus) => {
     setUpdatingStatus(true);
     try {
-      await adminApi.updateDeliveryStatus(eventId, newStatus);
+      await adminApi.changeDeliveryStatus(eventId, newStatus);
       // Update the local state
       setEvents((prevEvents) =>
         prevEvents.map((event) =>
@@ -114,6 +142,13 @@ export default function EventManagement() {
             : event
         )
       );
+
+      // Hide the update button
+      setShowUpdateButtons((prev) => ({
+        ...prev,
+        [eventId]: false,
+      }));
+
       toast.success("Delivery status updated successfully");
     } catch (error) {
       toast.error("Failed to update delivery status");
@@ -220,7 +255,99 @@ export default function EventManagement() {
           ) : (
             <div className="space-y-4">
               {events.map((event) => (
-                <EventCard key={event.event_id} event={event} />
+                <div key={event.event_id} className="">
+                  <EventCard event={event} />
+
+                  {/* Admin Controls for Delivery Status */}
+                  <Card className="p-4 bg-gold/30 border-gold rounded-b-lg rounded-t-none">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-700">
+                          Current Status:
+                        </span>
+                        <span
+                          className={cn(
+                            "px-2 py-1 rounded-full text-xs font-bold",
+                            event.delivery_status.includes("delivered") &&
+                              "bg-green-100 text-green-800",
+                            event.delivery_status.includes("in_transit") &&
+                              "bg-blue-100 text-blue-800",
+                            event.delivery_status.includes("processing") &&
+                              "bg-yellow-100 text-yellow-800",
+                            event.delivery_status.includes("pending") &&
+                              "bg-gray-300 text-gray-800",
+                            event.delivery_status.includes("cancelled") &&
+                              "bg-red-100 text-red-800",
+                            event.delivery_status.includes("on_hold") &&
+                              "bg-orange-100 text-orange-800"
+                          )}
+                        >
+                          {deliveryStatusOptions.find(
+                            (opt) => opt.value === event.delivery_status
+                          )?.label || event.delivery_status}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-gray-700">
+                            Change to:
+                          </span>
+                          <Select
+                            value={
+                              selectedStatuses[event.event_id] ||
+                              event.delivery_status
+                            }
+                            onValueChange={(value) =>
+                              handleStatusSelection(
+                                event.event_id,
+                                value,
+                                event.delivery_status
+                              )
+                            }
+                          >
+                            <SelectTrigger className="w-40">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {deliveryStatusOptions.map((option) => (
+                                <SelectItem
+                                  key={option.value}
+                                  value={option.value}
+                                >
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {showUpdateButtons[event.event_id] && (
+                          <Button
+                            onClick={() =>
+                              handleStatusUpdate(
+                                event.event_id,
+                                selectedStatuses[event.event_id]
+                              )
+                            }
+                            disabled={updatingStatus}
+                            size="sm"
+                            className="bg-bluePrimary hover:bg-bluePrimary/90"
+                          >
+                            {updatingStatus ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
+                                Updating...
+                              </>
+                            ) : (
+                              "Update Status"
+                            )}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                </div>
               ))}
             </div>
           )}

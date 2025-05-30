@@ -175,12 +175,12 @@ const adminApi = {
   },
 
   // Update delivery status for an event
-  updateDeliveryStatus: async (eventId, deliveryStatus) => {
+  changeDeliveryStatus: async (eventId, deliveryStatus) => {
     try {
       const { accessToken } = getAuth();
-      const response = await axios.put(
-        `${BASE_URL}/admin/update-delivery-status/${eventId}`,
-        { delivery_status: deliveryStatus },
+      const response = await axios.post(
+        `${BASE_URL}/admin/change-event-status`,
+        { event_id: eventId, delivery_status: deliveryStatus },
         {
           headers: {
             Authorization: `Token ${accessToken}`,
