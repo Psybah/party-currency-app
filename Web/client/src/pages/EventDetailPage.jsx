@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import DashboardSidebar from "../components/DashboardSidebar";
 import DashboardHeader from "../components/DashboardHeader";
 import { LoadingDisplay } from "@/components/LoadingDisplay";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal, ArrowLeft } from "lucide-react";
+import { Terminal, ArrowLeft, Download } from "lucide-react";
 import { getEventById, getCurrenciesByEventId } from "@/api/eventApi";
 import { downloadCurrencyImage } from "@/components/ui/CurrencyImage"; // Assuming this is the correct path
 import { CurrencyCanvas } from "@/components/currency/CurrencyCanvas";
@@ -95,6 +95,10 @@ export default function EventDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [downloadingCurrency, setDownloadingCurrency] = useState(null);
+
+  // Create refs for each currency canvas (front and back)
+  const canvasRefs = useRef({});
 
   useEffect(() => {
     const handleSidebarStateChange = (event) => {
@@ -192,6 +196,86 @@ export default function EventDetailPage() {
       setIsPaymentModalOpen(true);
     }
   }, [location.search, eventDetails, currencies]);
+
+  // Download function for currency
+  const handleDownloadCurrency = async (currency, side) => {
+    const canvasKey = `${currency.currency_id}-${side}`;
+    const canvasRef = canvasRefs.current[canvasKey];
+
+    if (!canvasRef || !canvasRef.isReady()) {
+      toast.error(
+        "Currency image not ready for download. Please wait a moment and try again."
+      );
+      return;
+    }
+
+    setDownloadingCurrency(canvasKey);
+
+    try {
+      const filename = `${eventDetails.event_name}-${
+        currency.currency_name || "Currency"
+      }-${side}-₦${currency.denomination}.png`;
+      const success = canvasRef.downloadImage(filename);
+
+      if (success) {
+        toast.success(
+          `${side === "front" ? "Front" : "Back"} side downloaded successfully!`
+        );
+      } else {
+        toast.error("Failed to download currency image. Please try again.");
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("An error occurred while downloading. Please try again.");
+    } finally {
+      setDownloadingCurrency(null);
+    }
+  };
+
+  // Download both sides function
+  const handleDownloadBothSides = async (currency) => {
+    const frontCanvasKey = `${currency.currency_id}-front`;
+    const backCanvasKey = `${currency.currency_id}-back`;
+    const frontRef = canvasRefs.current[frontCanvasKey];
+    const backRef = canvasRefs.current[backCanvasKey];
+
+    if (!frontRef?.isReady() || !backRef?.isReady()) {
+      toast.error(
+        "Currency images not ready for download. Please wait a moment and try again."
+      );
+      return;
+    }
+
+    setDownloadingCurrency(`${currency.currency_id}-both`);
+
+    try {
+      const baseName = `${eventDetails.event_name}-${
+        currency.currency_name || "Currency"
+      }-₦${currency.denomination}`;
+
+      // Download front side
+      const frontSuccess = frontRef.downloadImage(`${baseName}-front.png`);
+
+      // Add a small delay to prevent browser download conflicts
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Download back side
+      const backSuccess = backRef.downloadImage(`${baseName}-back.png`);
+
+      if (frontSuccess && backSuccess) {
+        toast.success("Both sides downloaded successfully!");
+      } else {
+        toast.error(
+          "Some images failed to download. Please try downloading individually."
+        );
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("An error occurred while downloading. Please try again.");
+    } finally {
+      setDownloadingCurrency(null);
+    }
+  };
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
@@ -327,14 +411,6 @@ export default function EventDetailPage() {
         />
         <main className="p-4 md:p-6 lg:p-8">
           <div className="max-w-5xl mx-auto">
-            {/* Back Navigation */}
-            <div className="mb-6">
-              <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-            </div>
-
             {/* Event Details Card */}
             <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
               <div className="flex flex-col md:flex-row justify-between items-start mb-4">
@@ -451,7 +527,7 @@ export default function EventDetailPage() {
                         </span>
                       </p>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div>
                           <p className="text-xs text-gray-600 mb-1 font-medium">
                             Front Side
@@ -459,6 +535,13 @@ export default function EventDetailPage() {
                           {associatedImages[currency.currency_id]?.front ||
                           currency.front_image ? (
                             <CurrencyCanvas
+                              ref={(ref) => {
+                                if (ref) {
+                                  canvasRefs.current[
+                                    `${currency.currency_id}-front`
+                                  ] = ref;
+                                }
+                              }}
                               templateImage={getTemplateImage(
                                 currency.denomination
                               )}
@@ -484,6 +567,31 @@ export default function EventDetailPage() {
                               "{currency.front_celebration_text}"
                             </p>
                           )}
+
+                          {/* Download Front Button */}
+                          {(associatedImages[currency.currency_id]?.front ||
+                            currency.front_image) && (
+                            <div className="mt-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  handleDownloadCurrency(currency, "front")
+                                }
+                                disabled={
+                                  downloadingCurrency ===
+                                  `${currency.currency_id}-front`
+                                }
+                                className="w-full"
+                              >
+                                <Download className="w-3 h-3 mr-1" />
+                                {downloadingCurrency ===
+                                `${currency.currency_id}-front`
+                                  ? "Downloading..."
+                                  : "Download Front"}
+                              </Button>
+                            </div>
+                          )}
                         </div>
                         <div>
                           <p className="text-xs text-gray-600 mb-1 font-medium">
@@ -492,6 +600,13 @@ export default function EventDetailPage() {
                           {associatedImages[currency.currency_id]?.back ||
                           currency.back_image ? (
                             <CurrencyCanvas
+                              ref={(ref) => {
+                                if (ref) {
+                                  canvasRefs.current[
+                                    `${currency.currency_id}-back`
+                                  ] = ref;
+                                }
+                              }}
                               templateImage={getTemplateImage(
                                 currency.denomination
                               )} // Assuming back also uses a base template
@@ -516,11 +631,61 @@ export default function EventDetailPage() {
                               "{currency.back_celebration_text}"
                             </p>
                           )}
+
+                          {/* Download Back Button */}
+                          {(associatedImages[currency.currency_id]?.back ||
+                            currency.back_image) && (
+                            <div className="mt-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  handleDownloadCurrency(currency, "back")
+                                }
+                                disabled={
+                                  downloadingCurrency ===
+                                  `${currency.currency_id}-back`
+                                }
+                                className="w-full"
+                              >
+                                <Download className="w-3 h-3 mr-1" />
+                                {downloadingCurrency ===
+                                `${currency.currency_id}-back`
+                                  ? "Downloading..."
+                                  : "Download Back"}
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </div>
+
+                      {/* Download Both Sides Button */}
+                      {(associatedImages[currency.currency_id]?.front ||
+                        currency.front_image) &&
+                        (associatedImages[currency.currency_id]?.back ||
+                          currency.back_image) && (
+                          <div className="border-t pt-3 mt-3">
+                            <Button
+                              variant="default"
+                              className="w-full bg-bluePrimary hover:bg-bluePrimary/90"
+                              onClick={() => handleDownloadBothSides(currency)}
+                              disabled={
+                                downloadingCurrency ===
+                                `${currency.currency_id}-both`
+                              }
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              {downloadingCurrency ===
+                              `${currency.currency_id}-both`
+                                ? "Printing Both Sides..."
+                                : "Print Both Sides"}
+                            </Button>
+                          </div>
+                        )}
+
                       {/* Show customize button only for event owners */}
                       {isEventOwner && (
-                        <div className="text-right mt-2">
+                        <div className="text-right mt-3 pt-3 border-t">
                           <Button
                             size="sm"
                             variant="ghost"

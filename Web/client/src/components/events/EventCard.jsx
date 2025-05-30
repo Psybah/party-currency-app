@@ -43,7 +43,7 @@ const StatusBadge = ({ status, type }) => {
   );
 };
 
-export default function EventCard({ event }) {
+export default function EventCard({ event, type = "admin" }) {
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
 
@@ -133,8 +133,11 @@ export default function EventCard({ event }) {
           {event.payment_status === "pending" && (
             <button
               onClick={() => {
-                console.log("clicked");
-                navigate(`/admin/events/${event.event_id}?action=pay`);
+                if (type === "admin") {
+                  navigate(`/admin/events/${event.event_id}?action=pay`);
+                } else {
+                  navigate(`/event/${event.event_id}?action=pay`);
+                }
               }}
               className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-bluePrimary rounded-md hover:bg-bluePrimary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bluePrimary"
             >
@@ -143,8 +146,11 @@ export default function EventCard({ event }) {
           )}
           <button
             onClick={() => {
-              console.log("clicked", event);
-              navigate(`/admin/events/${event.event_id}`);
+              if (type === "admin") {
+                navigate(`/admin/events/${event.event_id}`);
+              } else {
+                navigate(`/event/${event.event_id}`);
+              }
             }}
             className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-bluePrimary rounded-md hover:bg-bluePrimary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bluePrimary"
           >

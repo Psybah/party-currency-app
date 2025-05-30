@@ -1,0 +1,20 @@
+---
+description: understand project, product documentation 
+globs: 
+alwaysApply: false
+---
+## Core Services
+
+1. **Digital Party Currency**: Celebrants can create personalized currency, specifying denominations, designs, and colors.
+2. **Vendor Kiosk**: Guests scan QR codes at kiosks to exchange funds for party currency.
+3. **POS Foot Soldiers**: Agents assist guests with currency exchanges throughout the event.
+4. **Reconciliation Services**: Vendors and musicians can redeem party currency back to actual funds.
+
+## Features
+
+- **Custom Currency Design**: Choose from various templates for custom party currency.
+- **Secure Payments**: Integration with Moniepoint for secure transactions.
+- **Onsite Vendor Kiosk**: Allows real-time currency exchange with QR code payments.
+- **Foot Soldiers**: POS agents facilitate currency exchange at the party.
+
+- **Reconciliation**: Redeem party currency for real funds for vendors and performers.

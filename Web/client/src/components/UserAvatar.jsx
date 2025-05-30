@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import { Avatar, Popover } from "antd";
 import { useNavigate, Link } from "react-router-dom";
 import { USER_PROFILE_CONTEXT } from "@/context";
@@ -12,8 +12,9 @@ export default function UserAvatar({ showName = false }) {
   const { userProfile, setUserProfile } = useContext(USER_PROFILE_CONTEXT);
   const { setSignupOpen } = useContext(SIGNUP_CONTEXT);
   const navigate = useNavigate();
-  const { userType } = getAuth();
-  const isMerchant = userType === "merchant";
+  // const { userType } = getAuth();
+  const isMerchant = userProfile?.type.toLowerCase() === "merchant";
+  const isAdmin = userProfile?.type.toLowerCase() === "admin";
   const [profileImage, setProfileImage] = useState(null);
 
   useEffect(() => {
@@ -37,7 +38,7 @@ export default function UserAvatar({ showName = false }) {
   // Cleanup object URL when component unmounts
   useEffect(() => {
     return () => {
-      if (profileImage && profileImage.startsWith('blob:')) {
+      if (profileImage && profileImage.startsWith("blob:")) {
         URL.revokeObjectURL(profileImage);
       }
     };
@@ -116,8 +117,35 @@ export default function UserAvatar({ showName = false }) {
     </div>
   );
 
+  const adminOptions = (
+    <div>
+      <div className="p-4 border-b border-gray-200">
+        <p className="text-sm text-gray-600">{userProfile?.email}</p>
+      </div>
+      <ul className="space-y-2 mx-2 px-2 min-w-[10ch]">
+        <li
+          className="hover:font-semibold hover:text-Primary transition-colors cursor-pointer select-none"
+          onClick={handleLogout}
+        >
+          Sign out
+        </li>
+        <li
+          className="hover:font-semibold hover:text-Primary transition-colors cursor-pointer select-none"
+          onClick={() => {
+            navigate("/admin/dashboard");
+          }}
+        >
+          Dashboard
+        </li>
+      </ul>
+    </div>
+  );
   // Select appropriate options based on whether this is for merchant or regular user
-  const options = isMerchant ? merchantOptions : regularOptions;
+  const options = isMerchant
+    ? merchantOptions
+    : isAdmin
+    ? adminOptions
+    : regularOptions;
 
   // If there's a user profile, show the avatar and options
   if (userProfile) {
@@ -143,7 +171,9 @@ export default function UserAvatar({ showName = false }) {
               style={{ backgroundColor: "#334495", verticalAlign: "middle" }}
               size="default"
             >
-              {!profileImage && <span className="font-semibold text-white">{name?.[0]}</span>}
+              {!profileImage && (
+                <span className="font-semibold text-white">{name?.[0]}</span>
+              )}
             </Avatar>
           </div>
         </Popover>
@@ -168,5 +198,5 @@ export default function UserAvatar({ showName = false }) {
 }
 
 UserAvatar.propTypes = {
-  showName: PropTypes.bool
+  showName: PropTypes.bool,
 };
