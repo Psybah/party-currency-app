@@ -42,6 +42,8 @@ import GoogleAuth from "./pages/GoogleAuth";
 import MyCurrencies from "./pages/MyCurrencies";
 import EventDetailPage from "./pages/EventDetailPage";
 import TransactionManagement from "./pages/admin/TransactionManagement";
+import DashboardLayout from "./components/layouts/DashboardLayout";
+import AdminLayout from "./components/layouts/AdminLayout";
 
 function App() {
   return (
@@ -74,39 +76,104 @@ function App() {
           <Route path="/customize-500" element={<Customize500 />} />
           <Route path="/customize-1000" element={<Customize1000 />} />
 
-          {/* Protected Routes */}
-          {/* Admin Routes */}
+          {/* Admin Routes with Layout */}
           <Route
-            path="/admin/*"
+            path="/admin"
             element={
               <AdminRouteGuard>
                 <AdminProtectedRoute>
-                  <Routes>
-                    <Route
-                      path="/"
-                      element={<Navigate to="/admin/dashboard" replace />}
-                    />
-                    <Route path="dashboard" element={<AdminDashboard />} />
-                    <Route
-                      path="user-management"
-                      element={<UserManagement />}
-                    />
-                    <Route path="events" element={<EventManagement />} />
-                    <Route
-                      path="events/:eventId"
-                      element={<EventDetailPage />}
-                    />
-                    <Route
-                      path="transactions"
-                      element={<TransactionManagement />}
-                    />
-                  </Routes>
+                  <AdminLayout />
                 </AdminProtectedRoute>
               </AdminRouteGuard>
             }
-          />
+          >
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="user-management" element={<UserManagement />} />
+            <Route path="events" element={<EventManagement />} />
+            <Route path="events/:eventId" element={<EventDetailPage />} />
+            <Route path="transactions" element={<TransactionManagement />} />
+          </Route>
 
-          {/* Merchant Routes */}
+          {/* Celebrant Dashboard Routes with Layout */}
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute userType="customer">
+                <DashboardLayout />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+          </Route>
+
+          <Route
+            path="/create-event"
+            element={
+              <PrivateRoute userType="customer">
+                <DashboardLayout />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<CreateEvent />} />
+          </Route>
+
+          <Route
+            path="/manage-event"
+            element={
+              <PrivateRoute userType="customer">
+                <DashboardLayout />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<ManageEvent />} />
+          </Route>
+
+          <Route
+            path="/event/:eventId"
+            element={
+              <PrivateRoute userType="customer">
+                <DashboardLayout />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<EventDetailPage />} />
+          </Route>
+
+          <Route
+            path="/templates"
+            element={
+              <PrivateRoute userType="customer">
+                <DashboardLayout />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Templates />} />
+          </Route>
+
+          <Route
+            path="/my-currencies"
+            element={
+              <PrivateRoute userType="customer">
+                <DashboardLayout />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<MyCurrencies />} />
+          </Route>
+
+          <Route
+            path="/settings"
+            element={
+              <PrivateRoute userType="customer">
+                <DashboardLayout />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Settings />} />
+          </Route>
+
+          {/* Merchant Routes (keeping these as is since they might have different layouts) */}
           <Route
             path="/merchant/virtual-account"
             element={
@@ -137,64 +204,6 @@ function App() {
             element={
               <PrivateRoute userType="merchant">
                 <MerchantSettings />
-              </PrivateRoute>
-            }
-          />
-
-          {/* Celebrant Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute userType="customer">
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/create-event"
-            element={
-              <PrivateRoute userType="customer">
-                <CreateEvent />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/manage-event"
-            element={
-              <PrivateRoute userType="customer">
-                <ManageEvent />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/event/:eventId"
-            element={
-              <PrivateRoute userType="customer">
-                <EventDetailPage />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/templates"
-            element={
-              <PrivateRoute userType="customer">
-                <Templates />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/my-currencies"
-            element={
-              <PrivateRoute userType="customer">
-                <MyCurrencies />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <PrivateRoute userType="customer">
-                <Settings />
               </PrivateRoute>
             }
           />

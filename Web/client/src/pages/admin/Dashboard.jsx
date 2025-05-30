@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { AdminSidebar } from "@/components/admin/AdminSidebar";
-import { AdminHeader } from "@/components/admin/AdminHeader";
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -85,7 +83,6 @@ const getStatusColor = (status) => {
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [statsData, setStatsData] = useState({
@@ -102,7 +99,6 @@ export default function AdminDashboard() {
     eventGrowthPercentage: 0,
   });
   const [transactions, setTransactions] = useState([]);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // State for user info dialog
   const [userInfoDialog, setUserInfoDialog] = useState({
@@ -234,20 +230,6 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
-
-  useEffect(() => {
-    const handleSidebarStateChange = (event) => {
-      setSidebarCollapsed(event.detail.isCollapsed);
-    };
-
-    window.addEventListener("sidebarStateChange", handleSidebarStateChange);
-    return () => {
-      window.removeEventListener(
-        "sidebarStateChange",
-        handleSidebarStateChange
-      );
-    };
   }, []);
 
   const fetchDashboardData = async () => {
@@ -399,67 +381,30 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <AdminSidebar
-          isOpen={isMobileMenuOpen}
-          onClose={() => setIsMobileMenuOpen(false)}
-        />
-        <div
-          className={cn(
-            "transition-all duration-300",
-            sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
-          )}
-        >
-          <AdminHeader toggleMobileMenu={() => setIsMobileMenuOpen(true)} />
-          <main className="p-6 space-y-6">
-            <div className="flex justify-between items-center">
-              <div className="h-8 bg-gray-200 rounded w-32"></div>
-              <div className="h-4 bg-gray-200 rounded w-24"></div>
-            </div>
-            <div
-              className={cn(
-                "grid gap-4",
-                "grid-cols-1",
-                "md:grid-cols-2",
-                sidebarCollapsed ? "xl:grid-cols-4" : "lg:grid-cols-4"
-              )}
-            >
-              {[...Array(4)].map((_, i) => (
-                <LoadingCard key={i} />
-              ))}
-            </div>
-            <LoadingTable />
-          </main>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div className="h-8 bg-gray-200 rounded w-32"></div>
+          <div className="h-4 bg-gray-200 rounded w-24"></div>
         </div>
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <LoadingCard key={i} />
+          ))}
+        </div>
+        <LoadingTable />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <AdminSidebar
-          isOpen={isMobileMenuOpen}
-          onClose={() => setIsMobileMenuOpen(false)}
-        />
-        <div
-          className={cn(
-            "transition-all duration-300",
-            sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
-          )}
-        >
-          <AdminHeader toggleMobileMenu={() => setIsMobileMenuOpen(true)} />
-          <main className="p-6">
-            <ErrorState
-              message={error}
-              onRetry={() => {
-                setError(null);
-                fetchDashboardData();
-              }}
-            />
-          </main>
-        </div>
-      </div>
+      <ErrorState
+        message={error}
+        onRetry={() => {
+          setError(null);
+          fetchDashboardData();
+        }}
+      />
     );
   }
 
@@ -513,321 +458,290 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AdminSidebar
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-      />
+    <>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-semibold font-playfair">Hello, Admin</h1>
+          <p className="text-sm text-gray-500">{currentDate}</p>
+        </div>
 
-      <div
-        className={cn(
-          "transition-all duration-300",
-          sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
-        )}
-      >
-        <AdminHeader toggleMobileMenu={() => setIsMobileMenuOpen(true)} />
-
-        <main className="p-6 space-y-6">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-semibold font-playfair">
-              Hello, Admin
-            </h1>
-            <p className="text-sm text-gray-500">{currentDate}</p>
-          </div>
-
-          <div
-            className={cn(
-              "grid gap-4",
-              "grid-cols-1",
-              "md:grid-cols-2",
-              sidebarCollapsed ? "xl:grid-cols-4" : "lg:grid-cols-4"
-            )}
-          >
-            {stats.map((stat) => (
-              <Card
-                key={stat.id}
-                className="p-6 bg-white hover:shadow-md transition-shadow"
-              >
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={cn("p-2 rounded-lg", stat.bgColor)}>
-                      {stat.icon}
-                    </div>
-                    <span className="text-sm text-gray-600 font-medium">
-                      {stat.title}
-                    </span>
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
+          {stats.map((stat) => (
+            <Card
+              key={stat.id}
+              className="p-6 bg-white hover:shadow-md transition-shadow"
+            >
+              <div className="flex flex-col">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={cn("p-2 rounded-lg", stat.bgColor)}>
+                    {stat.icon}
                   </div>
-                  <div className="space-y-2">
-                    <p className="text-3xl font-bold text-gray-900">
-                      {stat.value.toLocaleString()}
-                    </p>
-                    <p className="text-xs text-gray-500">{stat.subtitle}</p>
-                    <div className="flex items-center gap-2">
-                      {stat.change !== null && (
-                        <span
-                          className={cn(
-                            "text-sm font-medium px-2 py-1 rounded-full",
-                            stat.change === 0
-                              ? "text-gray-600 bg-gray-100"
-                              : stat.change > 0
-                              ? "text-green-700 bg-green-100"
-                              : "text-red-700 bg-red-100"
-                          )}
-                        >
-                          {stat.change === 0
-                            ? "0%"
-                            : `${
-                                stat.change > 0 ? "+" : ""
-                              }${stat.change.toFixed(1)}%`}
-                        </span>
-                      )}
-                      <span className="text-sm text-gray-500">
-                        {stat.period}
+                  <span className="text-sm text-gray-600 font-medium">
+                    {stat.title}
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-3xl font-bold text-gray-900">
+                    {stat.value.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-500">{stat.subtitle}</p>
+                  <div className="flex items-center gap-2">
+                    {stat.change !== null && (
+                      <span
+                        className={cn(
+                          "text-sm font-medium px-2 py-1 rounded-full",
+                          stat.change === 0
+                            ? "text-gray-600 bg-gray-100"
+                            : stat.change > 0
+                            ? "text-green-700 bg-green-100"
+                            : "text-red-700 bg-red-100"
+                        )}
+                      >
+                        {stat.change === 0
+                          ? "0%"
+                          : `${stat.change > 0 ? "+" : ""}${stat.change.toFixed(
+                              1
+                            )}%`}
                       </span>
-                    </div>
+                    )}
+                    <span className="text-sm text-gray-500">{stat.period}</span>
                   </div>
                 </div>
-              </Card>
-            ))}
-          </div>
-
-          {/* Additional Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="p-6 bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-medium text-blue-800 mb-1">
-                    User Growth
-                  </h3>
-                  <p className="text-2xl font-bold text-blue-900">
-                    {statsData.newUsersThisWeek}
-                  </p>
-                  <p className="text-xs text-blue-600">New users this week</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-blue-700">
-                    Previous week: {statsData.newUsersPreviousWeek}
-                  </p>
-                  <p
-                    className={cn(
-                      "text-lg font-semibold",
-                      statsData.userGrowthPercentage > 0
-                        ? "text-green-600"
-                        : "text-red-600"
-                    )}
-                  >
-                    {statsData.userGrowthPercentage > 0 ? "+" : ""}
-                    {statsData.userGrowthPercentage.toFixed(1)}%
-                  </p>
-                </div>
               </div>
             </Card>
+          ))}
+        </div>
 
-            <Card className="p-6 bg-gradient-to-r from-green-50 to-green-100 border-green-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-medium text-green-800 mb-1">
-                    Transaction Activity
-                  </h3>
-                  <p className="text-2xl font-bold text-green-900">
-                    {statsData.transactionsThisWeek}
-                  </p>
-                  <p className="text-xs text-green-600">
-                    Transactions this week
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-green-700">
-                    Completed: {statsData.totalCompletedTransactions}
-                  </p>
-                  <p className="text-sm text-yellow-600">
-                    Pending: {statsData.totalPendingTransactions}
-                  </p>
-                </div>
+        {/* Additional Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="p-6 bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-blue-800 mb-1">
+                  User Growth
+                </h3>
+                <p className="text-2xl font-bold text-blue-900">
+                  {statsData.newUsersThisWeek}
+                </p>
+                <p className="text-xs text-blue-600">New users this week</p>
               </div>
-            </Card>
-
-            <Card className="p-6 bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-medium text-purple-800 mb-1">
-                    Event Activity
-                  </h3>
-                  <p className="text-2xl font-bold text-purple-900">
-                    {statsData.eventsThisWeek}
-                  </p>
-                  <p className="text-xs text-purple-600">Events this week</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-purple-700">
-                    Total events: {statsData.totalEvents}
-                  </p>
-                  <p
-                    className={cn(
-                      "text-lg font-semibold",
-                      statsData.eventGrowthPercentage > 0
-                        ? "text-green-600"
-                        : "text-red-600"
-                    )}
-                  >
-                    {statsData.eventGrowthPercentage > 0 ? "+" : ""}
-                    {statsData.eventGrowthPercentage.toFixed(1)}%
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Transactions Table */}
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="p-4 border-b">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-50 rounded-lg">
-                  <DollarSign className="w-5 h-5 text-green-600" />
-                </div>
-                <h2 className="text-lg font-semibold">Recent Transactions</h2>
-                <span className="text-sm text-gray-500">
-                  ({transactions.length} total)
-                </span>
+              <div className="text-right">
+                <p className="text-sm text-blue-700">
+                  Previous week: {statsData.newUsersPreviousWeek}
+                </p>
+                <p
+                  className={cn(
+                    "text-lg font-semibold",
+                    statsData.userGrowthPercentage > 0
+                      ? "text-green-600"
+                      : "text-red-600"
+                  )}
+                >
+                  {statsData.userGrowthPercentage > 0 ? "+" : ""}
+                  {statsData.userGrowthPercentage.toFixed(1)}%
+                </p>
               </div>
             </div>
+          </Card>
 
-            {transactions && transactions.length > 0 ? (
-              <>
-                {/* Desktop Table */}
-                <div className="hidden lg:block overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-left pl-6">
-                          Customer
-                        </TableHead>
-                        <TableHead className="text-left">Amount</TableHead>
-                        <TableHead className="text-left">Status</TableHead>
-                        <TableHead className="text-left">Reference</TableHead>
-                        <TableHead className="text-left">Currency</TableHead>
-                        <TableHead className="text-left">Event ID</TableHead>
-                        <TableHead className="w-[120px] text-center">
-                          Actions
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {transactions.slice(0, 8).map((transaction, index) => (
-                        <TableRow
-                          key={index}
-                          className="hover:bg-gray-50 cursor-pointer transition-colors"
-                          onClick={() =>
-                            handleTransactionClick(transaction.event_id)
-                          }
-                        >
-                          <TableCell className="text-left pl-6">
-                            <div className="min-w-0">
-                              <p className="font-medium text-gray-900 truncate">
-                                {transaction.customer_name || "Unknown"}
-                              </p>
-                              <p className="text-sm text-gray-500 truncate">
-                                {transaction.customer_email}
-                              </p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-left">
-                            <span className="font-semibold text-gray-900">
-                              {formatCurrency(
-                                transaction.amount,
-                                transaction.currency_code
-                              )}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-left">
-                            <span
-                              className={cn(
-                                "px-2 py-1 rounded-full text-xs font-medium",
-                                getStatusColor(transaction.status)
-                              )}
-                            >
-                              {transaction.status}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-left">
-                            <span className="font-mono text-sm">
-                              {transaction.payment_reference}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-left">
-                            <span className="font-medium">
-                              {transaction.currency_code}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-left">
-                            <span className="font-mono text-sm text-gray-600">
-                              {transaction.event_id}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <div className="flex items-center justify-center gap-1">
-                              <Button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleViewUserInfo(
-                                    transaction.customer_email
-                                  );
-                                }}
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                                title="View User Info"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleViewEvent(transaction.event_id);
-                                }}
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                                title="View Event"
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+          <Card className="p-6 bg-gradient-to-r from-green-50 to-green-100 border-green-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-green-800 mb-1">
+                  Transaction Activity
+                </h3>
+                <p className="text-2xl font-bold text-green-900">
+                  {statsData.transactionsThisWeek}
+                </p>
+                <p className="text-xs text-green-600">Transactions this week</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-green-700">
+                  Completed: {statsData.totalCompletedTransactions}
+                </p>
+                <p className="text-sm text-yellow-600">
+                  Pending: {statsData.totalPendingTransactions}
+                </p>
+              </div>
+            </div>
+          </Card>
 
-                {/* Mobile Cards */}
-                <div className="lg:hidden p-4 space-y-4">
-                  {transactions.slice(0, 8).map((transaction, index) => (
-                    <TransactionMobileCard
-                      key={index}
-                      transaction={transaction}
-                    />
-                  ))}
-                </div>
+          <Card className="p-6 bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-purple-800 mb-1">
+                  Event Activity
+                </h3>
+                <p className="text-2xl font-bold text-purple-900">
+                  {statsData.eventsThisWeek}
+                </p>
+                <p className="text-xs text-purple-600">Events this week</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-purple-700">
+                  Total events: {statsData.totalEvents}
+                </p>
+                <p
+                  className={cn(
+                    "text-lg font-semibold",
+                    statsData.eventGrowthPercentage > 0
+                      ? "text-green-600"
+                      : "text-red-600"
+                  )}
+                >
+                  {statsData.eventGrowthPercentage > 0 ? "+" : ""}
+                  {statsData.eventGrowthPercentage.toFixed(1)}%
+                </p>
+              </div>
+            </div>
+          </Card>
+        </div>
 
-                {/* Show more button if there are more transactions */}
-                {transactions.length > 8 && (
-                  <div className="p-4 border-t bg-gray-50 text-center">
-                    <Button
-                      onClick={() => navigate("/admin/transactions")}
-                      variant="outline"
-                      className="text-sm"
-                    >
-                      View All Transactions ({transactions.length})
-                    </Button>
-                  </div>
-                )}
-              </>
-            ) : (
-              <EmptyTransactionsTable />
-            )}
+        {/* Transactions Table */}
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="p-4 border-b">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-50 rounded-lg">
+                <DollarSign className="w-5 h-5 text-green-600" />
+              </div>
+              <h2 className="text-lg font-semibold">Recent Transactions</h2>
+              <span className="text-sm text-gray-500">
+                ({transactions.length} total)
+              </span>
+            </div>
           </div>
-        </main>
+
+          {transactions && transactions.length > 0 ? (
+            <>
+              {/* Desktop Table */}
+              <div className="hidden lg:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-left pl-6">Customer</TableHead>
+                      <TableHead className="text-left">Amount</TableHead>
+                      <TableHead className="text-left">Status</TableHead>
+                      <TableHead className="text-left">Reference</TableHead>
+                      <TableHead className="text-left">Currency</TableHead>
+                      <TableHead className="text-left">Event ID</TableHead>
+                      <TableHead className="w-[120px] text-center">
+                        Actions
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {transactions.slice(0, 8).map((transaction, index) => (
+                      <TableRow
+                        key={index}
+                        className="hover:bg-gray-50 cursor-pointer transition-colors"
+                        onClick={() =>
+                          handleTransactionClick(transaction.event_id)
+                        }
+                      >
+                        <TableCell className="text-left pl-6">
+                          <div className="min-w-0">
+                            <p className="font-medium text-gray-900 truncate">
+                              {transaction.customer_name || "Unknown"}
+                            </p>
+                            <p className="text-sm text-gray-500 truncate">
+                              {transaction.customer_email}
+                            </p>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-left">
+                          <span className="font-semibold text-gray-900">
+                            {formatCurrency(
+                              transaction.amount,
+                              transaction.currency_code
+                            )}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-left">
+                          <span
+                            className={cn(
+                              "px-2 py-1 rounded-full text-xs font-medium",
+                              getStatusColor(transaction.status)
+                            )}
+                          >
+                            {transaction.status}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-left">
+                          <span className="font-mono text-sm">
+                            {transaction.payment_reference}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-left">
+                          <span className="font-medium">
+                            {transaction.currency_code}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-left">
+                          <span className="font-mono text-sm text-gray-600">
+                            {transaction.event_id}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewUserInfo(transaction.customer_email);
+                              }}
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              title="View User Info"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewEvent(transaction.event_id);
+                              }}
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              title="View Event"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile Cards */}
+              <div className="lg:hidden p-4 space-y-4">
+                {transactions.slice(0, 8).map((transaction, index) => (
+                  <TransactionMobileCard
+                    key={index}
+                    transaction={transaction}
+                  />
+                ))}
+              </div>
+
+              {/* Show more button if there are more transactions */}
+              {transactions.length > 8 && (
+                <div className="p-4 border-t bg-gray-50 text-center">
+                  <Button
+                    onClick={() => navigate("/admin/transactions")}
+                    variant="outline"
+                    className="text-sm"
+                  >
+                    View All Transactions ({transactions.length})
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : (
+            <EmptyTransactionsTable />
+          )}
+        </div>
       </div>
 
       {/* User Info Dialog */}
@@ -937,6 +851,6 @@ export default function AdminDashboard() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

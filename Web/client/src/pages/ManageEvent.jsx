@@ -54,32 +54,7 @@ export default function ManageEvent() {
     try {
       let events_fetched = await getEvents();
       console.log({ events_fetched });
-      events_fetched = events_fetched.events.map((event) => {
-        return {
-          event_id: event.event_id,
-          name: event.event_name,
-          description: event.event_description,
-          author: event.event_author,
-          location: {
-            street: event.street_address,
-            city: event.city,
-            state: event.state,
-            postalCode: event.postal_code,
-          },
-          dates: {
-            start: event.start_date,
-            end: event.end_date,
-            created: event.created_at,
-          },
-          status: {
-            payment: event.payment_status?.toLowerCase() || "unpaid",
-            delivery: event.delivery_status?.toLowerCase() || "pending",
-          },
-          reconciliation: event.reconciliation || false,
-          concluded: event.concluded || false,
-        };
-      });
-      setEvents(events_fetched);
+      setEvents(events_fetched.events);
     } catch (error) {
       console.error("Error fetching events:", error);
     } finally {

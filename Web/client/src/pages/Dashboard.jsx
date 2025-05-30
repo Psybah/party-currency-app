@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-import DashboardSidebar from "../components/DashboardSidebar";
-import DashboardHeader from "../components/DashboardHeader";
 import StatsCard from "../components/StatsCard";
 import TransactionHistory from "../components/TransactionHistory";
 import { LoadingDisplay } from "../components/LoadingDisplay";
@@ -10,8 +8,6 @@ import EmptyState from "../components/events/EmptyState";
 import { getEvents } from "../api/eventApi";
 
 export default function Dashboard() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data, isLoading, error } = useQuery({
@@ -44,7 +40,7 @@ export default function Dashboard() {
     state: event.state,
     start_date: event.start_date,
     payment_status: event.payment_status?.toLowerCase() || "pending",
-    delivery_status: event.delivery_status?.toLowerCase() || "pending"
+    delivery_status: event.delivery_status?.toLowerCase() || "pending",
   }));
 
   // Filter transactions based on search
@@ -52,91 +48,61 @@ export default function Dashboard() {
     (transaction) =>
       transaction.event_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.event_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.payment_status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.delivery_status.toLowerCase().includes(searchTerm.toLowerCase())
+      transaction.payment_status
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      transaction.delivery_status
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
   );
-
-  // Add this effect to all dashboard pages
-  useEffect(() => {
-    const handleSidebarStateChange = (event) => {
-      setSidebarCollapsed(event.detail.isCollapsed);
-    };
-
-    window.addEventListener('sidebarStateChange', handleSidebarStateChange);
-    return () => {
-      window.removeEventListener('sidebarStateChange', handleSidebarStateChange);
-    };
-  }, []);
 
   if (error) {
     return (
-      <div className="bg-gray-50 p-4 min-h-screen">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="mb-4 font-bold text-2xl text-gray-900">
-            Unable to load dashboard
-          </h2>
-          <p className="mb-4 text-gray-600">
-            {error.message || "Please try again later"}
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-gold hover:bg-gold/90 px-4 py-2 rounded text-white"
-          >
-            Retry
-          </button>
-        </div>
+      <div className="mx-auto max-w-4xl text-center">
+        <h2 className="mb-4 font-bold text-2xl text-gray-900">
+          Unable to load dashboard
+        </h2>
+        <p className="mb-4 text-gray-600">
+          {error.message || "Please try again later"}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-gold hover:bg-gold/90 px-4 py-2 rounded text-white"
+        >
+          Retry
+        </button>
       </div>
     );
   }
 
+  if (isLoading) {
+    return <LoadingDisplay message="Loading dashboard..." />;
+  }
+
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <DashboardSidebar
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-      />
-
-      <div className={`transition-all duration-300 ${
-        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
-      }`}>
-        <DashboardHeader
-          toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+    <>
+      <div className="gap-6 grid grid-cols-1 md:grid-cols-2 mb-8 text-left">
+        <StatsCard
+          label="Total Transaction Amount"
+          value={`₦${totalAmount.toLocaleString()}`}
+          status="Host"
         />
-
-        <main className="p-6">
-          {isLoading ? (
-            <LoadingDisplay message="Loading dashboard..." />
-          ) : (
-            <>
-              <div className="gap-6 grid grid-cols-1 md:grid-cols-2 mb-8 text-left">
-                <StatsCard
-                  label="Total Transaction Amount"
-                  value={`₦${totalAmount.toLocaleString()}`}
-                  status="Host"
-                />
-                <StatsCard
-                  label="Total Events Hosted"
-                  value={totalEvents.toString()}
-                />
-              </div>
-
-              <section>
-                <h2 className="mb-6 font-playfair font-semibold text-xl">
-                  Transaction History
-                </h2>
-                {events.length === 0 ? (
-                  <EmptyState type="ongoing" />
-                ) : (
-                  <TransactionHistory
-                    transactions={filteredTransactions}
-                    onSearch={setSearchTerm}
-                  />
-                )}
-              </section>
-            </>
-          )}
-        </main>
+        <StatsCard label="Total Events Hosted" value={totalEvents.toString()} />
       </div>
-    </div>
+
+      <section>
+        <h2 className="mb-6 font-playfair font-semibold text-xl">
+          Transaction History
+        </h2>
+        {events.length === 0 ? (
+          <EmptyState type="ongoing" />
+        ) : (
+          <TransactionHistory
+            transactions={filteredTransactions}
+            onSearch={setSearchTerm}
+          />
+        )}
+      </section>
+    </>
   );
 }

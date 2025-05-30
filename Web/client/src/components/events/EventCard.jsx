@@ -44,12 +44,19 @@ const StatusBadge = ({ status, type }) => {
   );
 };
 
-export default function EventCard({ event, type = "admin" }) {
+export default function EventCard({ event, type = "customer" }) {
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
-
+  console.log("event", event);
   const formatDate = (dateString) => {
-    return format(new Date(dateString), "MMM dd, yyyy");
+    console.log("date string", dateString);
+    try {
+      const date = format(new Date(dateString), "MMM dd, yyyy");
+      return date;
+    } catch (err) {
+      console.error("Failed to format date: ", err);
+      return "Invalid Date";
+    }
   };
 
   const handleCopyId = async () => {
