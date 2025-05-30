@@ -41,6 +41,7 @@ import NotFound from "./pages/NotFound";
 import GoogleAuth from "./pages/GoogleAuth";
 import MyCurrencies from "./pages/MyCurrencies";
 import EventDetailPage from "./pages/EventDetailPage";
+import TransactionManagement from "./pages/admin/TransactionManagement";
 
 function App() {
   return (
@@ -94,6 +95,10 @@ function App() {
                     <Route
                       path="events/:eventId"
                       element={<EventDetailPage />}
+                    />
+                    <Route
+                      path="transactions"
+                      element={<TransactionManagement />}
                     />
                   </Routes>
                 </AdminProtectedRoute>

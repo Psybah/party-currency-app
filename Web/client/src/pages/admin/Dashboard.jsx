@@ -10,25 +10,34 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import {
   Users,
   ShoppingBag,
   ArrowRightLeft,
   Users2,
   User2,
-  Trash2,
-  UserCheck,
-  UserMinus,
+  Eye,
+  ExternalLink,
+  DollarSign,
+  Calendar,
+  UserCircle,
+  Mail,
+  Phone,
+  User,
+  AlertCircle,
 } from "lucide-react";
-import { ActionMenu } from "@/components/admin/ActionMenu";
 import {
-  DeleteDialog,
-  ActivateDialog,
-  DeactivateDialog,
-} from "@/components/admin/ActionDialogs";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import adminApi from "@/api/adminApi";
 import { cn } from "@/lib/utils";
 import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 
 // Utility functions
 const formatDate = (timestamp) => {
@@ -49,7 +58,33 @@ const formatDate = (timestamp) => {
   }
 };
 
+const formatCurrency = (amount, currencyCode = "NGN") => {
+  if (!amount || amount === "0" || amount === 0) return "₦0";
+  const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
+  return `₦${numAmount.toLocaleString()}`;
+};
+
+const getStatusColor = (status) => {
+  const statusLower = status?.toLowerCase();
+  switch (statusLower) {
+    case "completed":
+    case "success":
+    case "successful":
+      return "bg-green-100 text-green-800";
+    case "pending":
+    case "processing":
+      return "bg-yellow-100 text-yellow-800";
+    case "failed":
+    case "cancelled":
+    case "canceled":
+      return "bg-red-100 text-red-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+};
+
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -66,14 +101,16 @@ export default function AdminDashboard() {
     eventsThisWeek: 0,
     eventGrowthPercentage: 0,
   });
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showActivateDialog, setShowActivateDialog] = useState(false);
-  const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
-  const [loadingAction, setLoadingAction] = useState(null);
-  const [actionError, setActionError] = useState(null);
-  const [users, setUsers] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // State for user info dialog
+  const [userInfoDialog, setUserInfoDialog] = useState({
+    open: false,
+    loading: false,
+    user: null,
+    error: null,
+  });
 
   const LoadingCard = () => (
     <Card className="p-6 bg-white">
@@ -149,88 +186,50 @@ export default function AdminDashboard() {
     onRetry: PropTypes.func.isRequired,
   };
 
-  const handleActionWithLoading = async (action, handler) => {
-    setLoadingAction(action);
-    setActionError(null);
+  // Handle view user info
+  const handleViewUserInfo = async (userEmail) => {
+    setUserInfoDialog({
+      open: true,
+      loading: true,
+      user: null,
+      error: null,
+    });
+
     try {
-      await handler();
+      const response = await adminApi.getUserByEmail(userEmail);
+      setUserInfoDialog({
+        open: true,
+        loading: false,
+        user: response.user,
+        error: null,
+      });
     } catch (error) {
-      setActionError(
-        error.response?.data?.message ||
-          "An error occurred while performing this action. Please try again."
-      );
-    } finally {
-      setLoadingAction(null);
-    }
-  };
-
-  const handleAction = (action, user) => {
-    setSelectedUser(user);
-    setActionError(null);
-    switch (action) {
-      case "delete":
-        setShowDeleteDialog(true);
-        break;
-      case "activate":
-        setShowActivateDialog(true);
-        break;
-      case "deactivate":
-        setShowDeactivateDialog(true);
-        break;
-    }
-  };
-
-  const handleDelete = async () => {
-    await handleActionWithLoading("delete", async () => {
-      await adminApi.deleteUser(selectedUser.email);
-      setShowDeleteDialog(false);
-      setSelectedUser(null);
-      fetchDashboardData(); // Refresh data
-    });
-  };
-
-  const handleActivate = async () => {
-    await handleActionWithLoading("activate", async () => {
-      await adminApi.activateUser(selectedUser.email);
-      setShowActivateDialog(false);
-      setSelectedUser(null);
-      fetchDashboardData(); // Refresh data
-    });
-  };
-
-  const handleDeactivate = async () => {
-    await handleActionWithLoading("deactivate", async () => {
-      await adminApi.suspendUser(selectedUser.email);
-      setShowDeactivateDialog(false);
-      setSelectedUser(null);
-      fetchDashboardData(); // Refresh data
-    });
-  };
-
-  const getActions = (user) => {
-    const actions = [
-      {
-        id: "delete",
-        label: "Delete User",
-        icon: Trash2,
-      },
-    ];
-
-    if (user.status === "Active") {
-      actions.push({
-        id: "deactivate",
-        label: "Deactivate User",
-        icon: UserMinus,
-      });
-    } else {
-      actions.push({
-        id: "activate",
-        label: "Activate User",
-        icon: UserCheck,
+      setUserInfoDialog({
+        open: true,
+        loading: false,
+        user: null,
+        error: error.message || "Failed to fetch user information",
       });
     }
+  };
 
-    return actions;
+  const closeUserInfoDialog = () => {
+    setUserInfoDialog({
+      open: false,
+      loading: false,
+      user: null,
+      error: null,
+    });
+  };
+
+  // Handle navigation to event detail
+  const handleViewEvent = (eventId) => {
+    navigate(`/admin/events/${eventId}`);
+  };
+
+  // Handle transaction row click
+  const handleTransactionClick = (eventId) => {
+    handleViewEvent(eventId);
   };
 
   useEffect(() => {
@@ -259,23 +258,9 @@ export default function AdminDashboard() {
       const statsResponse = await adminApi.getAdminStatistics();
       console.log("Stats Response:", statsResponse); // Debug log
 
-      // Fetch users
-      const usersResponse = await adminApi.getUsers();
-      console.log("Users Response:", usersResponse); // Debug log
-
-      // Transform users data
-      const formattedUsers = usersResponse.map((user) => ({
-        id: user.username,
-        name: user.name || "--",
-        email: user.username,
-        role: user.role?.toLowerCase() || "--",
-        status: user.isActive ? "Active" : "Inactive",
-        last_activity: formatDate(user.last_login),
-        total_transaction:
-          typeof user.total_transaction === "number"
-            ? `₦${user.total_transaction.toLocaleString()}`
-            : "₦0",
-      }));
+      // Fetch transactions
+      const transactionsResponse = await adminApi.getAllTransactions();
+      console.log("Transactions Response:", transactionsResponse); // Debug log
 
       // Set the stats data based on the actual API response fields
       setStatsData({
@@ -296,7 +281,7 @@ export default function AdminDashboard() {
         eventGrowthPercentage: statsResponse?.percentage_increase_events || 0,
       });
 
-      setUsers(formattedUsers);
+      setTransactions(transactionsResponse.transactions || []);
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
       setError(err.message || "Failed to load dashboard data");
@@ -304,6 +289,113 @@ export default function AdminDashboard() {
       setLoading(false);
     }
   };
+
+  // Transactions Mobile Card Component
+  const TransactionMobileCard = ({ transaction }) => (
+    <Card
+      className="p-4 hover:shadow-md transition-all duration-200 cursor-pointer hover:bg-gray-50 border-l-4 border-l-blue-500"
+      onClick={() => handleTransactionClick(transaction.event_id)}
+    >
+      <div className="space-y-3">
+        <div className="flex justify-between items-start">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-gray-900 truncate">
+              {transaction.customer_name || "Unknown Customer"}
+            </h3>
+            <p className="text-sm text-gray-600 truncate">
+              {transaction.customer_email}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="font-bold text-lg text-gray-900">
+              {formatCurrency(transaction.amount, transaction.currency_code)}
+            </p>
+            <span
+              className={cn(
+                "px-2 py-1 rounded-full text-xs font-medium",
+                getStatusColor(transaction.status)
+              )}
+            >
+              {transaction.status}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div>
+            <span className="text-gray-500">Reference:</span>
+            <p className="font-medium truncate">
+              {transaction.payment_reference}
+            </p>
+          </div>
+          <div>
+            <span className="text-gray-500">Currency:</span>
+            <p className="font-medium">{transaction.currency_code}</p>
+          </div>
+        </div>
+
+        <div className="text-sm">
+          <span className="text-gray-500">Description:</span>
+          <p className="font-medium text-gray-900 truncate">
+            {transaction.payment_description || "No description"}
+          </p>
+        </div>
+
+        <div className="flex justify-between items-center pt-2 border-t">
+          <div className="flex gap-2">
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleViewUserInfo(transaction.customer_email);
+              }}
+              variant="outline"
+              size="sm"
+              className="text-xs h-8"
+            >
+              <User className="w-3 h-3 mr-1" />
+              User Info
+            </Button>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleViewEvent(transaction.event_id);
+              }}
+              variant="outline"
+              size="sm"
+              className="text-xs h-8"
+            >
+              <ExternalLink className="w-3 h-3 mr-1" />
+              View Event
+            </Button>
+          </div>
+          <div className="text-xs text-gray-500">
+            Event ID: {transaction.event_id}
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+
+  TransactionMobileCard.propTypes = {
+    transaction: PropTypes.object.isRequired,
+  };
+
+  // Empty Transactions Component
+  const EmptyTransactionsTable = () => (
+    <div className="text-center py-12">
+      <div className="flex justify-center mb-4">
+        <div className="p-3 bg-gray-100 rounded-full">
+          <DollarSign className="w-8 h-8 text-gray-400" />
+        </div>
+      </div>
+      <h3 className="text-lg font-medium text-gray-900 mb-2">
+        No transactions found
+      </h3>
+      <p className="text-gray-500 max-w-sm mx-auto">
+        There are currently no transactions in the system.
+      </p>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -362,7 +454,7 @@ export default function AdminDashboard() {
               message={error}
               onRetry={() => {
                 setError(null);
-                // Implement retry logic
+                fetchDashboardData();
               }}
             />
           </main>
@@ -419,20 +511,6 @@ export default function AdminDashboard() {
       subtitle: `${statsData.eventsThisWeek} this week`,
     },
   ];
-
-  const EmptyUsersTable = () => (
-    <div className="text-center py-12">
-      <div className="flex justify-center mb-4">
-        <div className="p-3 bg-gray-100 rounded-full">
-          <Users2 className="w-8 h-8 text-gray-400" />
-        </div>
-      </div>
-      <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
-      <p className="text-gray-500 max-w-sm mx-auto">
-        There are currently no users in the system.
-      </p>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -600,101 +678,265 @@ export default function AdminDashboard() {
             </Card>
           </div>
 
-          <div className="bg-white rounded-lg shadow overflow-x-auto">
+          {/* Transactions Table */}
+          <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className="p-4 border-b">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-50 rounded-lg">
-                  <User2 className="w-5 h-5 text-blue-600" />
+                <div className="p-2 bg-green-50 rounded-lg">
+                  <DollarSign className="w-5 h-5 text-green-600" />
                 </div>
-                <h2 className="text-lg font-semibold">User Management</h2>
+                <h2 className="text-lg font-semibold">Recent Transactions</h2>
+                <span className="text-sm text-gray-500">
+                  ({transactions.length} total)
+                </span>
               </div>
             </div>
-            {users && users.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-left pl-10">Name</TableHead>
-                    <TableHead className="text-left">Email</TableHead>
-                    <TableHead className="text-left">Role</TableHead>
-                    <TableHead className="text-left">Status</TableHead>
-                    <TableHead className="text-left">Last Activity</TableHead>
-                    <TableHead className="text-left">
-                      Total Transaction
-                    </TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.slice(0, 5).map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="text-left pl-10">
-                        {user.name}
-                      </TableCell>
-                      <TableCell className="text-left">{user.email}</TableCell>
-                      <TableCell className="text-left">{user.role}</TableCell>
-                      <TableCell className="text-left">
-                        <span
-                          className={cn(
-                            "px-2 py-1 rounded-full text-xs font-medium",
-                            user.status === "Active"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                          )}
+
+            {transactions && transactions.length > 0 ? (
+              <>
+                {/* Desktop Table */}
+                <div className="hidden lg:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-left pl-6">
+                          Customer
+                        </TableHead>
+                        <TableHead className="text-left">Amount</TableHead>
+                        <TableHead className="text-left">Status</TableHead>
+                        <TableHead className="text-left">Reference</TableHead>
+                        <TableHead className="text-left">Currency</TableHead>
+                        <TableHead className="text-left">Event ID</TableHead>
+                        <TableHead className="w-[120px] text-center">
+                          Actions
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {transactions.slice(0, 8).map((transaction, index) => (
+                        <TableRow
+                          key={index}
+                          className="hover:bg-gray-50 cursor-pointer transition-colors"
+                          onClick={() =>
+                            handleTransactionClick(transaction.event_id)
+                          }
                         >
-                          {user.status}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-left">
-                        {user.last_activity}
-                      </TableCell>
-                      <TableCell className="text-left">
-                        {user.total_transaction}
-                      </TableCell>
-                      <TableCell className="text-right pr-6">
-                        <ActionMenu
-                          actions={getActions(user)}
-                          onAction={(action) => handleAction(action, user)}
-                          loading={loadingAction !== null}
-                          loadingAction={loadingAction}
-                        />
-                      </TableCell>
-                    </TableRow>
+                          <TableCell className="text-left pl-6">
+                            <div className="min-w-0">
+                              <p className="font-medium text-gray-900 truncate">
+                                {transaction.customer_name || "Unknown"}
+                              </p>
+                              <p className="text-sm text-gray-500 truncate">
+                                {transaction.customer_email}
+                              </p>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-left">
+                            <span className="font-semibold text-gray-900">
+                              {formatCurrency(
+                                transaction.amount,
+                                transaction.currency_code
+                              )}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-left">
+                            <span
+                              className={cn(
+                                "px-2 py-1 rounded-full text-xs font-medium",
+                                getStatusColor(transaction.status)
+                              )}
+                            >
+                              {transaction.status}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-left">
+                            <span className="font-mono text-sm">
+                              {transaction.payment_reference}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-left">
+                            <span className="font-medium">
+                              {transaction.currency_code}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-left">
+                            <span className="font-mono text-sm text-gray-600">
+                              {transaction.event_id}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleViewUserInfo(
+                                    transaction.customer_email
+                                  );
+                                }}
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                title="View User Info"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleViewEvent(transaction.event_id);
+                                }}
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                title="View Event"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile Cards */}
+                <div className="lg:hidden p-4 space-y-4">
+                  {transactions.slice(0, 8).map((transaction, index) => (
+                    <TransactionMobileCard
+                      key={index}
+                      transaction={transaction}
+                    />
                   ))}
-                </TableBody>
-              </Table>
+                </div>
+
+                {/* Show more button if there are more transactions */}
+                {transactions.length > 8 && (
+                  <div className="p-4 border-t bg-gray-50 text-center">
+                    <Button
+                      onClick={() => navigate("/admin/transactions")}
+                      variant="outline"
+                      className="text-sm"
+                    >
+                      View All Transactions ({transactions.length})
+                    </Button>
+                  </div>
+                )}
+              </>
             ) : (
-              <EmptyUsersTable />
+              <EmptyTransactionsTable />
             )}
           </div>
         </main>
       </div>
 
-      <DeleteDialog
-        open={showDeleteDialog}
-        onOpenChange={setShowDeleteDialog}
-        onConfirm={handleDelete}
-        error={actionError}
-        loading={loadingAction === "delete"}
-        user={selectedUser}
-      />
+      {/* User Info Dialog */}
+      <Dialog open={userInfoDialog.open} onOpenChange={closeUserInfoDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserCircle className="w-5 h-5" />
+              User Information
+            </DialogTitle>
+            <DialogDescription>
+              Contact details for the customer
+            </DialogDescription>
+          </DialogHeader>
 
-      <ActivateDialog
-        open={showActivateDialog}
-        onOpenChange={setShowActivateDialog}
-        onConfirm={handleActivate}
-        error={actionError}
-        loading={loadingAction === "activate"}
-        user={selectedUser}
-      />
+          <div className="space-y-4">
+            {userInfoDialog.loading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <span className="ml-3 text-gray-600">Loading user data...</span>
+              </div>
+            ) : userInfoDialog.error ? (
+              <div className="text-center py-8">
+                <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                <p className="text-red-600 font-medium">Error</p>
+                <p className="text-gray-600 text-sm">{userInfoDialog.error}</p>
+              </div>
+            ) : userInfoDialog.user ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <Mail className="w-4 h-4 text-gray-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Email</p>
+                    <p className="text-sm text-gray-900">
+                      {userInfoDialog.user.email}
+                    </p>
+                  </div>
+                </div>
 
-      <DeactivateDialog
-        open={showDeactivateDialog}
-        onOpenChange={setShowDeactivateDialog}
-        onConfirm={handleDeactivate}
-        error={actionError}
-        loading={loadingAction === "deactivate"}
-        user={selectedUser}
-      />
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <User className="w-4 h-4 text-gray-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">
+                      Full Name
+                    </p>
+                    <p className="text-sm text-gray-900">
+                      {userInfoDialog.user.first_name}{" "}
+                      {userInfoDialog.user.last_name}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <Phone className="w-4 h-4 text-gray-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">
+                      Phone Number
+                    </p>
+                    <p className="text-sm text-gray-900">
+                      {userInfoDialog.user.phone_number || "Not provided"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <UserCircle className="w-4 h-4 text-gray-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">
+                      User Type
+                    </p>
+                    <p className="text-sm text-gray-900 capitalize">
+                      {userInfoDialog.user.type || "Standard"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t">
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() =>
+                        window.open(`mailto:${userInfoDialog.user.email}`)
+                      }
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                    >
+                      <Mail className="w-3 h-3 mr-1" />
+                      Send Email
+                    </Button>
+                    {userInfoDialog.user.phone_number && (
+                      <Button
+                        onClick={() =>
+                          window.open(`tel:${userInfoDialog.user.phone_number}`)
+                        }
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                      >
+                        <Phone className="w-3 h-3 mr-1" />
+                        Call
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
