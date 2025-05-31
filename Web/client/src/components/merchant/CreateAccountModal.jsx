@@ -48,7 +48,7 @@ export function CreateAccountModal({ isOpen, onClose, onSuccess, onViewDetails }
         onSuccess(data.response.responseBody || data.response);
         toast.success('Virtual account created successfully');
       } else {
-        setIsSuccess(true);
+    setIsSuccess(true);
         onSuccess(data);
         toast.success('Virtual account created successfully');
       }

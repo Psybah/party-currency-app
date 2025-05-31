@@ -18,7 +18,6 @@ import {
   Eye,
   ExternalLink,
   DollarSign,
-  Calendar,
   UserCircle,
   Mail,
   Phone,
@@ -38,25 +37,7 @@ import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 
 // Utility functions
-const formatDate = (timestamp) => {
-  if (!timestamp) return "--";
-  try {
-    const date = new Date(timestamp);
-    return date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-  } catch (error) {
-    console.error("Error formatting date:", error);
-    return "--";
-  }
-};
-
-const formatCurrency = (amount, currencyCode = "NGN") => {
+const formatCurrency = (amount) => {
   if (!amount || amount === "0" || amount === 0) return "₦0";
   const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
   return `₦${numAmount.toLocaleString()}`;
@@ -109,17 +90,17 @@ export default function AdminDashboard() {
   });
 
   const LoadingCard = () => (
-    <Card className="p-6 bg-white">
-      <div className="animate-pulse space-y-4">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 bg-gray-200 rounded-lg"></div>
-          <div className="h-4 bg-gray-200 rounded w-24"></div>
+    <Card className="p-4 sm:p-6 bg-white">
+      <div className="animate-pulse space-y-3 sm:space-y-4">
+        <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-200 rounded-lg"></div>
+          <div className="h-3 sm:h-4 bg-gray-200 rounded w-20 sm:w-24"></div>
         </div>
         <div className="space-y-2">
-          <div className="h-7 bg-gray-200 rounded w-20"></div>
+          <div className="h-6 sm:h-7 bg-gray-200 rounded w-16 sm:w-20"></div>
           <div className="flex items-center gap-2">
-            <div className="h-4 bg-gray-200 rounded w-12"></div>
-            <div className="h-4 bg-gray-200 rounded w-16"></div>
+            <div className="h-3 sm:h-4 bg-gray-200 rounded w-10 sm:w-12"></div>
+            <div className="h-3 sm:h-4 bg-gray-200 rounded w-12 sm:w-16"></div>
           </div>
         </div>
       </div>
@@ -128,32 +109,32 @@ export default function AdminDashboard() {
 
   const LoadingTable = () => (
     <div className="bg-white rounded-lg shadow overflow-x-auto">
-      <div className="p-4 border-b">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-gray-200 rounded-lg"></div>
-          <div className="h-6 bg-gray-200 rounded w-32"></div>
+      <div className="p-3 sm:p-4 border-b">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-7 h-7 sm:w-9 sm:h-9 bg-gray-200 rounded-lg"></div>
+          <div className="h-5 sm:h-6 bg-gray-200 rounded w-24 sm:w-32"></div>
         </div>
       </div>
       <div className="animate-pulse">
         <div className="border-b">
-          <div className="flex p-4">
+          <div className="flex p-3 sm:p-4">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="flex-1 px-3">
-                <div className="h-4 bg-gray-200 rounded w-full"></div>
+              <div key={i} className="flex-1 px-2 sm:px-3">
+                <div className="h-3 sm:h-4 bg-gray-200 rounded w-full"></div>
               </div>
             ))}
-            <div className="w-20"></div>
+            <div className="w-16 sm:w-20"></div>
           </div>
         </div>
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="flex p-4 border-b">
+          <div key={i} className="flex p-3 sm:p-4 border-b">
             {[...Array(6)].map((_, j) => (
-              <div key={j} className="flex-1 px-3">
-                <div className="h-4 bg-gray-200 rounded w-[80%]"></div>
+              <div key={j} className="flex-1 px-2 sm:px-3">
+                <div className="h-3 sm:h-4 bg-gray-200 rounded w-[80%]"></div>
               </div>
             ))}
-            <div className="w-20 px-3">
-              <div className="h-4 bg-gray-200 rounded w-full"></div>
+            <div className="w-16 sm:w-20 px-2 sm:px-3">
+              <div className="h-3 sm:h-4 bg-gray-200 rounded w-full"></div>
             </div>
           </div>
         ))}
@@ -162,15 +143,15 @@ export default function AdminDashboard() {
   );
 
   const ErrorState = ({ message, onRetry }) => (
-    <div className="text-center p-6 bg-white rounded-lg shadow">
-      <User2 className="w-12 h-12 text-red-500 mx-auto mb-4" />
-      <h3 className="text-lg font-medium text-gray-900 mb-2">
+    <div className="text-center p-4 sm:p-6 bg-white rounded-lg shadow">
+      <User2 className="w-10 h-10 sm:w-12 sm:h-12 text-red-500 mx-auto mb-3 sm:mb-4" />
+      <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
         Unable to load dashboard
       </h3>
-      <p className="text-gray-500 mb-4">{message}</p>
+      <p className="text-sm sm:text-base text-gray-500 mb-3 sm:mb-4">{message}</p>
       <button
         onClick={onRetry}
-        className="text-sm px-4 py-2 bg-bluePrimary text-white rounded-md hover:bg-bluePrimary/90"
+        className="text-sm px-3 sm:px-4 py-2 bg-bluePrimary text-white rounded-md hover:bg-bluePrimary/90"
       >
         Try Again
       </button>
@@ -275,26 +256,26 @@ export default function AdminDashboard() {
   // Transactions Mobile Card Component
   const TransactionMobileCard = ({ transaction }) => (
     <Card
-      className="p-4 hover:shadow-md transition-all duration-200 cursor-pointer hover:bg-gray-50 border-l-4 border-l-blue-500"
+      className="p-3 sm:p-4 hover:shadow-md transition-all duration-200 cursor-pointer hover:bg-gray-50 border-l-4 border-l-blue-500"
       onClick={() => handleTransactionClick(transaction.event_id)}
     >
-      <div className="space-y-3">
-        <div className="flex justify-between items-start">
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate">
+      <div className="space-y-2 sm:space-y-3">
+        <div className="flex justify-between items-start gap-2">
+          <div className="flex-1 min-w-0 text-left">
+            <h3 className="font-semibold text-sm sm:text-base text-gray-900 truncate text-left">
               {transaction.customer_name || "Unknown Customer"}
             </h3>
-            <p className="text-sm text-gray-600 truncate">
+            <p className="text-xs sm:text-sm text-gray-600 truncate text-left">
               {transaction.customer_email}
             </p>
           </div>
-          <div className="text-right">
-            <p className="font-bold text-lg text-gray-900">
-              {formatCurrency(transaction.amount, transaction.currency_code)}
+          <div className="text-right flex-shrink-0">
+            <p className="font-bold text-sm sm:text-lg text-gray-900">
+              {formatCurrency(transaction.amount)}
             </p>
             <span
               className={cn(
-                "px-2 py-1 rounded-full text-xs font-medium",
+                "px-2 py-1 rounded-full text-xs font-medium inline-block mt-1",
                 getStatusColor(transaction.status)
               )}
             >
@@ -303,28 +284,28 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div>
-            <span className="text-gray-500">Reference:</span>
-            <p className="font-medium truncate">
+        <div className="space-y-1 text-xs sm:text-sm text-left">
+          <div className="text-left">
+            <span className="text-gray-500">Reference: </span>
+            <span className="font-medium">
               {transaction.payment_reference}
-            </p>
+            </span>
           </div>
-          <div>
-            <span className="text-gray-500">Currency:</span>
-            <p className="font-medium">{transaction.currency_code}</p>
+          <div className="text-left">
+            <span className="text-gray-500">Currency: </span>
+            <span className="font-medium">{transaction.currency_code}</span>
           </div>
         </div>
 
-        <div className="text-sm">
-          <span className="text-gray-500">Description:</span>
-          <p className="font-medium text-gray-900 truncate">
+        <div className="text-xs sm:text-sm text-left">
+          <span className="text-gray-500">Description: </span>
+          <span className="font-medium text-gray-900">
             {transaction.payment_description || "No description"}
-          </p>
+          </span>
         </div>
 
-        <div className="flex justify-between items-center pt-2 border-t">
-          <div className="flex gap-2">
+        <div className="flex items-center justify-between pt-2 border-t gap-2">
+          <div className="flex gap-1 sm:gap-2">
             <Button
               onClick={(e) => {
                 e.stopPropagation();
@@ -332,10 +313,10 @@ export default function AdminDashboard() {
               }}
               variant="outline"
               size="sm"
-              className="text-xs h-8"
+              className="text-xs h-7 sm:h-8 px-2"
             >
               <User className="w-3 h-3 mr-1" />
-              User Info
+              User
             </Button>
             <Button
               onClick={(e) => {
@@ -344,14 +325,14 @@ export default function AdminDashboard() {
               }}
               variant="outline"
               size="sm"
-              className="text-xs h-8"
+              className="text-xs h-7 sm:h-8 px-2"
             >
               <ExternalLink className="w-3 h-3 mr-1" />
-              View Event
+              Event
             </Button>
           </div>
-          <div className="text-xs text-gray-500">
-            Event ID: {transaction.event_id}
+          <div className="text-xs text-gray-500 flex-shrink-0">
+            ID: {transaction.event_id}
           </div>
         </div>
       </div>
@@ -364,16 +345,16 @@ export default function AdminDashboard() {
 
   // Empty Transactions Component
   const EmptyTransactionsTable = () => (
-    <div className="text-center py-12">
-      <div className="flex justify-center mb-4">
-        <div className="p-3 bg-gray-100 rounded-full">
-          <DollarSign className="w-8 h-8 text-gray-400" />
+    <div className="text-center py-8 sm:py-12">
+      <div className="flex justify-center mb-3 sm:mb-4">
+        <div className="p-2 sm:p-3 bg-gray-100 rounded-full">
+          <DollarSign className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
         </div>
       </div>
-      <h3 className="text-lg font-medium text-gray-900 mb-2">
+      <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
         No transactions found
       </h3>
-      <p className="text-gray-500 max-w-sm mx-auto">
+      <p className="text-sm sm:text-base text-gray-500 max-w-sm mx-auto">
         There are currently no transactions in the system.
       </p>
     </div>
@@ -381,12 +362,12 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6 p-3 sm:p-0">
         <div className="flex justify-between items-center">
-          <div className="h-8 bg-gray-200 rounded w-32"></div>
-          <div className="h-4 bg-gray-200 rounded w-24"></div>
+          <div className="h-6 sm:h-8 bg-gray-200 rounded w-24 sm:w-32"></div>
+          <div className="h-3 sm:h-4 bg-gray-200 rounded w-16 sm:w-24"></div>
         </div>
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
             <LoadingCard key={i} />
           ))}
@@ -421,7 +402,7 @@ export default function AdminDashboard() {
       value: statsData.totalActiveUsers,
       change: statsData.userGrowthPercentage,
       period: "vs last week",
-      icon: <Users className="w-5 h-5 text-[#4069E5]" />,
+      icon: <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#4069E5]" />,
       bgColor: "bg-[#EEF1FE]",
       subtitle: `${statsData.newUsersThisWeek} new this week`,
     },
@@ -431,7 +412,7 @@ export default function AdminDashboard() {
       value: statsData.totalCompletedTransactions,
       change: statsData.transactionGrowthPercentage,
       period: "vs last week",
-      icon: <ShoppingBag className="w-5 h-5 text-[#3F845F]" />,
+      icon: <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-[#3F845F]" />,
       bgColor: "bg-[#EDFAF3]",
       subtitle: `${statsData.transactionsThisWeek} this week`,
     },
@@ -441,9 +422,9 @@ export default function AdminDashboard() {
       value: statsData.totalPendingTransactions,
       change: null,
       period: "awaiting completion",
-      icon: <ArrowRightLeft className="w-5 h-5 text-[#E4C65B]" />,
+      icon: <ArrowRightLeft className="w-4 h-4 sm:w-5 sm:h-5 text-[#E4C65B]" />,
       bgColor: "bg-[#FEF9EC]",
-      subtitle: "Needs attention",
+      subtitle: `${statsData.totalPendingTransactions} need attention`,
     },
     {
       id: "total-events",
@@ -451,7 +432,7 @@ export default function AdminDashboard() {
       value: statsData.totalEvents,
       change: statsData.eventGrowthPercentage,
       period: "vs last week",
-      icon: <Users2 className="w-5 h-5 text-[#E56940]" />,
+      icon: <Users2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#E56940]" />,
       bgColor: "bg-[#FEF1EC]",
       subtitle: `${statsData.eventsThisWeek} this week`,
     },
@@ -459,37 +440,37 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-semibold font-playfair">Hello, Admin</h1>
-          <p className="text-sm text-gray-500">{currentDate}</p>
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
+          <h1 className="text-xl sm:text-2xl font-semibold font-playfair">Hello, Admin</h1>
+          <p className="text-xs sm:text-sm text-gray-500">{currentDate}</p>
         </div>
 
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => (
             <Card
               key={stat.id}
-              className="p-6 bg-white hover:shadow-md transition-shadow"
+              className="p-3 sm:p-6 bg-white hover:shadow-md transition-shadow"
             >
-              <div className="flex flex-col">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className={cn("p-2 rounded-lg", stat.bgColor)}>
+              <div className="flex flex-col h-full text-left">
+                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                  <div className={cn("p-1.5 sm:p-2 rounded-lg", stat.bgColor)}>
                     {stat.icon}
                   </div>
-                  <span className="text-sm text-gray-600 font-medium">
+                  <span className="text-xs sm:text-sm text-gray-600 font-medium leading-tight text-left">
                     {stat.title}
                   </span>
                 </div>
-                <div className="space-y-2">
-                  <p className="text-3xl font-bold text-gray-900">
+                <div className="space-y-1 sm:space-y-2 flex-1 text-left">
+                  <p className="text-xl sm:text-3xl font-bold text-gray-900 text-left">
                     {stat.value.toLocaleString()}
                   </p>
-                  <p className="text-xs text-gray-500">{stat.subtitle}</p>
-                  <div className="flex items-center gap-2">
+                  <p className="text-xs text-gray-500 leading-tight text-left">{stat.subtitle}</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-left">
                     {stat.change !== null && (
                       <span
                         className={cn(
-                          "text-sm font-medium px-2 py-1 rounded-full",
+                          "text-xs font-medium px-1 sm:px-2 py-0.5 sm:py-1 rounded-full self-start",
                           stat.change === 0
                             ? "text-gray-600 bg-gray-100"
                             : stat.change > 0
@@ -499,12 +480,12 @@ export default function AdminDashboard() {
                       >
                         {stat.change === 0
                           ? "0%"
-                          : `${stat.change > 0 ? "+" : ""}${stat.change.toFixed(
+                          : `${statsData.eventGrowthPercentage > 0 ? "+" : ""}${stat.change.toFixed(
                               1
                             )}%`}
                       </span>
                     )}
-                    <span className="text-sm text-gray-500">{stat.period}</span>
+                    <span className="text-xs text-gray-500 leading-tight text-left">{stat.period}</span>
                   </div>
                 </div>
               </div>
@@ -512,100 +493,12 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        {/* Additional Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="p-6 bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-medium text-blue-800 mb-1">
-                  User Growth
-                </h3>
-                <p className="text-2xl font-bold text-blue-900">
-                  {statsData.newUsersThisWeek}
-                </p>
-                <p className="text-xs text-blue-600">New users this week</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-blue-700">
-                  Previous week: {statsData.newUsersPreviousWeek}
-                </p>
-                <p
-                  className={cn(
-                    "text-lg font-semibold",
-                    statsData.userGrowthPercentage > 0
-                      ? "text-green-600"
-                      : "text-red-600"
-                  )}
-                >
-                  {statsData.userGrowthPercentage > 0 ? "+" : ""}
-                  {statsData.userGrowthPercentage.toFixed(1)}%
-                </p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6 bg-gradient-to-r from-green-50 to-green-100 border-green-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-medium text-green-800 mb-1">
-                  Transaction Activity
-                </h3>
-                <p className="text-2xl font-bold text-green-900">
-                  {statsData.transactionsThisWeek}
-                </p>
-                <p className="text-xs text-green-600">Transactions this week</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-green-700">
-                  Completed: {statsData.totalCompletedTransactions}
-                </p>
-                <p className="text-sm text-yellow-600">
-                  Pending: {statsData.totalPendingTransactions}
-                </p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6 bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-medium text-purple-800 mb-1">
-                  Event Activity
-                </h3>
-                <p className="text-2xl font-bold text-purple-900">
-                  {statsData.eventsThisWeek}
-                </p>
-                <p className="text-xs text-purple-600">Events this week</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-purple-700">
-                  Total events: {statsData.totalEvents}
-                </p>
-                <p
-                  className={cn(
-                    "text-lg font-semibold",
-                    statsData.eventGrowthPercentage > 0
-                      ? "text-green-600"
-                      : "text-red-600"
-                  )}
-                >
-                  {statsData.eventGrowthPercentage > 0 ? "+" : ""}
-                  {statsData.eventGrowthPercentage.toFixed(1)}%
-                </p>
-              </div>
-            </div>
-          </Card>
-        </div>
-
         {/* Transactions Table */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="p-4 border-b">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-50 rounded-lg">
-                <DollarSign className="w-5 h-5 text-green-600" />
-              </div>
-              <h2 className="text-lg font-semibold">Recent Transactions</h2>
-              <span className="text-sm text-gray-500">
+          <div className="p-3 sm:p-4 border-b">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <h2 className="text-base sm:text-lg font-semibold">Recent Transactions</h2>
+              <span className="text-xs sm:text-sm text-gray-500">
                 ({transactions.length} total)
               </span>
             </div>
@@ -650,10 +543,7 @@ export default function AdminDashboard() {
                         </TableCell>
                         <TableCell className="text-left">
                           <span className="font-semibold text-gray-900">
-                            {formatCurrency(
-                              transaction.amount,
-                              transaction.currency_code
-                            )}
+                            {formatCurrency(transaction.amount)}
                           </span>
                         </TableCell>
                         <TableCell className="text-left">
@@ -716,7 +606,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* Mobile Cards */}
-              <div className="lg:hidden p-4 space-y-4">
+              <div className="lg:hidden p-3 sm:p-4 space-y-3 sm:space-y-4">
                 {transactions.slice(0, 8).map((transaction, index) => (
                   <TransactionMobileCard
                     key={index}
@@ -727,11 +617,11 @@ export default function AdminDashboard() {
 
               {/* Show more button if there are more transactions */}
               {transactions.length > 8 && (
-                <div className="p-4 border-t bg-gray-50 text-center">
+                <div className="p-3 sm:p-4 border-t bg-gray-50 text-center">
                   <Button
                     onClick={() => navigate("/admin/transactions")}
                     variant="outline"
-                    className="text-sm"
+                    className="text-xs sm:text-sm"
                   >
                     View All Transactions ({transactions.length})
                   </Button>
@@ -746,99 +636,90 @@ export default function AdminDashboard() {
 
       {/* User Info Dialog */}
       <Dialog open={userInfoDialog.open} onOpenChange={closeUserInfoDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md mx-3 sm:mx-0">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <UserCircle className="w-5 h-5" />
+            <DialogTitle className="flex items-center gap-1.5 text-sm sm:text-lg">
+              <UserCircle className="w-4 h-4 sm:w-5 sm:h-5" />
               User Information
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm">
               Contact details for the customer
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-2 sm:space-y-4">
             {userInfoDialog.loading ? (
-              <div className="flex justify-center items-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span className="ml-3 text-gray-600">Loading user data...</span>
+              <div className="flex justify-center items-center py-4 sm:py-8">
+                <div className="animate-spin rounded-full h-5 w-5 sm:h-8 sm:w-8 border-b-2 border-blue-600"></div>
+                <span className="ml-2 text-xs sm:text-base text-gray-600">Loading user data...</span>
               </div>
             ) : userInfoDialog.error ? (
-              <div className="text-center py-8">
-                <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                <p className="text-red-600 font-medium">Error</p>
-                <p className="text-gray-600 text-sm">{userInfoDialog.error}</p>
+              <div className="text-center py-4 sm:py-8">
+                <AlertCircle className="w-8 h-8 sm:w-12 sm:h-12 text-red-500 mx-auto mb-2 sm:mb-4" />
+                <p className="text-red-600 font-medium text-xs sm:text-base">Error</p>
+                <p className="text-gray-600 text-xs sm:text-sm">{userInfoDialog.error}</p>
               </div>
             ) : userInfoDialog.user ? (
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Mail className="w-4 h-4 text-gray-600" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">Email</p>
-                    <p className="text-sm text-gray-900">
-                      {userInfoDialog.user.email}
-                    </p>
+              <div className="space-y-2 sm:space-y-4">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                  <div className="flex items-center gap-1.5 sm:gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg">
+                    <Mail className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm font-medium text-gray-700">Email</p>
+                      <p className="text-xs sm:text-sm text-gray-900 truncate">
+                        {userInfoDialog.user.email}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 sm:gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg">
+                    <User className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm font-medium text-gray-700">Name</p>
+                      <p className="text-xs sm:text-sm text-gray-900 truncate">
+                        {userInfoDialog.user.first_name} {userInfoDialog.user.last_name}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 sm:gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg">
+                    <Phone className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm font-medium text-gray-700">Phone</p>
+                      <p className="text-xs sm:text-sm text-gray-900 truncate">
+                        {userInfoDialog.user.phone_number || "Not provided"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 sm:gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg">
+                    <UserCircle className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm font-medium text-gray-700">Type</p>
+                      <p className="text-xs sm:text-sm text-gray-900 capitalize">
+                        {userInfoDialog.user.type || "Standard"}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <User className="w-4 h-4 text-gray-600" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">
-                      Full Name
-                    </p>
-                    <p className="text-sm text-gray-900">
-                      {userInfoDialog.user.first_name}{" "}
-                      {userInfoDialog.user.last_name}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Phone className="w-4 h-4 text-gray-600" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">
-                      Phone Number
-                    </p>
-                    <p className="text-sm text-gray-900">
-                      {userInfoDialog.user.phone_number || "Not provided"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <UserCircle className="w-4 h-4 text-gray-600" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">
-                      User Type
-                    </p>
-                    <p className="text-sm text-gray-900 capitalize">
-                      {userInfoDialog.user.type || "Standard"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t">
+                <div className="pt-2 sm:pt-4 border-t">
                   <div className="flex gap-2">
                     <Button
-                      onClick={() =>
-                        window.open(`mailto:${userInfoDialog.user.email}`)
-                      }
+                      onClick={() => window.open(`mailto:${userInfoDialog.user.email}`)}
                       variant="outline"
                       size="sm"
-                      className="flex-1"
+                      className="flex-1 text-xs sm:text-sm h-7 sm:h-9"
                     >
                       <Mail className="w-3 h-3 mr-1" />
-                      Send Email
+                      Email
                     </Button>
                     {userInfoDialog.user.phone_number && (
                       <Button
-                        onClick={() =>
-                          window.open(`tel:${userInfoDialog.user.phone_number}`)
-                        }
+                        onClick={() => window.open(`tel:${userInfoDialog.user.phone_number}`)}
                         variant="outline"
                         size="sm"
-                        className="flex-1"
+                        className="flex-1 text-xs sm:text-sm h-7 sm:h-9"
                       >
                         <Phone className="w-3 h-3 mr-1" />
                         Call
