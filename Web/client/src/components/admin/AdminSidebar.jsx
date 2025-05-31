@@ -8,6 +8,7 @@ import {
   PanelLeftOpen,
   X,
   Calendar,
+  ArrowRightLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SidebarLogo from "../sidebar/SidebarLogo";
@@ -56,6 +57,11 @@ export function AdminSidebar({ isOpen, onClose }) {
       path: "/admin/events",
       icon: <Calendar className="w-5 h-5 min-w-[20px]" />,
       label: "Events",
+    },
+    {
+      path: "/admin/transactions",
+      icon: <ArrowRightLeft className="w-5 h-5 min-w-[20px]" />,
+      label: "Transactions",
     },
   ];
 
