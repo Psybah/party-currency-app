@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Calendar,
   MapPin,
@@ -8,11 +8,13 @@ import {
   CheckCircle2,
   Copy,
   Check,
-  User,
+  Settings,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import PropTypes from "prop-types";
 
 const StatusBadge = ({ status, type }) => {
   const getStatusColor = (status) => {
@@ -44,12 +46,21 @@ const StatusBadge = ({ status, type }) => {
   );
 };
 
-export default function EventCard({ event, type = "customer" }) {
+StatusBadge.propTypes = {
+  status: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+};
+
+export default function EventCard({ 
+  event, 
+  type = "customer", 
+  onAdminToggle = null, 
+  isAdminExpanded = false 
+}) {
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
-  console.log("event", event);
+
   const formatDate = (dateString) => {
-    console.log("date string", dateString);
     try {
       const date = format(new Date(dateString), "MMM dd, yyyy");
       return date;
@@ -75,8 +86,8 @@ export default function EventCard({ event, type = "customer" }) {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
         {/* Name, ID, Description */}
         <div className="flex-1 min-w-0">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-            <h3 className="text-lg font-semibold text-gray-900 break-words">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-2">
+            <h3 className="text-lg font-semibold text-gray-900 break-words text-left">
               {event.event_name}
             </h3>
             <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-100 rounded-md w-fit">
@@ -96,7 +107,7 @@ export default function EventCard({ event, type = "customer" }) {
               </button>
             </div>
           </div>
-          <p className="text-sm text-gray-600 mt-1 break-words">
+          <p className="text-sm text-gray-600 mt-1 break-words text-left">
             {event.event_description}
           </p>
         </div>
@@ -111,8 +122,8 @@ export default function EventCard({ event, type = "customer" }) {
       <div className="mt-4 flex flex-col md:flex-row gap-4">
         {/* Info */}
         <div className="space-y-3 flex-1">
-          <div className="flex items-center text-sm text-gray-600 break-words">
-            <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+          <div className="flex items-start text-sm text-gray-600 break-words text-left">
+            <MapPin className="w-4 h-4 mr-2 flex-shrink-0 mt-1" />
             <span>
               {event.street_address}, {event.city}, {event.state}{" "}
               {event.postal_code}
@@ -164,8 +175,47 @@ export default function EventCard({ event, type = "customer" }) {
           >
             View Details
           </button>
+          
+          {/* Admin Toggle Button - only show for admin type */}
+          {type === "admin" && onAdminToggle && (
+            <button
+              onClick={() => onAdminToggle(event.event_id)}
+              className="w-full sm:w-auto px-3 py-2 text-sm font-medium text-bluePrimary bg-white border border-bluePrimary/30 rounded-md hover:bg-bluePrimary/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bluePrimary transition-colors duration-200"
+            >
+              <div className="flex items-center justify-center gap-1">
+                <Settings className="w-3 h-3" />
+                <span>Admin</span>
+                {isAdminExpanded ? (
+                  <ChevronUp className="w-3 h-3" />
+                ) : (
+                  <ChevronDown className="w-3 h-3" />
+                )}
+              </div>
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 }
+
+EventCard.propTypes = {
+  event: PropTypes.shape({
+    event_id: PropTypes.string.isRequired,
+    event_name: PropTypes.string.isRequired,
+    event_description: PropTypes.string,
+    payment_status: PropTypes.string.isRequired,
+    delivery_status: PropTypes.string.isRequired,
+    street_address: PropTypes.string,
+    city: PropTypes.string,
+    state: PropTypes.string,
+    postal_code: PropTypes.string,
+    start_date: PropTypes.string.isRequired,
+    end_date: PropTypes.string.isRequired,
+    created_at: PropTypes.string.isRequired,
+    reconciliation: PropTypes.bool,
+  }).isRequired,
+  type: PropTypes.string,
+  onAdminToggle: PropTypes.func,
+  isAdminExpanded: PropTypes.bool,
+};
