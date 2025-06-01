@@ -50,7 +50,7 @@ export default function EventManagement() {
   const [pagination, setPagination] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("-created_at");
-  const pageSize = 10;
+  const pageSize = 20;
 
   // State for delivery status changes
   const [selectedStatuses, setSelectedStatuses] = useState({});
@@ -67,6 +67,9 @@ export default function EventManagement() {
     error: null,
   });
 
+  // State for client-side filtering
+  const [allEvents, setAllEvents] = useState([]);
+
   // Delivery status options
   const deliveryStatusOptions = [
     { value: "pending", label: "Pending", color: "bg-yellow-50 text-yellow-700 border-yellow-200" },
@@ -78,17 +81,26 @@ export default function EventManagement() {
   // Fetch events
   const fetchEvents = async (
     page = currentPage,
-    search = searchTerm,
+    search = searchTerm, // eslint-disable-line no-unused-vars
     sort = sortBy
   ) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await adminApi.getEvents(page, pageSize, search, sort);
-      setEvents(response.events || []);
+      // Temporarily disable search parameter due to backend 'title' field error
+      const response = await adminApi.getEvents(page, pageSize, "", sort);
+      
+      // Transform events to ensure postal_code is a string
+      const transformedEvents = (response.events || []).map(event => ({
+        ...event,
+        postal_code: event.postal_code ? String(event.postal_code) : ''
+      }));
+      
+      setAllEvents(transformedEvents);
+      setEvents(transformedEvents);
       setPagination(response.pagination);
     } catch (err) {
-      setError(err.message || "Failed to fetch events");
+      setError(err.error || err.message || "Failed to fetch events");
       console.error("Error fetching events:", err);
     } finally {
       setLoading(false);
@@ -100,11 +112,30 @@ export default function EventManagement() {
     fetchEvents();
   }, []);
 
+  // Client-side search function
+  const performClientSearch = (searchValue) => {
+    if (!searchValue.trim()) {
+      setEvents(allEvents);
+      return;
+    }
+
+    const filtered = allEvents.filter(event => 
+      event.event_name?.toLowerCase().includes(searchValue.toLowerCase()) ||
+      event.event_description?.toLowerCase().includes(searchValue.toLowerCase()) ||
+      event.event_author?.toLowerCase().includes(searchValue.toLowerCase()) ||
+      event.city?.toLowerCase().includes(searchValue.toLowerCase()) ||
+      event.state?.toLowerCase().includes(searchValue.toLowerCase()) ||
+      event.street_address?.toLowerCase().includes(searchValue.toLowerCase())
+    );
+    
+    setEvents(filtered);
+  };
+
   // Handle search
   const handleSearch = (value) => {
     setSearchTerm(value);
-    setCurrentPage(1);
-    fetchEvents(1, value, sortBy);
+    // Use client-side search instead of backend search
+    performClientSearch(value);
   };
 
   // Handle sort change
@@ -250,7 +281,7 @@ export default function EventManagement() {
             <Search className="absolute text-sm top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 z-10 left-2  " />
             <Input
               type="text"
-              placeholder="Search events..."
+              placeholder="Search events (name, description, author, location)..."
               className="pl-10 pr-12 h-9 border-gray-200 focus:border-bluePrimary focus:ring-bluePrimary/20"
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
@@ -265,8 +296,10 @@ export default function EventManagement() {
                   <SelectItem value="created_at">Oldest First</SelectItem>
                   <SelectItem value="event_name">Name A-Z</SelectItem>
                   <SelectItem value="-event_name">Name Z-A</SelectItem>
-                  <SelectItem value="start_date">Event Date (Early)</SelectItem>
-                  <SelectItem value="-start_date">Event Date (Late)</SelectItem>
+                  <SelectItem value="start_date">Start Date (Early)</SelectItem>
+                  <SelectItem value="-start_date">Start Date (Late)</SelectItem>
+                  <SelectItem value="delivery_status">Status A-Z</SelectItem>
+                  <SelectItem value="-delivery_status">Status Z-A</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -295,7 +328,7 @@ export default function EventManagement() {
             </Button>
           </Card>
         ) : events.length === 0 ? (
-          <Card className="p-6 sm:p-8 text-center border-gray-200">
+          <Card className="p- bg-white sm:p-8 text-center border-gray-200">
             <Package className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
               No Events Found

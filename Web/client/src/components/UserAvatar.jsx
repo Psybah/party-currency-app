@@ -4,7 +4,7 @@ import { Avatar, Popover } from "antd";
 import { useNavigate, Link } from "react-router-dom";
 import { USER_PROFILE_CONTEXT } from "@/context";
 import { SIGNUP_CONTEXT } from "@/context";
-import { deleteAuth, getAuth } from "@/lib/util";
+import { deleteAuth } from "@/lib/util";
 import { getProfilePicture } from "@/api/profileApi";
 import { getDriveImage } from "@/api/utilApi";
 
@@ -12,9 +12,8 @@ export default function UserAvatar({ showName = false }) {
   const { userProfile, setUserProfile } = useContext(USER_PROFILE_CONTEXT);
   const { setSignupOpen } = useContext(SIGNUP_CONTEXT);
   const navigate = useNavigate();
-  // const { userType } = getAuth();
-  const isMerchant = userProfile?.type.toLowerCase() === "merchant";
-  const isAdmin = userProfile?.type.toLowerCase() === "admin";
+  const isMerchant = userProfile?.type?.toLowerCase() === "merchant";
+  const isAdmin = userProfile?.type?.toLowerCase() === "admin";
   const [profileImage, setProfileImage] = useState(null);
 
   useEffect(() => {
@@ -181,9 +180,9 @@ export default function UserAvatar({ showName = false }) {
     );
   }
 
-  // If no user profile, show login/signup buttons
+  // If no user profile, show login/signup buttons (only on desktop)
   return (
-    <div className="hidden md:flex items-center gap-6 font-montserrat text-lg">
+    <div className="hidden lg:flex items-center gap-6 font-montserrat text-lg">
       <Link to="/login" className="hover:text-gold">
         Login
       </Link>

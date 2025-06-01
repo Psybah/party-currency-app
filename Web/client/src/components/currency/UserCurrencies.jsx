@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllCurrencies, deleteCurrency } from '@/api/currencyApi';
-import { getEvents } from '@/api/eventApi';
+import { getEvents, getEventById } from '@/api/eventApi';
 import { LoadingDisplay } from '@/components/LoadingDisplay';
 import { Download, Files, Edit, PlusCircle, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,7 @@ export function UserCurrencies() {
   const navigate = useNavigate();
   const [templates, setTemplates] = useState([]);
   const [events, setEvents] = useState({});
+  const [eventDetails, setEventDetails] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState({ open: false, templateId: null });
@@ -55,6 +56,27 @@ export function UserCurrencies() {
         
         setEvents(eventsMap);
         setTemplates(currencyData || []);
+
+        // Fetch detailed event information for payment status
+        const eventDetailsMap = {};
+        if (currencyData && currencyData.length > 0) {
+          const uniqueEventIds = [...new Set(currencyData.map(template => template.event_id).filter(Boolean))];
+          
+          const eventDetailPromises = uniqueEventIds.map(async (eventId) => {
+            try {
+              const eventDetail = await getEventById(eventId);
+              eventDetailsMap[eventId] = eventDetail;
+            } catch (err) {
+              console.error(`Error fetching event details for ${eventId}:`, err);
+              // Set default values if we can't fetch event details
+              eventDetailsMap[eventId] = { payment_status: 'pending' };
+            }
+          });
+          
+          await Promise.all(eventDetailPromises);
+        }
+        
+        setEventDetails(eventDetailsMap);
 
         // Download images for each template
         const imagesMap = {};
@@ -100,8 +122,20 @@ export function UserCurrencies() {
     return events[eventId] || 'Unknown Event';
   };
 
+  const isPaymentSuccessful = (eventId) => {
+    if (!eventId || eventId === 'no_event') return false;
+    const eventDetail = eventDetails[eventId];
+    const paymentStatus = eventDetail?.payment_status?.toLowerCase();
+    return paymentStatus === 'successful' || paymentStatus === 'paid' || paymentStatus === 'completed';
+  };
 
   const handleDownload = async (template) => {
+    // Check if payment is successful before allowing download
+    if (!isPaymentSuccessful(template.event_id)) {
+      toast.error('Payment required: Please complete payment for this event before downloading currencies.');
+      return;
+    }
+
     try {
       // Check if front_image exists, if not display an error
       const imageUrl = template.front_image;
@@ -198,7 +232,7 @@ export function UserCurrencies() {
 
   return (
     <>
-      <div className="flex flex-col gap-4 ">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {templates.map((template) => {
           const denomination = template.denomination || '200';
           const templateImage = templateImages[template.currency_id];
@@ -206,88 +240,116 @@ export function UserCurrencies() {
           return (
             <div
               key={template.currency_id}
-              className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+              className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl hover:border-bluePrimary/30 transition-all duration-300"
             >
-              <div className=" bg-gray-100 relative">
-                <div className='w-full relative '>
-              <CurrencyCanvas
+              {/* Currency Image Section */}
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
+                <div className='w-full relative aspect-[3/2]'>
+                  <CurrencyCanvas
                     templateImage={getTemplateImage(denomination)}
                     texts={{
                       eventId: template.event_id,
                       currencyName: template.currency_name,
                       celebration: template.front_celebration_text,
                       dominationText:"200",
-             
-
                     }}
                     side="front"
                     denomination={denomination}
-                    portraitImage={templateImage.front}
+                    portraitImage={templateImage?.front}
                   />
                 </div>
                 
-                <div className="absolute top-2 right-2">
-                  <span className="bg-gold text-white px-2 py-1 rounded text-xs font-semibold">
+                {/* Denomination Badge */}
+                <div className="absolute top-3 right-3">
+                  <span className="bg-gradient-to-r from-gold to-yellow-500 text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-lg">
                     ₦{denomination}
                   </span>
                 </div>
+
+                {/* Quick Action Buttons - Overlay */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <div className="flex gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handlePreview(template)}
+                      className="bg-white/90 hover:bg-white border-0 shadow-lg backdrop-blur-sm"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="secondary" 
+                      size="sm"
+                      onClick={() => handleDownload(template)}
+                      disabled={!isPaymentSuccessful(template.event_id)}
+                      className={`bg-white/90 hover:bg-white border-0 shadow-lg backdrop-blur-sm ${
+                        !isPaymentSuccessful(template.event_id) ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                      title={!isPaymentSuccessful(template.event_id) ? 'Payment required to download' : 'Download currency'}
+                    >
+                      <Download className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
               </div>
               
-              <div className="p-4">
-                <div className="flex flex-col mb-2">
-                  <h3 className="font-semibold text-lg">
-                    {template.currency_name || 'Party Currency'}
-                  </h3>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">
+              {/* Content Section */}
+              <div className="p-5">
+                {/* Header */}
+                <div className="mb-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-bold text-lg text-gray-900 leading-tight line-clamp-2 flex-1 text-left">
+                      {template.currency_name || 'Party Currency'}
+                    </h3>
+                  </div>
+                  
+                  {/* Event and Date Info */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-md max-w-fit">
+                        {getEventName(template.event_id)}
+                      </span>
+                      {template.event_id && (
+                        <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-md ${
+                          isPaymentSuccessful(template.event_id) 
+                            ? 'bg-green-50 text-green-700' 
+                            : 'bg-yellow-50 text-yellow-700'
+                        }`}>
+                          {isPaymentSuccessful(template.event_id) ? 'Paid' : 'Payment Pending'}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-xs text-gray-500">
                       {new Date(template.created_at).toLocaleDateString()}
-                    </span>
-                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                      {getEventName(template.event_id)}
                     </span>
                   </div>
                 </div>
                 
-                <p className="text-gray-600 text-sm mb-4 truncate">
-                  {template.front_celebration_text || 'Celebration of Life'}
-                </p>
+                {/* Celebration Text */}
+                <div className="mb-5">
+                  <p className="text-gray-600 text-sm leading-relaxed text-left">
+                    &ldquo;{template.front_celebration_text || 'Celebration of Life'}&rdquo;
+                  </p>
+                </div>
                 
-                <div className="flex flex-wrap justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePreview(template)}
-                    className="inline-flex items-center gap-1"
-                  >
-                    <Eye className="w-4 h-4" />
-                    Preview
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDownload(template)}
-                    className="inline-flex items-center gap-1"
-                  >
-                    <Download className="w-4 h-4" />
-                    Download
-                  </Button>
+                {/* Action Buttons */}
+                <div className="flex gap-2">
                   <Button
                     variant="default"
                     size="sm"
                     onClick={() => handleEdit(template)}
-                    className="inline-flex items-center gap-1"
+                    className="flex-1 bg-bluePrimary hover:bg-bluePrimary/90 text-white"
                   >
-                    <Edit className="w-4 h-4" />
+                    <Edit className="w-4 h-4 mr-2" />
                     Edit
                   </Button>
                   <Button
-                    variant="destructive"
+                    variant="outline"
                     size="sm"
                     onClick={() => setDeleteDialog({ open: true, templateId: template.currency_id })}
-                    className="inline-flex items-center gap-1"
+                    className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
                   >
                     <Trash2 className="w-4 h-4" />
-                    Delete
                   </Button>
                 </div>
               </div>

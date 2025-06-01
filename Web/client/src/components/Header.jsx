@@ -114,11 +114,12 @@ const Header = () => {
             </button>
           </div>
 
-          {/* Auth Buttons and User Avatar */}
-          <div className="hidden md:flex items-center gap-4">
+          {/* Auth Buttons and User Avatar - Only show on desktop */}
+          <div className="hidden lg:flex items-center gap-4">
             <UserAvatar showName={true} />
           </div>
-          <div className="md:hidden">
+          {/* User Avatar for mobile/tablet - no auth buttons */}
+          <div className="lg:hidden">
             <UserAvatar showName={false} />
           </div>
         </div>

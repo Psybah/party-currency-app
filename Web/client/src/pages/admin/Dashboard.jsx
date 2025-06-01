@@ -256,7 +256,7 @@ export default function AdminDashboard() {
   // Transactions Mobile Card Component
   const TransactionMobileCard = ({ transaction }) => (
     <Card
-      className="p-3 sm:p-4 hover:shadow-md transition-all duration-200 cursor-pointer hover:bg-gray-50 border-l-4 border-l-blue-500"
+      className="p-3 sm:p-4 hover:shadow-md transition-all duration-200 bg-white cursor-pointer hover:bg-gray-50"
       onClick={() => handleTransactionClick(transaction.event_id)}
     >
       <div className="space-y-2 sm:space-y-3">

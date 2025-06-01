@@ -138,7 +138,7 @@ const Footer = () => {
       </div>
 
       <div className="text-center mt-10 border-t border-white pt-5">
-        © 2024 Party Currency. All Rights Reserved.
+        © {new Date().getFullYear()} Party Currency. All Rights Reserved.
       </div>
     </footer>
   );

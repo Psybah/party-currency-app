@@ -138,7 +138,7 @@ export const CurrencyCanvas = forwardRef(function CurrencyCanvas(
       currencyName: {
         x: CANVAS_WIDTH * 0.6,
         y: CANVAS_HEIGHT * 0.3,
-        fontSize: 90,
+        fontSize: 80,
         fontFamily: "Tangerine",
       },
       denominationText: {

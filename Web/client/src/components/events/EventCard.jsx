@@ -81,7 +81,7 @@ export default function EventCard({
   };
 
   return (
-    <div className="bg-[#FFFBF5] rounded-t-lg shadow-md p-4 sm:p-6 mt-4 hover:bg-[#FFF9F0] transition-colors duration-200">
+    <div className="shadow-md p-4 sm:p-6 hover:bg-[#FFF9F0] transition-colors duration-200">
       {/* Header: Name, ID, Status */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
         {/* Name, ID, Description */}

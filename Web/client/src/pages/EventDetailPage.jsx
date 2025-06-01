@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { LoadingDisplay } from "@/components/LoadingDisplay";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal, ArrowLeft, Download } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Terminal, Download, ArrowLeft } from "lucide-react";
 import { getEventById, getCurrenciesByEventId } from "@/api/eventApi";
 import { downloadCurrencyImage } from "@/components/ui/CurrencyImage"; // Assuming this is the correct path
 import { CurrencyCanvas } from "@/components/currency/CurrencyCanvas";
@@ -17,13 +18,11 @@ import {
   CheckCircle2,
   XCircle,
   Tag,
-  Users,
-  Edit3,
   Palette,
-  DollarSign,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { USER_PROFILE_CONTEXT } from "@/context";
+import PropTypes from "prop-types";
 
 // Helper function for CurrencyCanvas template image
 function getTemplateImage(denomination) {
@@ -35,12 +34,18 @@ function getTemplateImage(denomination) {
 }
 
 const DetailItem = ({ icon: Icon, label, value }) => (
-  <div className="flex items-start text-sm text-gray-700">
-    <Icon className="w-4 h-4 mr-2 mt-1 flex-shrink-0 text-bluePrimary" />
-    <span className="font-medium mr-1">{label}:</span>
-    <span>{value || "N/A"}</span>
+  <div className="flex items-start text-xs sm:text-sm text-gray-700">
+    <Icon className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 mt-0.5 flex-shrink-0 text-bluePrimary" />
+    <span className="font-medium mr-1 text-left">{label}:</span>
+    <span className="text-left">{value || "N/A"}</span>
   </div>
 );
+
+DetailItem.propTypes = {
+  icon: PropTypes.elementType.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string,
+};
 
 const StatusPill = ({ status }) => {
   let bgColor = "bg-gray-100";
@@ -69,12 +74,16 @@ const StatusPill = ({ status }) => {
   }
   return (
     <span
-      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${bgColor} ${textColor}`}
+      className={`inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold ${bgColor} ${textColor}`}
     >
-      <Icon className="w-3 h-3 mr-1.5" />
+      <Icon className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 sm:mr-1.5" />
       {status ? status.charAt(0).toUpperCase() + status.slice(1) : "N/A"}
     </span>
   );
+};
+
+StatusPill.propTypes = {
+  status: PropTypes.string,
 };
 
 export default function EventDetailPage() {
@@ -181,6 +190,14 @@ export default function EventDetailPage() {
 
   // Download function for currency
   const handleDownloadCurrency = async (currency, side) => {
+    // Check if payment is successful before allowing download
+    if (payment_status?.toLowerCase() !== 'successful' && 
+        payment_status?.toLowerCase() !== 'paid' && 
+        payment_status?.toLowerCase() !== 'completed') {
+      toast.error('Payment required: Please complete payment for this event before downloading currencies.');
+      return;
+    }
+
     const canvasKey = `${currency.currency_id}-${side}`;
     const canvasRef = canvasRefs.current[canvasKey];
 
@@ -216,6 +233,14 @@ export default function EventDetailPage() {
 
   // Download both sides function
   const handleDownloadBothSides = async (currency) => {
+    // Check if payment is successful before allowing download
+    if (payment_status?.toLowerCase() !== 'successful' && 
+        payment_status?.toLowerCase() !== 'paid' && 
+        payment_status?.toLowerCase() !== 'completed') {
+      toast.error('Payment required: Please complete payment for this event before downloading currencies.');
+      return;
+    }
+
     const frontCanvasKey = `${currency.currency_id}-front`;
     const backCanvasKey = `${currency.currency_id}-back`;
     const frontRef = canvasRefs.current[frontCanvasKey];
@@ -259,6 +284,11 @@ export default function EventDetailPage() {
     }
   };
 
+  // Check if payment is successful for downloads
+  const isPaymentSuccessful = payment_status?.toLowerCase() === 'successful' || 
+                             payment_status?.toLowerCase() === 'paid' || 
+                             payment_status?.toLowerCase() === 'completed';
+
   if (!authenticated) {
     return <LoadingDisplay message="Authenticating..." />;
   }
@@ -269,33 +299,37 @@ export default function EventDetailPage() {
 
   if (error) {
     return (
-      <Alert variant="destructive" className="max-w-2xl mx-auto">
-        <Terminal className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
-        <AlertDescription>
-          {error} Try refreshing the page or{" "}
-          <Button variant="link" onClick={() => navigate("/dashboard")}>
-            go back to dashboard
-          </Button>
-          .
-        </AlertDescription>
-      </Alert>
+      <div className="max-w-4xl mx-auto p-3 sm:p-6">
+        <Alert variant="destructive" className="border-red-200 bg-red-50">
+          <Terminal className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            {error} Try refreshing the page or{" "}
+            <Button variant="link" onClick={() => navigate("/dashboard")} className="p-0 h-auto">
+              go back to dashboard
+            </Button>
+            .
+          </AlertDescription>
+        </Alert>
+      </div>
     );
   }
 
   if (!eventDetails) {
     return (
-      <Alert className="max-w-2xl mx-auto">
-        <Terminal className="h-4 w-4" />
-        <AlertTitle>Event Not Found</AlertTitle>
-        <AlertDescription>
-          The event you are looking for could not be found.
-          <Button variant="link" onClick={() => navigate("/dashboard")}>
-            Go back to dashboard
-          </Button>
-          .
-        </AlertDescription>
-      </Alert>
+      <div className="max-w-4xl mx-auto p-3 sm:p-6">
+        <Alert className="border-gray-200 bg-gray-50">
+          <Terminal className="h-4 w-4" />
+          <AlertTitle>Event Not Found</AlertTitle>
+          <AlertDescription>
+            The event you are looking for could not be found.
+            <Button variant="link" onClick={() => navigate("/dashboard")} className="p-0 h-auto">
+              Go back to dashboard
+            </Button>
+            .
+          </AlertDescription>
+        </Alert>
+      </div>
     );
   }
 
@@ -329,310 +363,337 @@ export default function EventDetailPage() {
 
   return (
     <>
-      <div className="max-w-5xl mx-auto">
-        {/* Event Details Card */}
-        <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
-          <div className="flex flex-col md:flex-row justify-between items-start mb-4">
+      <div className="min-h-screen bg-gray-50">
+        <main className="p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-5xl mx-auto">
+          {/* Header with Back Button */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Button
+              onClick={() => navigate(-1)}
+              variant="outline"
+              size="sm"
+              className="border-bluePrimary/30 text-bluePrimary hover:bg-bluePrimary/10 h-8 sm:h-9 px-2 sm:px-3"
+            >
+              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="text-xs sm:text-sm">Back</span>
+            </Button>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 font-playfair mb-1">
-                {event_name}
+              <h1 className="text-lg sm:text-2xl font-semibold font-playfair text-gray-900 text-left">
+                Event Details
               </h1>
-              <p className="text-gray-600 text-md">{event_description}</p>
-              {!isEventOwner && (
-                <p className="text-sm text-gray-500 mt-2">
-                  Hosted by: {event_author}
-                </p>
-              )}
-            </div>
-            <div className="mt-3 md:mt-0 flex flex-col items-start md:items-end gap-2">
-              <span className="text-xs text-gray-500">Event ID: {eventId}</span>
-              {/* Show edit button only for event owners */}
-              {isEventOwner && (
-                <Button
-                  onClick={() => navigate(`/manage-event?edit=${eventId}`)}
-                  size="sm"
-                  variant="outline"
-                >
-                  <Edit3 className="w-3.5 h-3.5 mr-2" /> Edit Event
-                </Button>
-              )}
+              <p className="text-xs sm:text-sm text-gray-500 text-left">Event ID: {eventId}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mb-6">
-            <DetailItem
-              icon={MapPin}
-              label="Location"
-              value={`${street_address}, ${city}, ${event_state} ${postal_code}`}
-            />
-            <DetailItem
-              icon={Calendar}
-              label="Event Dates"
-              value={`${format(
-                new Date(start_date),
-                "MMM dd, yyyy"
-              )} - ${format(new Date(end_date), "MMM dd, yyyy")}`}
-            />
-            <DetailItem
-              icon={Calendar}
-              label="Created On"
-              value={format(new Date(created_at), "MMM dd, yyyy 'at' hh:mm a")}
-            />
-            <div>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {reconciliation && <StatusPill status="Reconciled" />}
-              </div>
-            </div>
-          </div>
-
-          {/* Responsive bottom status and action section */}
-          <div className="flex flex-col sm:flex-row justify-between items-stretch mt-4 w-full gap-4">
-            {/* Status section bottom left */}
-            <div className="flex flex-col items-start">
-              <span className="font-semibold text-gray-700 mb-1 flex items-center">
-                <Info className="w-4 h-4 mr-1 text-bluePrimary" /> Payment
-                Status
-              </span>
-              <div className="flex items-center gap-2 mb-2">
-                <StatusPill status={payment_status} />
-              </div>
-              <span className="font-semibold text-gray-700 mb-1 flex items-center">
-                <Info className="w-4 h-4 mr-1 text-bluePrimary" /> Delivery
-                Status
-              </span>
-              <div className="flex items-center gap-2">
-                <StatusPill status={delivery_status} />
-              </div>
-            </div>
-            {/* Make Payment button - only for event owners with pending payment */}
-            {shouldShowPayButton && (
-              <div className="flex items-end justify-end w-full sm:w-auto">
-                <Button
-                  className="bg-bluePrimary text-white font-semibold px-6 py-2"
-                  onClick={() => setIsPaymentModalOpen(true)}
-                >
-                  Make Payment
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Associated Currencies Section */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-700 mb-2 font-playfair flex items-center">
-            <DollarSign className="w-6 h-6 mr-2 text-bluePrimary" /> Associated
-            Currencies
-          </h2>
-          {currencies.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6">
-              {currencies.map((currency) => (
-                <div
-                  key={currency.currency_id}
-                  className="bg-white p-4 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
-                >
-                  <h3 className="text-xl font-semibold text-gray-800 mb-1">
-                    {currency.currency_name || "Unnamed Currency"}
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-3">
-                    Denomination:{" "}
-                    <span className="font-medium text-bluePrimary">
-                      ₦{currency.denomination}
-                    </span>
+          {/* Event Details Card */}
+          <Card className="p-3 sm:p-6 bg-white border-bluePrimary/20">
+            <div className="flex flex-col md:flex-row justify-between items-start mb-3 sm:mb-4">
+              <div className="flex-1 min-w-0">
+                <h2 className="text-xl sm:text-3xl font-bold text-gray-800 font-playfair mb-1 text-left">
+                  {event_name}
+                </h2>
+                <p className="text-gray-600 text-sm sm:text-base text-left">{event_description}</p>
+                {!isEventOwner && (
+                  <p className="text-xs sm:text-sm text-gray-500 mt-2 text-left">
+                    Hosted by: {event_author}
                   </p>
+                )}
+              </div>
+              {/* Show edit button only for event owners
+              {isEventOwner && (
+                <div className="mt-3 md:mt-0 flex-shrink-0">
+                  <Button
+                    onClick={() => navigate(`/manage-event?edit=${eventId}`)}
+                    size="sm"
+                    variant="outline"
+                    className="border-bluePrimary/30 text-bluePrimary hover:bg-bluePrimary/10 text-xs sm:text-sm h-7 sm:h-8"
+                  >
+                    <Edit3 className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1.5 sm:mr-2" /> Edit Event
+                  </Button>
+                </div>
+              )} */}
+            </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1 font-medium">
-                        Front Side
-                      </p>
-                      {associatedImages[currency.currency_id]?.front ||
-                      currency.front_image ? (
-                        <CurrencyCanvas
-                          ref={(ref) => {
-                            if (ref) {
-                              canvasRefs.current[
-                                `${currency.currency_id}-front`
-                              ] = ref;
-                            }
-                          }}
-                          templateImage={getTemplateImage(
-                            currency.denomination
-                          )}
-                          texts={{
-                            currencyName: currency.currency_name,
-                            celebration: currency.front_celebration_text,
-                            dominationText: String(currency.denomination),
-                            eventId: currency.event_id,
-                          }}
-                          side="front"
-                          denomination={String(currency.denomination)}
-                          portraitImage={
-                            associatedImages[currency.currency_id]?.front
-                          }
-                        />
-                      ) : (
-                        <div className="text-center py-4 text-xs text-gray-400 italic border rounded-md">
-                          No front image
-                        </div>
-                      )}
-                      {currency.front_celebration_text && (
-                        <p className="mt-1 text-xs text-gray-500 truncate">
-                          "{currency.front_celebration_text}"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 sm:gap-x-8 gap-y-2 sm:gap-y-4 mb-4 sm:mb-6">
+              <DetailItem
+                icon={MapPin}
+                label="Location"
+                value={`${street_address}, ${city}, ${event_state} ${postal_code}`}
+              />
+              <DetailItem
+                icon={Calendar}
+                label="Event Dates"
+                value={`${format(
+                  new Date(start_date),
+                  "MMM dd, yyyy"
+                )} - ${format(new Date(end_date), "MMM dd, yyyy")}`}
+              />
+              <DetailItem
+                icon={Calendar}
+                label="Created On"
+                value={format(new Date(created_at), "MMM dd, yyyy 'at' hh:mm a")}
+              />
+              <div className="flex items-start text-xs sm:text-sm text-gray-700">
+                <Info className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 mt-0.5 flex-shrink-0 text-bluePrimary" />
+                <span className="font-medium mr-1 text-left">Status:</span>
+                <div className="flex flex-wrap gap-1">
+                  {reconciliation && <StatusPill status="Reconciled" />}
+                </div>
+              </div>
+            </div>
+
+            {/* Responsive bottom status and action section */}
+            <div className="flex flex-col sm:flex-row justify-between items-stretch gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-gray-100">
+              {/* Status section */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-6">
+                <div className="flex flex-col items-start">
+                  <span className="font-semibold text-gray-700 mb-1 flex items-center text-xs sm:text-sm">
+                    <Info className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-bluePrimary" /> Payment Status
+                  </span>
+                  <StatusPill status={payment_status} />
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="font-semibold text-gray-700 mb-1 flex items-center text-xs sm:text-sm">
+                    <Info className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-bluePrimary" /> Delivery Status
+                  </span>
+                  <StatusPill status={delivery_status} />
+                </div>
+              </div>
+              {/* Make Payment button - only for event owners with pending payment */}
+              {shouldShowPayButton && (
+                <div className="flex items-end justify-end">
+                  <Button
+                    className="bg-bluePrimary text-white font-semibold px-4 sm:px-6 py-2 text-xs sm:text-sm h-8 sm:h-9"
+                    onClick={() => setIsPaymentModalOpen(true)}
+                  >
+                    Make Payment
+                  </Button>
+                </div>
+              )}
+            </div>
+          </Card>
+
+          {/* Associated Currencies Section */}
+          <div className="space-y-3 sm:space-y-4">
+            <h2 className="text-lg sm:text-2xl font-semibold text-gray-700 font-playfair flex items-center text-left">
+              Associated Currencies
+            </h2>
+            {currencies.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
+                {currencies.map((currency) => (
+                  <Card
+                    key={currency.currency_id}
+                    className="p-3 sm:p-4 bg-white border-bluePrimary/20 hover:border-bluePrimary/40 transition-colors duration-200"
+                  >
+                    <h3 className="text-base sm:text-xl font-semibold text-gray-800 mb-1 text-left">
+                      {currency.currency_name || "Unnamed Currency"}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-gray-500 mb-3 text-left">
+                      Denomination:{" "}
+                      <span className="font-medium text-bluePrimary">
+                        ₦{currency.denomination}
+                      </span>
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 sm:mb-4">
+                      <div>
+                        <p className="text-xs text-gray-600 mb-1 font-medium text-left">
+                          Front Side
                         </p>
-                      )}
-
-                      {/* Download Front Button */}
-                      {(associatedImages[currency.currency_id]?.front ||
-                        currency.front_image) && (
-                        <div className="mt-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              handleDownloadCurrency(currency, "front")
+                        {associatedImages[currency.currency_id]?.front ||
+                        currency.front_image ? (
+                          <CurrencyCanvas
+                            ref={(ref) => {
+                              if (ref) {
+                                canvasRefs.current[
+                                  `${currency.currency_id}-front`
+                                ] = ref;
+                              }
+                            }}
+                            templateImage={getTemplateImage(
+                              currency.denomination
+                            )}
+                            texts={{
+                              currencyName: currency.currency_name,
+                              celebration: currency.front_celebration_text,
+                              dominationText: String(currency.denomination),
+                              eventId: currency.event_id,
+                            }}
+                            side="front"
+                            denomination={String(currency.denomination)}
+                            portraitImage={
+                              associatedImages[currency.currency_id]?.front
                             }
-                            disabled={
-                              downloadingCurrency ===
+                          />
+                        ) : (
+                          <div className="text-center py-3 sm:py-4 text-xs text-gray-400 italic border rounded-md bg-gray-50">
+                            No front image
+                          </div>
+                        )}
+                        {currency.front_celebration_text && (
+                          <p className="text-xs text-gray-500 truncate text-left">
+                            &ldquo;{currency.front_celebration_text}&rdquo;
+                          </p>
+                        )}
+
+                        {/* Download Front Button */}
+                        {(associatedImages[currency.currency_id]?.front ||
+                          currency.front_image) && (
+                          <div className="mt-0">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                handleDownloadCurrency(currency, "front")
+                              }
+                              disabled={
+                                downloadingCurrency ===
+                                `${currency.currency_id}-front` || !isPaymentSuccessful
+                              }
+                              className={`w-full border-bluePrimary/30 text-bluePrimary hover:bg-bluePrimary/10 text-xs h-7 sm:h-8 ${
+                                !isPaymentSuccessful ? 'opacity-50 cursor-not-allowed' : ''
+                              }`}
+                              title={!isPaymentSuccessful ? 'Payment required to download' : 'Download front side'}
+                            >
+                              <Download className="w-3 h-3 mr-1" />
+                              {downloadingCurrency ===
                               `${currency.currency_id}-front`
-                            }
-                            className="w-full"
-                          >
-                            <Download className="w-3 h-3 mr-1" />
-                            {downloadingCurrency ===
-                            `${currency.currency_id}-front`
-                              ? "Downloading..."
-                              : "Download Front"}
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1 font-medium">
-                        Back Side
-                      </p>
-                      {associatedImages[currency.currency_id]?.back ||
-                      currency.back_image ? (
-                        <CurrencyCanvas
-                          ref={(ref) => {
-                            if (ref) {
-                              canvasRefs.current[
-                                `${currency.currency_id}-back`
-                              ] = ref;
-                            }
-                          }}
-                          templateImage={getTemplateImage(
-                            currency.denomination
-                          )} // Assuming back also uses a base template
-                          texts={{
-                            celebration: currency.back_celebration_text,
-                            eventId: currency.event_id,
-                            // Potentially other texts for back if applicable
-                          }}
-                          side="back"
-                          denomination={String(currency.denomination)}
-                          portraitImage={
-                            associatedImages[currency.currency_id]?.back
-                          }
-                        />
-                      ) : (
-                        <div className="text-center py-4 text-xs text-gray-400 italic border rounded-md">
-                          No back image
-                        </div>
-                      )}
-                      {currency.back_celebration_text && (
-                        <p className="mt-1 text-xs text-gray-500 truncate">
-                          "{currency.back_celebration_text}"
+                                ? "Downloading..."
+                                : !isPaymentSuccessful ? "Payment Required" : "Download Front"}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600 mb-1 font-medium text-left">
+                          Back Side
                         </p>
-                      )}
-
-                      {/* Download Back Button */}
-                      {(associatedImages[currency.currency_id]?.back ||
-                        currency.back_image) && (
-                        <div className="mt-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              handleDownloadCurrency(currency, "back")
+                        {associatedImages[currency.currency_id]?.back ||
+                        currency.back_image ? (
+                          <CurrencyCanvas
+                            ref={(ref) => {
+                              if (ref) {
+                                canvasRefs.current[
+                                  `${currency.currency_id}-back`
+                                ] = ref;
+                              }
+                            }}
+                            templateImage={getTemplateImage(
+                              currency.denomination
+                            )} // Assuming back also uses a base template
+                            texts={{
+                              celebration: currency.back_celebration_text,
+                              eventId: currency.event_id,
+                              // Potentially other texts for back if applicable
+                            }}
+                            side="back"
+                            denomination={String(currency.denomination)}
+                            portraitImage={
+                              associatedImages[currency.currency_id]?.back
                             }
+                          />
+                        ) : (
+                          <div className="text-center py-3 sm:py-4 text-xs text-gray-400 italic border rounded-md bg-gray-50">
+                            No back image
+                          </div>
+                        )}
+                        {currency.back_celebration_text && (
+                          <p className="text-xs text-gray-500 truncate text-left">
+                            &ldquo;{currency.back_celebration_text}&rdquo;
+                          </p>
+                        )}
+
+                        {/* Download Back Button */}
+                        {(associatedImages[currency.currency_id]?.back ||
+                          currency.back_image) && (
+                          <div className="mt-0">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                handleDownloadCurrency(currency, "back")
+                              }
+                              disabled={
+                                downloadingCurrency ===
+                                `${currency.currency_id}-back` || !isPaymentSuccessful
+                                `${currency.currency_id}-back`
+                              }
+                              className="w-full border-bluePrimary/30 text-bluePrimary hover:bg-bluePrimary/10 text-xs h-7 sm:h-8"
+                            >
+                              <Download className="w-3 h-3 mr-1" />
+                              {downloadingCurrency ===
+                              `${currency.currency_id}-back`
+                                ? "Downloading..."
+                                : "Download Back"}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Download Both Sides Button */}
+                    {(associatedImages[currency.currency_id]?.front ||
+                      currency.front_image) &&
+                      (associatedImages[currency.currency_id]?.back ||
+                        currency.back_image) && (
+                        <div className="border-t pt-3 mt-3 border-gray-100">
+                          <Button
+                            variant="default"
+                            className="w-full bg-bluePrimary hover:bg-bluePrimary/90 text-white text-xs sm:text-sm h-7 sm:h-9"
+                            onClick={() => handleDownloadBothSides(currency)}
                             disabled={
                               downloadingCurrency ===
-                              `${currency.currency_id}-back`
+                              `${currency.currency_id}-both`
                             }
-                            className="w-full"
                           >
-                            <Download className="w-3 h-3 mr-1" />
+                            <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                             {downloadingCurrency ===
-                            `${currency.currency_id}-back`
-                              ? "Downloading..."
-                              : "Download Back"}
+                            `${currency.currency_id}-both`
+                              ? "Downloading Both Sides..."
+                              : "Download Both Sides"}
                           </Button>
                         </div>
                       )}
-                    </div>
-                  </div>
 
-                  {/* Download Both Sides Button */}
-                  {(associatedImages[currency.currency_id]?.front ||
-                    currency.front_image) &&
-                    (associatedImages[currency.currency_id]?.back ||
-                      currency.back_image) && (
-                      <div className="border-t pt-3 mt-3">
+                    {/* Show customize button only for event owners */}
+                    {isEventOwner && (
+                      <div className="text-right mt-3 pt-3 border-t border-gray-100">
                         <Button
-                          variant="default"
-                          className="w-full bg-bluePrimary hover:bg-bluePrimary/90"
-                          onClick={() => handleDownloadBothSides(currency)}
-                          disabled={
-                            downloadingCurrency ===
-                            `${currency.currency_id}-both`
-                          }
+                          size="sm"
+                          variant="ghost"
+                          className="text-bluePrimary hover:text-bluePrimary hover:bg-blue-50 text-xs h-7 sm:h-8"
+                          onClick={() =>
+                            navigate(
+                              `/templates?currencyId=${currency.currency_id}&eventId=${eventId}&denomination=${currency.denomination}`
+                            )
+                          } // Or to a specific customize page
                         >
-                          <Download className="w-4 h-4 mr-2" />
-                          {downloadingCurrency ===
-                          `${currency.currency_id}-both`
-                            ? "Printing Both Sides..."
-                            : "Print Both Sides"}
+                          <Palette className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1.5" /> Customize
+                          this Currency
                         </Button>
                       </div>
                     )}
-
-                  {/* Show customize button only for event owners */}
-                  {isEventOwner && (
-                    <div className="text-right mt-3 pt-3 border-t">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-bluePrimary hover:text-bluePrimary hover:bg-blue-50"
-                        onClick={() =>
-                          navigate(
-                            `/templates?currencyId=${currency.currency_id}&eventId=${eventId}&denomination=${currency.denomination}`
-                          )
-                        } // Or to a specific customize page
-                      >
-                        <Palette className="w-3.5 h-3.5 mr-1.5" /> Customize
-                        this Currency
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white p-6 rounded-lg shadow text-center">
-              <Tag className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">
-                No currencies have been designed for this event yet.
-              </p>
-              {/* Show design button only for event owners */}
-              {isEventOwner && (
-                <Button className="mt-4" onClick={() => navigate("/templates")}>
-                  <Palette className="w-4 h-4 mr-2" /> Design a Currency
-                </Button>
-              )}
-            </div>
-          )}
-        </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="p-4 sm:p-6 bg-white border-bluePrimary/20 text-center">
+                <Tag className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500 text-sm sm:text-base">
+                  No currencies have been designed for this event yet.
+                </p>
+                {/* Show design button only for event owners */}
+                {isEventOwner && (
+                  <Button 
+                    className="mt-4 bg-bluePrimary text-white hover:bg-bluePrimary/90 text-xs sm:text-sm h-8 sm:h-9" 
+                    onClick={() => navigate("/templates")}
+                  >
+                    <Palette className="w-3 h-3 sm:w-4 sm:h-4 mr-2" /> Design a Currency
+                  </Button>
+                )}
+              </Card>
+            )}
+          </div>
+        </main>
       </div>
       {/* Payment Modal - only show for event owners */}
       {eventDetails && currencies && isEventOwner && (

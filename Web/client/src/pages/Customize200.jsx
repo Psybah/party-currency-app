@@ -23,6 +23,7 @@ const Customize200 = () => {
   const navigate = useNavigate();
   const authenticated = useAuthenticated();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showTextEditor, setShowTextEditor] = useState(false);
   const [showImageEditor, setShowImageEditor] = useState(false);
   const [currentSide, setCurrentSide] = useState("front");
@@ -46,6 +47,18 @@ const Customize200 = () => {
       portraitImage: null,
     },
   });
+
+  // Listen for sidebar state changes
+  useEffect(() => {
+    const handleSidebarStateChange = (event) => {
+      setSidebarCollapsed(event.detail.isCollapsed);
+    };
+
+    window.addEventListener("sidebarStateChange", handleSidebarStateChange);
+    return () => {
+      window.removeEventListener("sidebarStateChange", handleSidebarStateChange);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -163,7 +176,9 @@ const Customize200 = () => {
         onClose={() => setIsMobileMenuOpen(false)}
       />
 
-      <div className="md:pl-64">
+      <div className={`transition-all duration-300 ${
+        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+      }`}>
         <DashboardHeader toggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
 
         <main className="p-4 md:p-6">
@@ -178,7 +193,7 @@ const Customize200 = () => {
           <div className="max-w-4xl mx-auto space-y-8 md:space-y-12">
             {/* Event Selection */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold">Select Event</h3>
+              <h3 className="text-xl text-left font-semibold">Select Event</h3>
               <div className="border border-gray-200 rounded-lg p-4 bg-white">
                 <div className="mb-4">
                   <Select
@@ -217,7 +232,7 @@ const Customize200 = () => {
 
             {/* Front Side */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold">Front Side</h3>
+              <h3 className="text-xl text-left font-semibold">Front Side</h3>
               <div className="relative border border-gray-200 rounded-lg p-4 bg-white">
                 <CurrencyCanvas
                   templateImage="/lovable-uploads/200-front-template.png"
@@ -225,13 +240,13 @@ const Customize200 = () => {
                   portraitImage={currencyData.front.portraitImage}
                   side="front"
                 />
-                <div className="mt-4 flex flex-wrap gap-4">
+                <div className="mt-4 flex flex-wrap gap-2 md:gap-4">
                   <button 
                     onClick={() => {
                       setCurrentSide("front");
                       setShowTextEditor(true);
                     }}
-                    className="px-4 md:px-6 py-3 border border-bluePrimary text-bluePrimary rounded-lg hover:bg-bluePrimary hover:text-white transition-colors"
+                    className="px-3 md:px-6 py-2 md:py-3 text-sm md:text-base border border-bluePrimary text-bluePrimary rounded-lg hover:bg-bluePrimary hover:text-white transition-colors"
                   >
                     Edit Front Text
                   </button>
@@ -240,7 +255,7 @@ const Customize200 = () => {
                       setCurrentSide("front");
                       setShowImageEditor(true);
                     }}
-                    className="px-4 md:px-6 py-3 border border-bluePrimary text-bluePrimary rounded-lg hover:bg-bluePrimary hover:text-white transition-colors"
+                    className="px-3 md:px-6 py-2 md:py-3 text-sm md:text-base border border-bluePrimary text-bluePrimary rounded-lg hover:bg-bluePrimary hover:text-white transition-colors"
                   >
                     Change Image
                   </button>
@@ -250,7 +265,7 @@ const Customize200 = () => {
 
             {/* Back Side */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold">Back Side</h3>
+              <h3 className="text-xl text-left font-semibold">Back Side</h3>
               <div className="relative border border-gray-200 rounded-lg p-4 bg-white">
                 <CurrencyCanvas
                   templateImage="/lovable-uploads/200-back-template.png"
@@ -258,13 +273,13 @@ const Customize200 = () => {
                   portraitImage={currencyData.back.portraitImage}
                   side="back"
                 />
-                <div className="mt-4 flex flex-wrap gap-4">
+                <div className="mt-4 flex flex-wrap gap-2 md:gap-4">
                   <button 
                     onClick={() => {
                       setCurrentSide("back");
                       setShowTextEditor(true);
                     }}
-                    className="px-4 md:px-6 py-3 border border-bluePrimary text-bluePrimary rounded-lg hover:bg-bluePrimary hover:text-white transition-colors"
+                    className="px-3 md:px-6 py-2 md:py-3 text-sm md:text-base border border-bluePrimary text-bluePrimary rounded-lg hover:bg-bluePrimary hover:text-white transition-colors"
                   >
                     Edit Back Text
                   </button>
@@ -273,7 +288,7 @@ const Customize200 = () => {
                       setCurrentSide("back");
                       setShowImageEditor(true);
                     }}
-                    className="px-4 md:px-6 py-3 border border-bluePrimary text-bluePrimary rounded-lg hover:bg-bluePrimary hover:text-white transition-colors"
+                    className="px-3 md:px-6 py-2 md:py-3 text-sm md:text-base border border-bluePrimary text-bluePrimary rounded-lg hover:bg-bluePrimary hover:text-white transition-colors"
                   >
                     Change Image
                   </button>

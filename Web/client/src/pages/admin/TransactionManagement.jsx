@@ -14,7 +14,6 @@ import {
   Search,
   SlidersHorizontal,
   AlertCircle,
-  DollarSign,
   ChevronLeft,
   ChevronRight,
   User,
@@ -244,7 +243,7 @@ export default function TransactionManagement() {
   // Transactions Mobile Card Component - updated to match Dashboard.jsx structure
   const TransactionMobileCard = ({ transaction }) => (
     <Card
-      className="p-3 sm:p-4 hover:shadow-md transition-all duration-200 cursor-pointer hover:bg-gray-50 border-l-4 border-l-blue-500"
+      className="p-3 sm:p-4 hover:shadow-md transition-all bg-white duration-200 cursor-pointer hover:bg-gray-50"
       onClick={() => handleTransactionClick(transaction.event_id)}
     >
       <div className="space-y-2 sm:space-y-3">
@@ -415,8 +414,8 @@ export default function TransactionManagement() {
             </Button>
           </Card>
         ) : filteredTransactions.length === 0 ? (
-          <Card className="p-6 sm:p-8 text-center border-gray-200">
-            <DollarSign className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
+          <Card className="p-6 bg-white sm:p-8 text-center border-gray-200">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4 flex items-center justify-center font-bold text-2xl sm:text-3xl">₦</div>
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
               No Transactions Found
             </h3>
@@ -549,7 +548,7 @@ export default function TransactionManagement() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <Card className="p-3 sm:p-4 border-bluePrimary/20 bg-gradient-to-r from-bluePrimary/5 to-gold/5">
+          <Card className="p-3 sm:p-4 bg-white border-bluePrimary/20 bg-gradient-to-r from-bluePrimary/5 to-gold/5">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
               <div className="text-xs sm:text-sm text-gray-600 order-2 sm:order-1">
                 Showing {startIndex + 1} to{" "}
