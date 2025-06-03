@@ -191,6 +191,7 @@ export default function EventDetailPage() {
   // Download function for currency
   const handleDownloadCurrency = async (currency, side) => {
     // Check if payment is successful before allowing download
+    const { payment_status } = eventDetails || {};
     if (payment_status?.toLowerCase() !== 'successful' && 
         payment_status?.toLowerCase() !== 'paid' && 
         payment_status?.toLowerCase() !== 'completed') {
@@ -234,6 +235,7 @@ export default function EventDetailPage() {
   // Download both sides function
   const handleDownloadBothSides = async (currency) => {
     // Check if payment is successful before allowing download
+    const { payment_status } = eventDetails || {};
     if (payment_status?.toLowerCase() !== 'successful' && 
         payment_status?.toLowerCase() !== 'paid' && 
         payment_status?.toLowerCase() !== 'completed') {
@@ -285,6 +287,7 @@ export default function EventDetailPage() {
   };
 
   // Check if payment is successful for downloads
+  const { payment_status } = eventDetails || {};
   const isPaymentSuccessful = payment_status?.toLowerCase() === 'successful' || 
                              payment_status?.toLowerCase() === 'paid' || 
                              payment_status?.toLowerCase() === 'completed';
@@ -344,7 +347,6 @@ export default function EventDetailPage() {
     end_date,
     created_at,
     reconciliation,
-    payment_status,
     delivery_status,
     event_author,
   } = eventDetails;
@@ -615,15 +617,17 @@ export default function EventDetailPage() {
                               disabled={
                                 downloadingCurrency ===
                                 `${currency.currency_id}-back` || !isPaymentSuccessful
-                                `${currency.currency_id}-back`
                               }
-                              className="w-full border-bluePrimary/30 text-bluePrimary hover:bg-bluePrimary/10 text-xs h-7 sm:h-8"
+                              className={`w-full border-bluePrimary/30 text-bluePrimary hover:bg-bluePrimary/10 text-xs h-7 sm:h-8 ${
+                                !isPaymentSuccessful ? 'opacity-50 cursor-not-allowed' : ''
+                              }`}
+                              title={!isPaymentSuccessful ? 'Payment required to download' : 'Download back side'}
                             >
                               <Download className="w-3 h-3 mr-1" />
                               {downloadingCurrency ===
                               `${currency.currency_id}-back`
                                 ? "Downloading..."
-                                : "Download Back"}
+                                : !isPaymentSuccessful ? "Payment Required" : "Download Back"}
                             </Button>
                           </div>
                         )}
@@ -638,18 +642,21 @@ export default function EventDetailPage() {
                         <div className="border-t pt-3 mt-3 border-gray-100">
                           <Button
                             variant="default"
-                            className="w-full bg-bluePrimary hover:bg-bluePrimary/90 text-white text-xs sm:text-sm h-7 sm:h-9"
+                            className={`w-full bg-bluePrimary hover:bg-bluePrimary/90 text-white text-xs sm:text-sm h-7 sm:h-9 ${
+                              !isPaymentSuccessful ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
                             onClick={() => handleDownloadBothSides(currency)}
                             disabled={
                               downloadingCurrency ===
-                              `${currency.currency_id}-both`
+                              `${currency.currency_id}-both` || !isPaymentSuccessful
                             }
+                            title={!isPaymentSuccessful ? 'Payment required to download' : 'Download both sides'}
                           >
                             <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                             {downloadingCurrency ===
                             `${currency.currency_id}-both`
                               ? "Downloading Both Sides..."
-                              : "Download Both Sides"}
+                              : !isPaymentSuccessful ? "Payment Required" : "Download Both Sides"}
                           </Button>
                         </div>
                       )}

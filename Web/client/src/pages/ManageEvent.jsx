@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAuthenticated } from "../lib/hooks";
 import { LoadingDisplay } from "../components/LoadingDisplay";
 import EventCard from "../components/events/EventCard";
@@ -78,7 +78,13 @@ export default function ManageEvent() {
     return (
       <div>
         {filteredEvents.map((event) => (
-          <EventCard key={event.event_id} event={event} />
+          <EventCard 
+            key={event.event_id} 
+            event={{
+              ...event,
+              postal_code: String(event.postal_code || '')
+            }} 
+          />
         ))}
       </div>
     );
