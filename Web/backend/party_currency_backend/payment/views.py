@@ -177,6 +177,9 @@ def callback(request):
             }, status=status.HTTP_200_OK)
         else:
             # If verification failed or payment not successful
+            event = Events.objects.get(event_id=transaction.event_id)
+            event.transaction_id = payment_reference
+            event.payment_status='failed'
             return Response({
                 "message": "Payment verification failed", 
                 "status": verification_data['responseBody'].get('paymentStatus', 'unknown')
