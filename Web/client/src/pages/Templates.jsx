@@ -1,13 +1,9 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthenticated } from "../lib/hooks";
 import { LoadingDisplay } from "@/components/LoadingDisplay";
 import { Button } from "@/components/ui/button";
-import { CurrencyEditor } from "@/components/CurrencyEditor";
 
 export default function Templates() {
-  const [showEditor, setShowEditor] = useState(false);
-  const [isCustomized, setIsCustomized] = useState(false);
   const navigate = useNavigate();
   const authenticated = useAuthenticated();
 
@@ -17,23 +13,24 @@ export default function Templates() {
       denomination: "200",
       image: "/lovable-uploads/200-front.jpg",
       title: "Celebration of Life",
-      path: "/customize-200",
     },
     {
       id: 2,
       denomination: "500",
       image: "/lovable-uploads/500-front.jpg",
       title: "Happy Birthday!",
-      path: "/customize-500",
     },
     {
       id: 3,
       denomination: "1000",
       image: "/lovable-uploads/1000-front.jpg",
       title: "Happy Birthday!",
-      path: "/customize-1000",
     },
   ];
+
+  const handleCustomize = (denomination) => {
+    navigate(`/dashboard/customize?denomination=${denomination}`);
+  };
 
   if (!authenticated) {
     return <LoadingDisplay />;
@@ -66,9 +63,7 @@ export default function Templates() {
                     <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 via-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="absolute bottom-4 right-4">
                         <Button
-                          onClick={() => {
-                            navigate(currency.path);
-                          }}
+                          onClick={() => handleCustomize(currency.denomination)}
                           className="bg-bluePrimary hover:bg-bluePrimary/90 text-white font-medium"
                         >
                           Customize
@@ -82,13 +77,6 @@ export default function Templates() {
           </div>
         </div>
       </main>
-
-      {showEditor && (
-        <CurrencyEditor
-          currencyImage="/lovable-uploads/aa99ff96-d8a0-496f-b5b4-2fbbdfd720ec.png"
-          onClose={() => setShowEditor(false)}
-        />
-      )}
     </div>
   );
 }

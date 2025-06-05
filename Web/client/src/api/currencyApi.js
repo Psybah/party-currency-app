@@ -103,17 +103,30 @@ export async function getAllCurrencies() {
 }
 
 /**
- * Gets currency by ID
+ * Gets a currency by its ID
  * @param {string} currencyId - ID of the currency to fetch
- * @returns {Promise<Object>} - Currency data
- * @throws {Error} If request fails
+ * @returns {Promise<{
+ *   currency_id: string,
+ *   currency_author: string,
+ *   denomination: number,
+ *   event_id: string,
+ *   created_at: string,
+ *   updated_at: string,
+ *   currency_name: string,
+ *   front_celebration_text: string,
+ *   front_image: string,
+ *   back_image: string,
+ *   back_celebration_text: string
+ * }>} Currency data
+ * @throws {Error} If authentication is missing or request fails
  */
+
 export async function getCurrencyById(currencyId) {
   const { accessToken } = getAuth();
 
   try {
     const response = await fetch(
-      `${BASE_URL}/currencies/get-currency/?currency_id=${currencyId}`,
+      `${BASE_URL}/currencies/get-currency/${currencyId}`,
       {
         headers: {
           Authorization: `Token ${accessToken}`,
@@ -139,9 +152,24 @@ export async function getCurrencyById(currencyId) {
 /**
  * Updates an existing currency
  * @param {string} currencyId - ID of the currency to update
- * @param {Object} formData - Updated currency data
- * @returns {Promise<Object>} - Updated currency data
- * @throws {Error} If request fails
+ * @param {Object} formData - Form data containing updated currency fields
+ * @param {string} [formData.currency_name] - Updated name of the currency
+ * @param {string} [formData.front_celebration_text] - Updated celebration text for front side
+ * @param {string} [formData.back_celebration_text] - Updated celebration text for back side
+ * @param {File} [formData.front_image] - Updated image file for front side
+ * @param {File} [formData.back_image] - Updated image file for back side
+ * @param {string} [formData.event_id] - Updated associated event ID
+ * @returns {Promise<{
+ *   currency_id: string,
+ *   currency_name: string,
+ *   front_celebration_text: string,
+ *   back_celebration_text: string,
+ *   front_image: string,
+ *   back_image: string,
+ *   event_id: string,
+ *   updated_at: string
+ * }>} Updated currency data
+ * @throws {Error} If authentication is missing or request fails
  */
 export async function updateCurrency(currencyId, formData) {
   const { accessToken } = getAuth();
@@ -165,10 +193,12 @@ export async function updateCurrency(currencyId, formData) {
       if (response.status === 401) {
         throw new Error("Session expired. Please login again.");
       }
-      throw new Error("Failed to update currency");
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to update currency");
     }
 
-    return response.json();
+    const updatedCurrency = await response.json();
+    return updatedCurrency;
   } catch (error) {
     console.error("Error updating currency:", error);
     throw error;

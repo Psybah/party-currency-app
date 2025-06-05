@@ -21,9 +21,7 @@ import ReconciliationService from "./pages/ReconciliationService";
 import VendorKiosk from "./pages/VendorKiosk";
 import FootSoldiers from "./pages/FootSoldiers";
 import PrivateRoute from "./components/PrivateRoute";
-import Customize200 from "./pages/Customize200";
-import Customize500 from "./pages/Customize500";
-import Customize1000 from "./pages/Customize1000";
+import Customize from "./pages/Customize";
 import TermsOfService from "./pages/TermsOfService";
 import MerchantTransactionHistory from "./pages/merchant/TransactionHistory";
 import MerchantEventHistory from "./pages/merchant/EventHistory";
@@ -71,11 +69,6 @@ function App() {
           <Route path="/vendor-kiosk-system" element={<VendorKiosk />} />
           <Route path="/foot-soldiers" element={<FootSoldiers />} />
 
-          {/* Customization Routes */}
-          <Route path="/customize-200" element={<Customize200 />} />
-          <Route path="/customize-500" element={<Customize500 />} />
-          <Route path="/customize-1000" element={<Customize1000 />} />
-
           {/* Admin Routes with Layout */}
           <Route
             path="/admin"
@@ -105,6 +98,7 @@ function App() {
             }
           >
             <Route index element={<Dashboard />} />
+            <Route path="customize" element={<Customize />} />
           </Route>
 
           <Route
