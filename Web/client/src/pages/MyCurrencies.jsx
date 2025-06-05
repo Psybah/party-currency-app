@@ -38,7 +38,7 @@ export default function MyCurrencies() {
                 </Button>
               </div>
             </div>
-            
+
             <UserCurrencies />
           </div>
         </main>

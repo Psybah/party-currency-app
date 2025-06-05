@@ -11,6 +11,7 @@ import {
   Settings,
   ChevronDown,
   ChevronUp,
+  Trash2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -51,11 +52,12 @@ StatusBadge.propTypes = {
   type: PropTypes.string.isRequired,
 };
 
-export default function EventCard({ 
-  event, 
-  type = "customer", 
-  onAdminToggle = null, 
-  isAdminExpanded = false 
+export default function EventCard({
+  event,
+  type = "customer",
+  onAdminToggle = null,
+  isAdminExpanded = false,
+  onDelete = null,
 }) {
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
@@ -175,7 +177,7 @@ export default function EventCard({
           >
             View Details
           </button>
-          
+
           {/* Admin Toggle Button - only show for admin type */}
           {type === "admin" && onAdminToggle && (
             <button
@@ -190,6 +192,19 @@ export default function EventCard({
                 ) : (
                   <ChevronDown className="w-3 h-3" />
                 )}
+              </div>
+            </button>
+          )}
+
+          {/* Delete Button */}
+          {onDelete && (
+            <button
+              onClick={() => onDelete(event)}
+              className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+            >
+              <div className="flex items-center justify-center gap-1">
+                <Trash2 className="w-4 h-4" />
+                <span>Delete Event</span>
               </div>
             </button>
           )}
@@ -218,4 +233,5 @@ EventCard.propTypes = {
   type: PropTypes.string,
   onAdminToggle: PropTypes.func,
   isAdminExpanded: PropTypes.bool,
+  onDelete: PropTypes.func,
 };

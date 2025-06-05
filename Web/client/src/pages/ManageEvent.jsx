@@ -5,7 +5,7 @@ import EventCard from "../components/events/EventCard";
 import EventTabs from "../components/events/EventTabs";
 import EmptyState from "../components/events/EmptyState";
 import { useEffect } from "react";
-import { getEvents } from "@/api/eventApi";
+import { getEvents, deleteEvent } from "@/api/eventApi";
 
 // Create a skeleton loader component
 const EventCardSkeleton = () => (
@@ -28,6 +28,8 @@ export default function ManageEvent() {
   const [activeTab, setActiveTab] = useState("ongoing");
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState(null);
   const authenticated = useAuthenticated();
 
   const fetchEvents = async () => {
@@ -46,6 +48,23 @@ export default function ManageEvent() {
   useEffect(() => {
     fetchEvents();
   }, []);
+
+  const handleDeleteEvent = async (eventId) => {
+    try {
+      await deleteEvent(eventId);
+      setEvents(events.filter((event) => event.event_id !== eventId));
+      setDeleteModalOpen(false);
+      setEventToDelete(null);
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      // You might want to show an error toast here
+    }
+  };
+
+  const openDeleteModal = (event) => {
+    setEventToDelete(event);
+    setDeleteModalOpen(true);
+  };
 
   if (!authenticated) {
     return <LoadingDisplay />;
@@ -78,12 +97,13 @@ export default function ManageEvent() {
     return (
       <div>
         {filteredEvents.map((event) => (
-          <EventCard 
-            key={event.event_id} 
+          <EventCard
+            key={event.event_id}
             event={{
               ...event,
-              postal_code: String(event.postal_code || '')
-            }} 
+              postal_code: String(event.postal_code || ""),
+            }}
+            onDelete={openDeleteModal}
           />
         ))}
       </div>
@@ -98,6 +118,38 @@ export default function ManageEvent() {
           <div className="mt-6">{renderContent()}</div>
         </div>
       </main>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && eventToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Delete Event
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete the event "
+              {eventToDelete.event_name}"? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setDeleteModalOpen(false);
+                  setEventToDelete(null);
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteEvent(eventToDelete.event_id)}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
