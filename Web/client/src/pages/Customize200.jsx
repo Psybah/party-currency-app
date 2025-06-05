@@ -234,12 +234,19 @@ const Customize200 = () => {
             <div className="space-y-4">
               <h3 className="text-xl text-left font-semibold">Front Side</h3>
               <div className="relative border border-gray-200 rounded-lg p-4 bg-white">
-                <CurrencyCanvas
-                  templateImage="/lovable-uploads/200-front-template.png"
-                  texts={currencyData.front.texts}
-                  portraitImage={currencyData.front.portraitImage}
-                  side="front"
-                />
+                <div className="relative overflow-hidden">
+                  <CurrencyCanvas
+                    templateImage="/lovable-uploads/200-front-template.png"
+                    texts={currencyData.front.texts}
+                    portraitImage={currencyData.front.portraitImage}
+                    side="front"
+                  />
+                  {/* Mobile scroll overlay */}
+                  <div 
+                    className="absolute inset-0 bg-transparent md:hidden"
+                    style={{ touchAction: 'pan-y pinch-zoom' }}
+                  />
+                </div>
                 <div className="mt-4 flex flex-wrap gap-2 md:gap-4">
                   <button 
                     onClick={() => {
@@ -267,12 +274,19 @@ const Customize200 = () => {
             <div className="space-y-4">
               <h3 className="text-xl text-left font-semibold">Back Side</h3>
               <div className="relative border border-gray-200 rounded-lg p-4 bg-white">
-                <CurrencyCanvas
-                  templateImage="/lovable-uploads/200-back-template.png"
-                  texts={currencyData.back.texts}
-                  portraitImage={currencyData.back.portraitImage}
-                  side="back"
-                />
+                <div className="relative overflow-hidden">
+                  <CurrencyCanvas
+                    templateImage="/lovable-uploads/200-back-template.png"
+                    texts={currencyData.back.texts}
+                    portraitImage={currencyData.back.portraitImage}
+                    side="back"
+                  />
+                  {/* Mobile scroll overlay */}
+                  <div 
+                    className="absolute inset-0 bg-transparent md:hidden"
+                    style={{ touchAction: 'pan-y pinch-zoom' }}
+                  />
+                </div>
                 <div className="mt-4 flex flex-wrap gap-2 md:gap-4">
                   <button 
                     onClick={() => {

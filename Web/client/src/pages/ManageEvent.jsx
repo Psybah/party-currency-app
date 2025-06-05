@@ -9,17 +9,17 @@ import { getEvents } from "@/api/eventApi";
 
 // Create a skeleton loader component
 const EventCardSkeleton = () => (
-  <div className="bg-white rounded-lg shadow-sm p-6 mb-4 animate-pulse">
+  <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 lg:p-6 mb-3 sm:mb-4 animate-pulse">
     <div className="flex justify-between items-start">
-      <div className="space-y-3 flex-1">
-        <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+      <div className="space-y-2 sm:space-y-3 flex-1">
+        <div className="h-5 sm:h-6 bg-gray-200 rounded w-3/4"></div>
+        <div className="h-3 sm:h-4 bg-gray-200 rounded w-1/4"></div>
       </div>
-      <div className="h-8 w-24 bg-gray-200 rounded"></div>
+      <div className="h-7 sm:h-8 w-20 sm:w-24 bg-gray-200 rounded"></div>
     </div>
-    <div className="mt-4 flex gap-3">
-      <div className="h-8 w-24 bg-gray-200 rounded"></div>
-      <div className="h-8 w-24 bg-gray-200 rounded"></div>
+    <div className="mt-3 sm:mt-4 flex gap-2 sm:gap-3">
+      <div className="h-7 sm:h-8 w-20 sm:w-24 bg-gray-200 rounded"></div>
+      <div className="h-7 sm:h-8 w-20 sm:w-24 bg-gray-200 rounded"></div>
     </div>
   </div>
 );
@@ -92,10 +92,10 @@ export default function ManageEvent() {
 
   return (
     <div className="bg-white min-h-screen">
-      <main className="p-6">
+      <main className="p-3 sm:p-4 lg:p-6">
         <div className="mx-auto max-w-7xl">
           <EventTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-          <div className="mt-6">{renderContent()}</div>
+          <div className="mt-4 sm:mt-5 lg:mt-6">{renderContent()}</div>
         </div>
       </main>
     </div>

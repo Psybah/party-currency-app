@@ -404,7 +404,7 @@ export function UserCurrencies() {
                 <h3 className="font-medium mb-2">Front Side</h3>
                 <div className="border rounded-lg overflow-hidden max-h-[300px] md:max-h-[400px] relative">
                   {templateImages[previewDialog.template.currency_id]?.front ? (
-                    <div className="w-full relative">
+                    <div className="w-full relative overflow-hidden">
                       <CurrencyCanvas
                         templateImage={getTemplateImage(previewDialog.template.denomination)}
                         texts={{
@@ -416,6 +416,11 @@ export function UserCurrencies() {
                         side="front"
                         denomination={previewDialog.template.denomination || "200"}
                         portraitImage={templateImages[previewDialog.template.currency_id].front}
+                      />
+                      {/* Mobile scroll overlay */}
+                      <div 
+                        className="absolute inset-0 bg-transparent md:hidden"
+                        style={{ touchAction: 'pan-y pinch-zoom' }}
                       />
                     </div>
                   ) : (
@@ -434,7 +439,7 @@ export function UserCurrencies() {
                 <h3 className="font-medium mb-2">Back Side</h3>
                 <div className="border rounded-lg overflow-hidden max-h-[300px] md:max-h-[400px] relative">
                   {templateImages[previewDialog.template.currency_id]?.back ? (
-                    <div className="w-full relative">
+                    <div className="w-full relative overflow-hidden">
                       <CurrencyCanvas
                          templateImage={getTemplateImage(previewDialog.template.denomination)}
                         texts={{
@@ -446,6 +451,11 @@ export function UserCurrencies() {
                         side="back"
                         denomination={previewDialog.template.denomination || "200"}
                         portraitImage={templateImages[previewDialog.template.currency_id].back}
+                      />
+                      {/* Mobile scroll overlay */}
+                      <div 
+                        className="absolute inset-0 bg-transparent md:hidden"
+                        style={{ touchAction: 'pan-y pinch-zoom' }}
                       />
                     </div>
                   ) : (

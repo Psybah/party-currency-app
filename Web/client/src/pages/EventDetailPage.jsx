@@ -503,7 +503,7 @@ export default function EventDetailPage() {
                         </p>
                         {associatedImages[currency.currency_id]?.front ||
                         currency.front_image ? (
-                          <div className="relative">
+                          <div className="relative overflow-hidden">
                             <CurrencyCanvas
                               ref={(ref) => {
                                 if (ref) {
@@ -527,8 +527,11 @@ export default function EventDetailPage() {
                                 associatedImages[currency.currency_id]?.front
                               }
                             />
-                            {/* Touch-friendly overlay for mobile scrolling */}
-                            <div className="absolute inset-0 bg-transparent touch-none md:touch-auto pointer-events-none" />
+                            {/* Mobile scroll overlay */}
+                            <div 
+                              className="absolute inset-0 bg-transparent md:hidden"
+                              style={{ touchAction: 'pan-y pinch-zoom' }}
+                            />
                           </div>
                         ) : (
                           <div className="text-center py-3 sm:py-4 text-xs text-gray-400 italic border rounded-md bg-gray-50">
@@ -575,7 +578,7 @@ export default function EventDetailPage() {
                         </p>
                         {associatedImages[currency.currency_id]?.back ||
                         currency.back_image ? (
-                          <div className="relative">
+                          <div className="relative overflow-hidden">
                             <CurrencyCanvas
                               ref={(ref) => {
                                 if (ref) {
@@ -598,8 +601,11 @@ export default function EventDetailPage() {
                                 associatedImages[currency.currency_id]?.back
                               }
                             />
-                            {/* Touch-friendly overlay for mobile scrolling */}
-                            <div className="absolute inset-0 bg-transparent touch-none md:touch-auto pointer-events-none" />
+                            {/* Mobile scroll overlay */}
+                            <div 
+                              className="absolute inset-0 bg-transparent md:hidden"
+                              style={{ touchAction: 'pan-y pinch-zoom' }}
+                            />
                           </div>
                         ) : (
                           <div className="text-center py-3 sm:py-4 text-xs text-gray-400 italic border rounded-md bg-gray-50">

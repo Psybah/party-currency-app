@@ -234,13 +234,20 @@ const Customize1000 = () => {
             <div className="space-y-4">
               <h3 className="text-xl text-left font-semibold">Front Side</h3>
               <div className="relative border border-gray-200 rounded-lg p-4 bg-white">
-                <CurrencyCanvas
-                  templateImage="/lovable-uploads/1000-front-template.png"
-                  texts={currencyData.front.texts}
-                  portraitImage={currencyData.front.portraitImage}
-                  side="front"
-                  denomination="1000"
-                />
+                <div className="relative overflow-hidden">
+                  <CurrencyCanvas
+                    templateImage="/lovable-uploads/1000-front-template.png"
+                    texts={currencyData.front.texts}
+                    portraitImage={currencyData.front.portraitImage}
+                    side="front"
+                    denomination="1000"
+                  />
+                  {/* Mobile scroll overlay */}
+                  <div 
+                    className="absolute inset-0 bg-transparent md:hidden"
+                    style={{ touchAction: 'pan-y pinch-zoom' }}
+                  />
+                </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button 
                     onClick={() => {
@@ -268,13 +275,20 @@ const Customize1000 = () => {
             <div className="space-y-4">
               <h3 className="text-xl text-left font-semibold">Back Side</h3>
               <div className="relative border border-gray-200 rounded-lg p-4 bg-white">
-                <CurrencyCanvas
-                  templateImage="/lovable-uploads/1000-back-template.png"
-                  texts={currencyData.back.texts}
-                  portraitImage={currencyData.back.portraitImage}
-                  side="back"
-                  denomination="1000"
-                />
+                <div className="relative overflow-hidden">
+                  <CurrencyCanvas
+                    templateImage="/lovable-uploads/1000-back-template.png"
+                    texts={currencyData.back.texts}
+                    portraitImage={currencyData.back.portraitImage}
+                    side="back"
+                    denomination="1000"
+                  />
+                  {/* Mobile scroll overlay */}
+                  <div 
+                    className="absolute inset-0 bg-transparent md:hidden"
+                    style={{ touchAction: 'pan-y pinch-zoom' }}
+                  />
+                </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button 
                     onClick={() => {

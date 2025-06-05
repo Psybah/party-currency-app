@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Avatar } from "antd";
@@ -8,6 +9,7 @@ import { getDriveImage } from "@/api/utilApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import toast from "react-hot-toast";
 import { getProfilePicture } from "../../api/profileApi";
+
 export function PhotoSection({ onUpdatePhoto }) {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -84,12 +86,12 @@ export function PhotoSection({ onUpdatePhoto }) {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <h2 className="text-2xl text-left font-playfair font-semibold">Profile Photo</h2>
-        <div className="flex items-center gap-6">
-          <Skeleton className="w-[100px] h-[100px] rounded-full" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-[200px]" />
+      <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+        <h2 className="text-xl sm:text-2xl text-left font-playfair font-semibold">Profile Photo</h2>
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 lg:gap-6">
+          <Skeleton className="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] rounded-full" />
+          <div className="space-y-2 text-center sm:text-left">
+            <Skeleton className="h-3 sm:h-4 w-[150px] sm:w-[200px]" />
           </div>
         </div>
       </div>
@@ -97,23 +99,23 @@ export function PhotoSection({ onUpdatePhoto }) {
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl text-left font-playfair font-semibold">Profile Photo</h2>
-      <div className="flex items-center gap-6">
+    <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+      <h2 className="text-xl sm:text-2xl text-left font-playfair font-semibold">Profile Photo</h2>
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 lg:gap-6">
         <div className="relative">
           <Avatar
-            size={100}
+            size={window.innerWidth < 640 ? 80 : 100}
             src={previewUrl}
-            icon={!previewUrl && <Camera className="w-8 h-8" />}
+            icon={!previewUrl && <Camera className="w-6 h-6 sm:w-8 sm:h-8" />}
             className="bg-gray-100"
           />
           <Label
             htmlFor="photo-upload"
-            className={`absolute -bottom-2 -right-2 p-1.5 bg-white rounded-full shadow-lg cursor-pointer hover:bg-gray-50 ${
+            className={`absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 p-1 sm:p-1.5 bg-white rounded-full shadow-lg cursor-pointer hover:bg-gray-50 ${
               isUploading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
-            <Upload className="w-4 h-4" />
+            <Upload className="w-3 h-3 sm:w-4 sm:h-4" />
           </Label>
           <input
             type="file"
@@ -124,15 +126,19 @@ export function PhotoSection({ onUpdatePhoto }) {
             disabled={isUploading}
           />
         </div>
-        <div className="space-y-2">
-          <p className="text-sm text-gray-500">
+        <div className="space-y-1 sm:space-y-2 text-center sm:text-left">
+          <p className="text-xs sm:text-sm text-gray-500">
             Recommended: Square image, less than 5MB
           </p>
           {isUploading && (
-            <p className="text-sm text-gray-500">Uploading profile picture...</p>
+            <p className="text-xs sm:text-sm text-gray-500">Uploading profile picture...</p>
           )}
         </div>
       </div>
     </div>
   );
 }
+
+PhotoSection.propTypes = {
+  onUpdatePhoto: PropTypes.func,
+};
