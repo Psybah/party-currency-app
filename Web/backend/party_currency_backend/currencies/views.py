@@ -292,6 +292,7 @@ def delete_currency(request, id):
     try:
         currency = Currency.objects.get(currency_id=id)
         currency.currency_author = "archived"
+        currency.event_id = "null"
         currency.save()
         return Response({"message": "Currency deleted successfully"}, status=status.HTTP_200_OK)
     except Currency.DoesNotExist:

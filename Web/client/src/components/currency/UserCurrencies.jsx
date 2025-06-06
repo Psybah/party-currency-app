@@ -456,7 +456,7 @@ export function UserCurrencies() {
                 <h3 className="font-medium mb-2">Front Side</h3>
                 <div className="border rounded-lg overflow-hidden max-h-[300px] md:max-h-[400px] relative">
                   {templateImages[previewDialog.template.currency_id]?.front ? (
-                    <div className="w-full relative">
+                    <div className="w-full relative overflow-hidden">
                       <CurrencyCanvas
                         templateImage={getTemplateImage(
                           previewDialog.template.denomination
@@ -478,6 +478,11 @@ export function UserCurrencies() {
                             .front
                         }
                       />
+                      {/* Mobile scroll overlay */}
+                      <div 
+                        className="absolute inset-0 bg-transparent md:hidden"
+                        style={{ touchAction: 'pan-y pinch-zoom' }}
+                      />
                     </div>
                   ) : (
                     <CurrencyImage
@@ -497,7 +502,7 @@ export function UserCurrencies() {
                 <h3 className="font-medium mb-2">Back Side</h3>
                 <div className="border rounded-lg overflow-hidden max-h-[300px] md:max-h-[400px] relative">
                   {templateImages[previewDialog.template.currency_id]?.back ? (
-                    <div className="w-full relative">
+                    <div className="w-full relative overflow-hidden">
                       <CurrencyCanvas
                         templateImage={getTemplateImage(
                           previewDialog.template.denomination
@@ -518,6 +523,11 @@ export function UserCurrencies() {
                           templateImages[previewDialog.template.currency_id]
                             .back
                         }
+                      />
+                      {/* Mobile scroll overlay */}
+                      <div 
+                        className="absolute inset-0 bg-transparent md:hidden"
+                        style={{ touchAction: 'pan-y pinch-zoom' }}
                       />
                     </div>
                   ) : (

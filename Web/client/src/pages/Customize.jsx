@@ -412,13 +412,19 @@ const Customize = () => {
           <div className="space-y-4">
             <h3 className="text-xl text-left font-semibold">Front Side</h3>
             <div className="relative border border-gray-200 rounded-lg p-4 bg-white">
-              <CurrencyCanvas
-                templateImage={getTemplateImage(denomination, "front")}
-                texts={currencyData.front.texts}
-                portraitImage={currencyData.front.portraitImage}
-                side="front"
-                denomination={denomination}
-              />
+              <div className="relative overflow-hidden">
+                <CurrencyCanvas
+                  templateImage={getTemplateImage(denomination, "front")}
+                  texts={currencyData.front.texts}
+                  portraitImage={currencyData.front.portraitImage}
+                  side="front"
+                  denomination={denomination}
+                />
+                <div
+                  className="absolute inset-0 bg-transparent md:hidden"
+                  style={{ touchAction: "pan-y pinch-zoom" }}
+                />
+              </div>
               <div className="mt-4 flex flex-wrap gap-2 md:gap-4">
                 <button
                   onClick={() => {

@@ -365,7 +365,7 @@ export default function UserManagement() {
                     <TableRow key={user.id}>
                       <TableCell className="text-left pl-3 sm:pl-10 py-2 sm:py-4 text-xs sm:text-sm">
                         <div className="truncate max-w-[120px] sm:max-w-none" title={user.name}>
-                          {user.name}
+                        {user.name}
                         </div>
                       </TableCell>
                       <TableCell className="text-left px-2 sm:px-4 py-2 sm:py-4 text-xs sm:text-sm">
@@ -391,12 +391,12 @@ export default function UserManagement() {
                       </TableCell>
                       <TableCell className="text-left px-2 sm:px-4 py-2 sm:py-4 text-xs sm:text-sm">
                         <div className="truncate max-w-[120px] sm:max-w-none" title={user.last_activity}>
-                          {user.last_activity}
+                        {user.last_activity}
                         </div>
                       </TableCell>
                       <TableCell className="text-left px-2 sm:px-4 py-2 sm:py-4 text-xs sm:text-sm">
                         <div className="truncate" title={user.total_transaction}>
-                          {user.total_transaction}
+                        {user.total_transaction}
                         </div>
                       </TableCell>
                       <TableCell className="text-right pr-2 sm:pr-6 py-2 sm:py-4">
@@ -417,15 +417,15 @@ export default function UserManagement() {
           {!loading && !error && filteredUsers.length > 0 && (
             <div className="p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-2">
               <div className="flex items-center gap-1 sm:gap-2 order-2 sm:order-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1 || loading}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1 || loading}
                   className="text-gray-600 hover:bg-gray-100 h-7 sm:h-auto px-2 sm:px-3"
-                >
+              >
                   <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
-                </Button>
+              </Button>
 
                 <div className="flex items-center gap-1">
                   {[...Array(Math.min(totalPages, 5))].map((_, i) => {
@@ -441,34 +441,34 @@ export default function UserManagement() {
                     }
 
                     return (
-                      <Button
+                <Button
                         key={pageNum}
-                        variant="outline"
-                        size="sm"
+                  variant="outline"
+                  size="sm"
                         onClick={() => handlePageChange(pageNum)}
                         className={cn(
                           "w-6 h-6 sm:w-auto sm:h-auto p-0 sm:px-3 text-xs sm:text-sm",
                           currentPage === pageNum
-                            ? "bg-bluePrimary text-white hover:bg-bluePrimary/90"
-                            : "text-gray-600 hover:bg-gray-100"
+                      ? "bg-bluePrimary text-white hover:bg-bluePrimary/90"
+                      : "text-gray-600 hover:bg-gray-100"
                         )}
-                        disabled={loading}
-                      >
+                  disabled={loading}
+                >
                         {pageNum}
-                      </Button>
+                </Button>
                     );
                   })}
                 </div>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages || loading}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages || loading}
                   className="text-gray-600 hover:bg-gray-100 h-7 sm:h-auto px-2 sm:px-3"
-                >
+              >
                   <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
-                </Button>
+              </Button>
               </div>
               
               <div className="text-xs sm:text-sm text-gray-600 order-1 sm:order-2">

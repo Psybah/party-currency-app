@@ -529,29 +529,36 @@ export default function EventDetailPage() {
                         </p>
                         {associatedImages[currency.currency_id]?.front ||
                         currency.front_image ? (
-                          <CurrencyCanvas
-                            ref={(ref) => {
-                              if (ref) {
-                                canvasRefs.current[
-                                  `${currency.currency_id}-front`
-                                ] = ref;
+                          <div className="relative overflow-hidden">
+                            <CurrencyCanvas
+                              ref={(ref) => {
+                                if (ref) {
+                                  canvasRefs.current[
+                                    `${currency.currency_id}-front`
+                                  ] = ref;
+                                }
+                              }}
+                              templateImage={getTemplateImage(
+                                currency.denomination
+                              )}
+                              texts={{
+                                currencyName: currency.currency_name,
+                                celebration: currency.front_celebration_text,
+                                dominationText: String(currency.denomination),
+                                eventId: currency.event_id,
+                              }}
+                              side="front"
+                              denomination={String(currency.denomination)}
+                              portraitImage={
+                                associatedImages[currency.currency_id]?.front
                               }
-                            }}
-                            templateImage={getTemplateImage(
-                              currency.denomination
-                            )}
-                            texts={{
-                              currencyName: currency.currency_name,
-                              celebration: currency.front_celebration_text,
-                              dominationText: String(currency.denomination),
-                              eventId: currency.event_id,
-                            }}
-                            side="front"
-                            denomination={String(currency.denomination)}
-                            portraitImage={
-                              associatedImages[currency.currency_id]?.front
-                            }
-                          />
+                            />
+                            {/* Mobile scroll overlay */}
+                            <div 
+                              className="absolute inset-0 bg-transparent md:hidden"
+                              style={{ touchAction: 'pan-y pinch-zoom' }}
+                            />
+                          </div>
                         ) : (
                           <div className="text-center py-3 sm:py-4 text-xs text-gray-400 italic border rounded-md bg-gray-50">
                             No front image
@@ -606,28 +613,35 @@ export default function EventDetailPage() {
                         </p>
                         {associatedImages[currency.currency_id]?.back ||
                         currency.back_image ? (
-                          <CurrencyCanvas
-                            ref={(ref) => {
-                              if (ref) {
-                                canvasRefs.current[
-                                  `${currency.currency_id}-back`
-                                ] = ref;
+                          <div className="relative overflow-hidden">
+                            <CurrencyCanvas
+                              ref={(ref) => {
+                                if (ref) {
+                                  canvasRefs.current[
+                                    `${currency.currency_id}-back`
+                                  ] = ref;
+                                }
+                              }}
+                              templateImage={getTemplateImage(
+                                currency.denomination
+                              )} // Assuming back also uses a base template
+                              texts={{
+                                celebration: currency.back_celebration_text,
+                                eventId: currency.event_id,
+                                // Potentially other texts for back if applicable
+                              }}
+                              side="back"
+                              denomination={String(currency.denomination)}
+                              portraitImage={
+                                associatedImages[currency.currency_id]?.back
                               }
-                            }}
-                            templateImage={getTemplateImage(
-                              currency.denomination
-                            )} // Assuming back also uses a base template
-                            texts={{
-                              celebration: currency.back_celebration_text,
-                              eventId: currency.event_id,
-                              // Potentially other texts for back if applicable
-                            }}
-                            side="back"
-                            denomination={String(currency.denomination)}
-                            portraitImage={
-                              associatedImages[currency.currency_id]?.back
-                            }
-                          />
+                            />
+                            {/* Mobile scroll overlay */}
+                            <div 
+                              className="absolute inset-0 bg-transparent md:hidden"
+                              style={{ touchAction: 'pan-y pinch-zoom' }}
+                            />
+                          </div>
                         ) : (
                           <div className="text-center py-3 sm:py-4 text-xs text-gray-400 italic border rounded-md bg-gray-50">
                             No back image

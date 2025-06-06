@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import StatsCard from "../components/StatsCard";
@@ -58,16 +58,16 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="mx-auto max-w-4xl text-center">
-        <h2 className="mb-4 font-bold text-2xl text-gray-900">
+      <div className="mx-auto max-w-4xl text-center p-4 sm:p-6">
+        <h2 className="mb-4 font-bold text-xl sm:text-2xl text-gray-900">
           Unable to load dashboard
         </h2>
-        <p className="mb-4 text-gray-600">
+        <p className="mb-4 text-sm sm:text-base text-gray-600">
           {error.message || "Please try again later"}
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="bg-gold hover:bg-gold/90 px-4 py-2 rounded text-white"
+          className="bg-gold hover:bg-gold/90 px-4 py-2 rounded text-white text-sm sm:text-base"
         >
           Retry
         </button>
@@ -80,8 +80,8 @@ export default function Dashboard() {
   }
 
   return (
-    <>
-      <div className="gap-6 grid grid-cols-1 md:grid-cols-2 mb-8 text-left">
+    <div className="p-3 sm:p-6">
+      <div className="gap-4 sm:gap-6 grid grid-cols-2 md:grid-cols-2 mb-6 sm:mb-8 text-left">
         <StatsCard
           label="Total Transaction Amount"
           value={`₦${totalAmount.toLocaleString()}`}
@@ -90,8 +90,8 @@ export default function Dashboard() {
         <StatsCard label="Total Events Hosted" value={totalEvents.toString()} />
       </div>
 
-      <section>
-        <h2 className="mb-6 font-playfair font-semibold text-xl">
+      <section className="space-y-4 sm:space-y-6">
+        <h2 className="font-playfair font-semibold text-lg sm:text-xl">
           Transaction History
         </h2>
         {events.length === 0 ? (
@@ -103,6 +103,6 @@ export default function Dashboard() {
           />
         )}
       </section>
-    </>
+    </div>
   );
 }

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import PropTypes from "prop-types";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { EventBasicInfo } from "./EventBasicInfo";
@@ -20,8 +21,8 @@ export const EventForm = ({ formData, handleInputChange, handleSubmit, isSubmitt
   };
 
   return (
-    <form onSubmit={handleFormSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <form onSubmit={handleFormSubmit} className="space-y-4 sm:space-y-5 lg:space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 lg:gap-6">
         <EventBasicInfo
           formData={formData}
           handleInputChange={handleInputChange}
@@ -49,7 +50,7 @@ export const EventForm = ({ formData, handleInputChange, handleSubmit, isSubmitt
 
       <Button
         type="submit"
-        className="w-full md:w-auto px-8 bg-gold hover:bg-gold/90 text-white"
+        className="w-full md:w-auto px-6 sm:px-8 bg-gold hover:bg-gold/90 text-white h-10 sm:h-11"
         disabled={isSubmitting}
       >
         {isSubmitting ? (
@@ -63,4 +64,11 @@ export const EventForm = ({ formData, handleInputChange, handleSubmit, isSubmitt
       </Button>
     </form>
   );
+};
+
+EventForm.propTypes = {
+  formData: PropTypes.object.isRequired,
+  handleInputChange: PropTypes.func.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
+  isSubmitting: PropTypes.bool.isRequired,
 };

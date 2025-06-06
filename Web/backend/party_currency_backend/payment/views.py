@@ -15,7 +15,7 @@ from .utils import MonnifyAuth
 from rest_framework.permissions import AllowAny
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 from authentication.models import CustomUser as CUser
-
+from django.http import HttpResponseRedirect
 
 class UserThrottle(UserRateThrottle):
     scope = 'user'
@@ -110,18 +110,19 @@ def generate_transcation_ID(request):
 @throttle_classes([UserThrottle])
 @permission_classes([AllowAny])
 def callback(request):
+    frontend_url = os.getenv("FRONTEND_URL")
+    transaction_reference = None
+    
     try:
-        # Get payment reference from query parameters
         payment_reference = request.query_params.get("paymentReference")
-        print(payment_reference)
         
         if not payment_reference:
-            return Response({"error": "Payment reference not provided"}, status=status.HTTP_400_BAD_REQUEST)
+            return HttpResponseRedirect(f"{frontend_url}/dashboard?error=missing_reference")
         
-        # Get transaction using payment reference
         transaction = Transaction.objects.get(payment_reference=payment_reference)
+        transaction_reference = transaction.transaction_reference
         
-        # Verify the transaction status with Monnify (optional, but recommended)
+        # Verify with Monnify
         headers = {
             'Authorization': f"Bearer {MonnifyAuth.get_access_token()['token']}",
             'Content-Type': 'application/json'
@@ -135,59 +136,58 @@ def callback(request):
         verification_data = verification_response.json()
         
         if verification_data.get('requestSuccessful') and verification_data['responseBody'].get('paymentStatus') == "PAID":
-            # Update transaction status
+            # Update transaction
             transaction.status = "successful"
             transaction.save()
             
-            # Update the event with transaction information
+            # Update event
             if transaction.event_id:
                 try:
                     event = Events.objects.get(event_id=transaction.event_id)
                     event.transaction_id = payment_reference
-                    event.payment_status='successful'
-                    event.delivery_status='pending'
+                    event.payment_status = 'successful'
+                    event.delivery_status = 'pending'
                     event.save()
                 except Events.DoesNotExist:
-                    return Response({
-                        "message": "Payment successful but event not found", 
-                        "transaction": transaction.status
-                    }, status=status.HTTP_200_OK)
+                    pass  # Continue even if event not found
             
-            # Update user's total amount spent
+            # Update user total
             try:
-                # Since you're storing email as user_id, retrieve the user by email
                 user = CUser.objects.get(email=transaction.user_id)
                 user.total_amount_spent += transaction.amount
                 user.save()
-            except CUser.DoesNotExist:
-                # Continue processing even if user is not found
-                pass
-            except Exception as e:
-                # Log the error but continue processing
+            except (CUser.DoesNotExist, Exception) as e:
                 print(f"Error updating user total: {str(e)}")
-            frontend_url = os.getenv("FRONTEND_URL")
-            redirect_url = f"{frontend_url}/dashboard?transaction_reference={transaction.transaction_reference}"
-            from django.http import HttpResponseRedirect
             
+            redirect_url = f"{frontend_url}/dashboard?transaction_reference={transaction_reference}"
             return HttpResponseRedirect(redirect_url)
-            return Response({
-                "message": "Payment successful", 
-                "transaction": transaction.status, 
-                "transaction_reference": transaction.transaction_reference
-            }, status=status.HTTP_200_OK)
+            
         else:
-            # If verification failed or payment not successful
-            return Response({
-                "message": "Payment verification failed", 
-                "status": verification_data['responseBody'].get('paymentStatus', 'unknown')
-            }, status=status.HTTP_400_BAD_REQUEST)
+            # Payment failed
+            transaction.status = "failed"
+            transaction.save()
+            
+            if transaction.event_id:
+                try:
+                    event = Events.objects.get(event_id=transaction.event_id)
+                    event.transaction_id = payment_reference
+                    event.payment_status = 'failed'
+                    event.save()
+                except Events.DoesNotExist:
+                    pass
+            
+            redirect_url = f"{frontend_url}/dashboard?transaction_reference={transaction_reference}&status=failed"
+            return HttpResponseRedirect(redirect_url)
             
     except Transaction.DoesNotExist:
-        return Response({
-            "error": "Transaction not found"
-        }, status=status.HTTP_404_NOT_FOUND)
+        redirect_url = f"{frontend_url}/dashboard?error=transaction_not_found"
+        return HttpResponseRedirect(redirect_url)
+        
     except Exception as e:
-        return Response({
-            "error": "An error occurred processing the callback",
-            "detail": str(e)
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        print(f"Callback error: {str(e)}")
+        error_redirect = f"{frontend_url}/dashboard"
+        if transaction_reference:
+            error_redirect += f"?transaction_reference={transaction_reference}&error=processing_failed"
+        else:
+            error_redirect += "?error=processing_failed"
+        return HttpResponseRedirect(error_redirect)
