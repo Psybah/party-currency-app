@@ -179,7 +179,7 @@ export async function updateCurrency(currencyId, formData) {
 
   try {
     const response = await fetch(
-      `${BASE_URL}/currencies/update-currency/?currency_id=${currencyId}`,
+      `${BASE_URL}/currencies/update-currency/${currencyId}`,
       {
         method: "PUT",
         headers: {

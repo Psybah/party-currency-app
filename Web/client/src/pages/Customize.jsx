@@ -5,8 +5,13 @@ import { toast } from "react-hot-toast";
 import { TextEditor } from "../components/currency/TextEditor";
 import { ImageEditor } from "../components/currency/ImageEditor";
 import { CurrencyCanvas } from "../components/currency/CurrencyCanvas";
-import { saveCurrency } from "../api/currencyApi";
+import {
+  saveCurrency,
+  getCurrencyById,
+  updateCurrency,
+} from "../api/currencyApi";
 import { getEvents } from "../api/eventApi";
+import { downloadCurrencyImage } from "@/components/ui/CurrencyImage";
 import { useAuthenticated } from "@/lib/hooks";
 import { LoadingDisplay } from "@/components/LoadingDisplay";
 import {
@@ -22,6 +27,8 @@ const Customize = () => {
   const authenticated = useAuthenticated();
   const [searchParams] = useSearchParams();
   const denomination = searchParams.get("denomination") || "200";
+  const currencyId = searchParams.get("currencyId"); // For edit mode
+  const isEditMode = !!currencyId;
 
   const [showTextEditor, setShowTextEditor] = useState(false);
   const [showImageEditor, setShowImageEditor] = useState(false);
@@ -29,6 +36,7 @@ const Customize = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [events, setEvents] = useState([]);
   const [isLoadingEvents, setIsLoadingEvents] = useState(true);
+  const [isLoadingCurrency, setIsLoadingCurrency] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState("");
 
   // Helper function to get template images based on denomination
@@ -165,18 +173,61 @@ const Customize = () => {
     try {
       setIsLoading(true);
 
-      // Prepare data for saving
-      const saveData = {
-        texts: currencyData.front.texts,
-        backTexts: currencyData.back.texts,
-        portraitImage: currencyData.front.portraitImage,
-        backPortraitImage: currencyData.back.portraitImage,
-        eventId: selectedEvent,
-        denomination: denomination,
-      };
+      if (isEditMode) {
+        // Update existing currency
+        const formData = new FormData();
 
-      await saveCurrency(saveData);
-      toast.success("Currency template saved successfully!");
+        // Add text data
+        formData.append("currency_name", currencyData.front.texts.currencyName);
+        formData.append(
+          "front_celebration_text",
+          currencyData.front.texts.celebration
+        );
+        formData.append(
+          "back_celebration_text",
+          currencyData.back.texts.celebration || ""
+        );
+        formData.append("event_id", selectedEvent);
+        formData.append("denomination", denomination);
+
+        // Add images if they exist and are new (base64 strings)
+        if (
+          currencyData.front.portraitImage &&
+          currencyData.front.portraitImage.startsWith("data:")
+        ) {
+          const frontImageBlob = await fetch(
+            currencyData.front.portraitImage
+          ).then((r) => r.blob());
+          formData.append("front_image", frontImageBlob);
+        }
+
+        if (
+          currencyData.back.portraitImage &&
+          currencyData.back.portraitImage.startsWith("data:")
+        ) {
+          const backImageBlob = await fetch(
+            currencyData.back.portraitImage
+          ).then((r) => r.blob());
+          formData.append("back_image", backImageBlob);
+        }
+
+        await updateCurrency(currencyId, formData);
+        toast.success("Currency template updated successfully!");
+      } else {
+        // Create new currency
+        const saveData = {
+          texts: currencyData.front.texts,
+          backTexts: currencyData.back.texts,
+          portraitImage: currencyData.front.portraitImage,
+          backPortraitImage: currencyData.back.portraitImage,
+          eventId: selectedEvent,
+          denomination: denomination,
+        };
+
+        await saveCurrency(saveData);
+        toast.success("Currency template saved successfully!");
+      }
+
       navigate("/templates");
     } catch (error) {
       console.error("Error saving currency:", error);
@@ -184,15 +235,99 @@ const Customize = () => {
         toast.error("Your session has expired. Please login again.");
         navigate("/login");
       } else {
-        toast.error("Failed to save currency template");
+        toast.error(
+          `Failed to ${isEditMode ? "update" : "save"} currency template`
+        );
       }
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Fetch existing currency data if in edit mode
+  useEffect(() => {
+    const fetchCurrencyData = async () => {
+      if (!isEditMode || !currencyId) return;
+
+      setIsLoadingCurrency(true);
+      try {
+        const currencyData = await getCurrencyById(currencyId);
+
+        // Download images from drive URLs if they exist
+        let frontImageUrl = null;
+        let backImageUrl = null;
+
+        if (currencyData.front_image) {
+          try {
+            frontImageUrl = await downloadCurrencyImage(
+              currencyData.front_image,
+              String(currencyData.denomination || denomination),
+              "front"
+            );
+          } catch (imgErr) {
+            console.error("Error downloading front image:", imgErr);
+          }
+        }
+
+        if (currencyData.back_image) {
+          try {
+            backImageUrl = await downloadCurrencyImage(
+              currencyData.back_image,
+              String(currencyData.denomination || denomination),
+              "back"
+            );
+          } catch (imgErr) {
+            console.error("Error downloading back image:", imgErr);
+          }
+        }
+
+        // Update currency data with fetched values
+        setCurrencyData({
+          front: {
+            texts: {
+              celebration:
+                currencyData.front_celebration_text ||
+                getInitialCelebrationText(denomination),
+              currencyName: currencyData.currency_name || "Party Currency",
+              eventId: currencyData.event_id || "",
+            },
+            portraitImage: frontImageUrl,
+          },
+          back: {
+            texts: {
+              celebration:
+                currencyData.back_celebration_text ||
+                getInitialCelebrationText(denomination),
+            },
+            portraitImage: backImageUrl,
+          },
+        });
+
+        // Set the selected event
+        if (currencyData.event_id) {
+          setSelectedEvent(currencyData.event_id);
+        }
+
+        toast.success("Currency data loaded successfully");
+      } catch (error) {
+        console.error("Error fetching currency data:", error);
+        toast.error("Failed to load currency data");
+        // Redirect back if currency not found
+        navigate("/templates");
+      } finally {
+        setIsLoadingCurrency(false);
+      }
+    };
+
+    fetchCurrencyData();
+  }, [isEditMode, currencyId, denomination, navigate]);
+
   if (!authenticated) {
     return <LoadingDisplay message="Checking authentication..." />;
+  }
+
+  if (isLoadingCurrency) {
+    return <LoadingDisplay message="Loading currency data..." />;
   }
 
   return (
@@ -210,10 +345,12 @@ const Customize = () => {
           {/* Page Title */}
           <div>
             <h1 className="text-2xl md:text-3xl font-semibold mb-2">
-              Customize ₦{denomination} Currency
+              {isEditMode ? "Edit" : "Customize"} ₦{denomination} Currency
             </h1>
             <p className="text-gray-600">
-              Design your custom party currency for this denomination.
+              {isEditMode
+                ? "Update your custom party currency for this denomination."
+                : "Design your custom party currency for this denomination."}
             </p>
           </div>
 
@@ -350,7 +487,9 @@ const Customize = () => {
                 : "hover:bg-bluePrimary/90"
             }`}
           >
-            {isLoading ? "Saving..." : "Save Changes"}
+            {isLoading
+              ? `${isEditMode ? "Updating" : "Saving"}...`
+              : `${isEditMode ? "Update" : "Save"} Changes`}
           </button>
         </div>
       </main>
