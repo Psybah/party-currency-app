@@ -51,11 +51,14 @@ export default function GoogleAuth() {
         // Determine redirect based on user type
         const userTypeLC = userType.toLowerCase();
         if (userTypeLC === "admin") {
-          navigate("/admin/dashboard");
+          // navigate("/admin/dashboard");
+          navigate("/");
         } else if (userTypeLC === "merchant") {
-          navigate("/merchant/virtual-account");
+          // navigate("/merchant/virtual-account");
+          navigate("/");
         } else {
-          navigate("/dashboard");
+          // navigate("/dashboard");
+          navigate("/");
         }
       } catch (error) {
         console.error("Google auth callback error:", error);
