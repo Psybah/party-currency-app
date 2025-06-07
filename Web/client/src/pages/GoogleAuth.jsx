@@ -27,7 +27,7 @@ export default function GoogleAuth() {
         }
 
         // Store authentication token and user type
-        storeAuth(token, userType.toLowerCase() || "customer", true);
+        storeAuth(token, "customer", true);
         setStatus("Authentication successful. Loading your profile...");
 
         // Fetch user profile with the new token
@@ -51,14 +51,11 @@ export default function GoogleAuth() {
         // Determine redirect based on user type
         const userTypeLC = userType.toLowerCase();
         if (userTypeLC === "admin") {
-          // navigate("/admin/dashboard");
-          navigate("/");
+          navigate("/admin/dashboard");
         } else if (userTypeLC === "merchant") {
-          // navigate("/merchant/virtual-account");
-          navigate("/");
+          navigate("/merchant/virtual-account");
         } else {
-          // navigate("/dashboard");
-          navigate("/");
+          navigate("/dashboard");
         }
       } catch (error) {
         console.error("Google auth callback error:", error);
