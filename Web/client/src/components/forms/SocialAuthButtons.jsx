@@ -1,10 +1,10 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-
+import { googleAuthUrl } from "@/config";
 export function SocialAuthButtons() {
   const handleGoogleLogin = () => {
     // Redirect to the backend's Google auth URL
-    window.location.href = "https://party-currency-app-production-70c0.up.railway.app/auth/google/login";
+    window.location.href = googleAuthUrl;
   };
 
   return (
