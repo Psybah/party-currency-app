@@ -203,7 +203,7 @@ def get_admin_statistics(request):
         return Response({'error': f'An error occurred: {str(e)}'}, status=500)
 
 
-# NEW PAGINATED EVENTS VIEW
+# NEW PAGINATED EVENTS VIEW WITH ENHANCED SORTING
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
@@ -214,9 +214,9 @@ def get_events(request):
     try:
         # Get query parameters
         page = request.GET.get('page', 1)
-        page_size = request.GET.get('page_size', 10)  # Default to 10 events per page
+        page_size = request.GET.get('page_size', 10)
         search = request.GET.get('search', '')
-        sort_by = request.GET.get('sort_by', '-created_at')  # Default sort by newest first
+        sort_by = request.GET.get('sort_by', 'newest')  # Default to newest first
         
         # Convert to integers
         try:
@@ -229,22 +229,36 @@ def get_events(request):
         if page_size > 100:
             page_size = 100
         
+        # Define sort parameter mapping
+        sort_mapping = {
+            'newest': '-created_at',           # Newest events first
+            'oldest': 'created_at',            # Oldest events first
+            'name_asc': 'event_name',          # Event name A-Z
+            'name_desc': '-event_name',        # Event name Z-A
+            'date_early': 'start_date',        # Earliest start date first
+            'date_late': '-start_date',        # Latest start date first
+        }
+        
         # Start with all events
-        events_queryset = Event.objects.all()
+        events_queryset = Events.objects.all()  # Note: using Events (your model name)
         
         # Apply search filter if provided
         if search:
             events_queryset = events_queryset.filter(
-                Q(title__icontains=search) |
-                Q(description__icontains=search) |
-                Q(location__icontains=search)
+                Q(event_name__icontains=search) |
+                Q(event_description__icontains=search) |
+                Q(street_address__icontains=search) |
+                Q(city__icontains=search) |
+                Q(state__icontains=search) |
+                Q(event_author__icontains=search)
             )
         
         # Apply sorting
-        valid_sort_fields = ['created_at', '-created_at', 'title', '-title', 'date', '-date']
-        if sort_by in valid_sort_fields:
-            events_queryset = events_queryset.order_by(sort_by)
+        if sort_by in sort_mapping:
+            django_sort_field = sort_mapping[sort_by]
+            events_queryset = events_queryset.order_by(django_sort_field)
         else:
+            # Default to newest if invalid sort parameter
             events_queryset = events_queryset.order_by('-created_at')
         
         # Create paginator
@@ -279,7 +293,8 @@ def get_events(request):
             },
             'filters': {
                 'search': search,
-                'sort_by': sort_by
+                'sort_by': sort_by,
+                'available_sort_options': list(sort_mapping.keys())
             }
         }
         
@@ -287,6 +302,30 @@ def get_events(request):
         
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=500)
+
+
+# Optional: Add a helper view to get available sort options
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def get_sort_options(request):
+    """
+    Returns available sorting options for the events API
+    """
+    sort_options = {
+        'newest': 'Newest First',
+        'oldest': 'Oldest First', 
+        'name_asc': 'Name A-Z',
+        'name_desc': 'Name Z-A',
+        'date_early': 'Start Date (Early)',
+        'date_late': 'Start Date (Late)'
+    }
+    
+    return Response({
+        'sort_options': sort_options,
+        'default': 'newest'
+    }, status=200)
+
 
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
@@ -510,20 +549,119 @@ def get_event_transaction(request):
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=500)
     
+# Optional: Enhanced version with additional filters
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
-def get_all_successful_transactions(request):
+def get_transactions(request):
+    """
+    Advanced transactions endpoint with multiple status filtering
+    """
     if not request.user.is_superuser:
         return Response({'error': 'Access denied. Superuser privileges required.'}, status=403)
     
     try:
+        # Get query parameters
         page = request.GET.get('page', 1)
         page_size = request.GET.get('page_size', 10)
-        transactions = Transaction.objects.filter(status='successful')
-        serializer = TransactionSerializer(transactions, many=True)
-        return Response({'message': 'All successful transactions retrieved successfully', 'transactions': serializer.data}, status=200)
-    
+        search = request.GET.get('search', '')
+        sort_by = request.GET.get('sort_by', 'newest')
+        status_filter = request.GET.get('status', 'successful')  # successful, failed, pending, all
+        date_from = request.GET.get('date_from')  # YYYY-MM-DD format
+        date_to = request.GET.get('date_to')      # YYYY-MM-DD format
+        
+        # Convert to integers
+        try:
+            page = int(page)
+            page_size = int(page_size)
+        except ValueError:
+            return Response({'error': 'Invalid page or page_size parameter'}, status=400)
+        
+        if page_size > 100:
+            page_size = 100
+        
+        # Sort mapping
+        sort_mapping = {
+            'newest': '-created_at',
+            'oldest': 'created_at',
+            'amount_high': '-amount',
+            'amount_low': 'amount',
+            'customer_asc': 'customer_name',
+            'customer_desc': '-customer_name',
+        }
+        
+        # Start with all transactions or filter by status
+        if status_filter == 'all':
+            transactions_queryset = Transaction.objects.all()
+        else:
+            transactions_queryset = Transaction.objects.filter(status=status_filter)
+        
+        # Apply date filters
+        if date_from:
+            try:
+                from_date = datetime.strptime(date_from, '%Y-%m-%d').date()
+                transactions_queryset = transactions_queryset.filter(created_at__date__gte=from_date)
+            except ValueError:
+                return Response({'error': 'Invalid date_from format. Use YYYY-MM-DD'}, status=400)
+        
+        if date_to:
+            try:
+                to_date = datetime.strptime(date_to, '%Y-%m-%d').date()
+                transactions_queryset = transactions_queryset.filter(created_at__date__lte=to_date)
+            except ValueError:
+                return Response({'error': 'Invalid date_to format. Use YYYY-MM-DD'}, status=400)
+        
+        # Apply search filter
+        if search:
+            transactions_queryset = transactions_queryset.filter(
+                Q(customer_name__icontains=search) |
+                Q(customer_email__icontains=search) |
+                Q(transaction_id__icontains=search) |
+                Q(reference__icontains=search)
+            )
+        
+        # Apply sorting
+        if sort_by in sort_mapping:
+            transactions_queryset = transactions_queryset.order_by(sort_mapping[sort_by])
+        else:
+            transactions_queryset = transactions_queryset.order_by('-created_at')
+        
+        # Pagination
+        paginator = Paginator(transactions_queryset, page_size)
+        total_pages = paginator.num_pages
+        total_count = paginator.count
+        
+        try:
+            transactions_page = paginator.page(page)
+        except (PageNotAnInteger, EmptyPage):
+            transactions_page = paginator.page(1)
+            page = 1
+        
+        # Serialize
+        serializer = TransactionSerializer(transactions_page, many=True)
+        
+        # Response
+        response_data = {
+            'message': f'{status_filter.title()} transactions retrieved successfully',
+            'transactions': serializer.data,
+            'pagination': {
+                'current_page': page,
+                'page_size': page_size,
+                'total_pages': total_pages,
+                'total_count': total_count,
+                'has_next': transactions_page.has_next(),
+                'has_previous': transactions_page.has_previous(),
+            },
+            'filters': {
+                'search': search,
+                'sort_by': sort_by,
+                'status': status_filter,
+                'date_from': date_from,
+                'date_to': date_to,
+            }
+        }
+        
+        return Response(response_data, status=200)
+        
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=500)
-    
