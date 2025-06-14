@@ -240,7 +240,7 @@ def get_events(request):
         }
         
         # Start with all events
-        events_queryset = Events.objects.all()  # Note: using Events (your model name)
+        events_queryset = Event.objects.all()  # Note: using Events (your model name)
         
         # Apply search filter if provided
         if search:
