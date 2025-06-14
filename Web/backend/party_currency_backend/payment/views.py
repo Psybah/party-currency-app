@@ -92,7 +92,7 @@ def generate_transcation_ID(request):
         customer_name=f"{request.user.first_name} {request.user.last_name}",
         customer_email=request.user.email,
         payment_reference=f"party{int(time.time())}",
-        payment_description=f"Payment for services {request.data['event_id']}",
+        payment_description=f"Payment for {request.data['event_id']}",
         currency_code="NGN",
         breakdown=str(amount),
         contract_code=os.getenv("MONIFY_CONTRACT_CODE"),  # Fixed the missing comma
