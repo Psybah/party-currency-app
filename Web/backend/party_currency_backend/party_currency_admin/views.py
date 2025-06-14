@@ -616,8 +616,9 @@ def get_transactions(request):
             transactions_queryset = transactions_queryset.filter(
                 Q(customer_name__icontains=search) |
                 Q(customer_email__icontains=search) |
-                Q(transaction_id__icontains=search) |
-                Q(reference__icontains=search)
+                Q(transaction_reference__icontains=search) |
+                Q(payment_reference__icontains=search) |
+                Q(event_id__icontains=search)
             )
         
         # Apply sorting
