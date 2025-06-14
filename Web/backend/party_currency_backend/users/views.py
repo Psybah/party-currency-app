@@ -37,7 +37,8 @@ def fetchUser(request):
                 "email": user.email,
                 "firstname":user.first_name,
                 "lastname":user.last_name,
-                "phonenumber":user.phone_number
+                "phonenumber":user.phone_number,
+                "total_amount_spent":user.total_amount_spent
                
             })
     elif (user.type == "merchant"):
