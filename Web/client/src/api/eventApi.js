@@ -10,9 +10,9 @@ import { getAuth } from "@/lib/util";
 export async function createEventApi(body) {
   const url = new URL("events/create", BASE_URL);
   const { accessToken } = getAuth();
-  
+
   console.log("Sending event data to API:", body);
-  
+
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -27,11 +27,11 @@ export async function createEventApi(body) {
   });
 
   const data = await response.json();
-  
+
   if (!response.ok) {
     throw new Error(data.message || "Failed to create event");
   }
-  
+
   console.log("API Response:", data);
   return data;
 }
@@ -45,7 +45,7 @@ export async function createEventApi(body) {
 export async function getEventById(eventId) {
   const url = new URL(`events/get/${eventId}`, BASE_URL);
   const { accessToken } = getAuth();
-  
+
   const response = await fetch(url, {
     headers: {
       Authorization: `Token ${accessToken}`,
@@ -68,9 +68,9 @@ export async function getEventById(eventId) {
  */
 export async function getEvents() {
   console.log("Fetching events..."); // Debug log
-  
+
   const { accessToken } = getAuth();
-  
+
   if (!accessToken) {
     throw new Error("Please log in to view your events");
   }
@@ -106,21 +106,46 @@ export async function getCurrenciesByEventId(eventId) {
   const { accessToken } = getAuth();
 
   try {
-    const response = await fetch(`${BASE_URL}/events/get-currency?event_id=${eventId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Token ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${BASE_URL}/events/get-currency?event_id=${eventId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Token ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch currencies');
+      throw new Error("Failed to fetch currencies");
     }
 
     return response.json();
   } catch (error) {
-    console.error('Error fetching currencies:', error);
+    console.error("Error fetching currencies:", error);
+    throw error;
+  }
+}
+export async function deleteEvent(eventId) {
+  const { accessToken } = getAuth();
+
+  try {
+    const response = await fetch(`${BASE_URL}/events/delete/${eventId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Token ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete event. Please try again later.");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error deleting event:", error);
     throw error;
   }
 }

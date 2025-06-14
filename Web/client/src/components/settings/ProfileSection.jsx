@@ -1,17 +1,17 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
+import PropTypes from "prop-types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { USER_PROFILE_CONTEXT } from "@/context";
-import { showSuccess, showError, withFeedback } from "@/utils/feedback";
+import { showError, withFeedback } from "@/utils/feedback";
 import { updateProfile } from "@/api/profileApi";
-
 
 export function ProfileSection() {
   const { userProfile, setUserProfile } = useContext(USER_PROFILE_CONTEXT);
   const [firstName, setFirstName] = useState(userProfile?.firstname || "");
   const [lastName, setLastName] = useState(userProfile?.lastname || "");
-  const [email, setEmail] = useState(userProfile?.email || "");
+  const [email] = useState(userProfile?.email || "");
   const [phone, setPhone] = useState(userProfile?.phonenumber || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -46,58 +46,59 @@ export function ProfileSection() {
   };
 
   return (
-    <div className="space-y-6">
-      
-      <div className="flex justify-between items-center">
-        <h2 className="font-playfair font-semibold text-2xl text-left">
+    <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+        <h2 className="font-playfair font-semibold text-xl sm:text-2xl text-left">
           Personal Information
         </h2>
         {!isEditing && (
           <Button
             onClick={() => setIsEditing(true)}
             variant="outline"
-            className="text-gold border-gold hover:bg-gold hover:text-white"
+            className="text-gold border-gold hover:bg-gold hover:text-white w-full sm:w-auto h-9 sm:h-10 text-sm sm:text-base"
           >
             Edit Profile
           </Button>
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
-          <div className="space-y-2 text-left">
-            <Label htmlFor="firstName">First Name</Label>
+      <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+        <div className="gap-3 sm:gap-4 grid grid-cols-1 md:grid-cols-2">
+          <div className="space-y-1.5 sm:space-y-2 text-left">
+            <Label htmlFor="firstName" className="text-sm sm:text-base">First Name</Label>
             <Input
               id="firstName"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               placeholder="Enter your first name"
               disabled={!isEditing}
+              className="h-9 sm:h-10 text-sm sm:text-base"
             />
           </div>
-          <div className="space-y-2 text-left">
-            <Label htmlFor="lastName">Last Name</Label>
+          <div className="space-y-1.5 sm:space-y-2 text-left">
+            <Label htmlFor="lastName" className="text-sm sm:text-base">Last Name</Label>
             <Input
               id="lastName"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               placeholder="Enter your last name"
               disabled={!isEditing}
+              className="h-9 sm:h-10 text-sm sm:text-base"
             />
           </div>
         </div>
-        <div className="space-y-2 text-left">
-          <Label htmlFor="email">Email</Label>
+        <div className="space-y-1.5 sm:space-y-2 text-left">
+          <Label htmlFor="email" className="text-sm sm:text-base">Email</Label>
           <Input
             id="email"
             type="email"
             value={email}
             disabled={true}
-            className="bg-gray-100"
+            className="bg-gray-100 h-9 sm:h-10 text-sm sm:text-base"
           />
         </div>
-        <div className="space-y-2 text-left">
-          <Label htmlFor="phone">Phone Number</Label>
+        <div className="space-y-1.5 sm:space-y-2 text-left">
+          <Label htmlFor="phone" className="text-sm sm:text-base">Phone Number</Label>
           <Input
             id="phone"
             type="tel"
@@ -105,13 +106,14 @@ export function ProfileSection() {
             onChange={(e) => setPhone(e.target.value)}
             placeholder="Enter your phone number"
             disabled={!isEditing}
+            className="h-9 sm:h-10 text-sm sm:text-base"
           />
         </div>
         {isEditing && (
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Button
               type="submit"
-              className="bg-gold w-full md:w-auto"
+              className="bg-gold w-full md:w-auto h-9 sm:h-10 text-sm sm:text-base"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Updating..." : "Save Changes"}
@@ -119,7 +121,7 @@ export function ProfileSection() {
             <Button
               type="button"
               variant="outline"
-              className="w-full md:w-auto"
+              className="w-full md:w-auto h-9 sm:h-10 text-sm sm:text-base"
               onClick={() => {
                 setIsEditing(false);
                 setFirstName(userProfile?.firstname || "");
@@ -136,3 +138,7 @@ export function ProfileSection() {
     </div>
   );
 }
+
+ProfileSection.propTypes = {
+  onUpdate: PropTypes.func,
+};

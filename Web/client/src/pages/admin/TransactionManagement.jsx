@@ -94,7 +94,7 @@ export default function TransactionManagement() {
   // Status filter options
   const statusFilterOptions = [
     { value: "all", label: "All Statuses" },
-    { value: "completed", label: "Completed" },
+    { value: "successful", label: "Successful" },
     { value: "pending", label: "Pending" },
     { value: "failed", label: "Failed" },
     { value: "cancelled", label: "Cancelled" },
@@ -274,9 +274,7 @@ export default function TransactionManagement() {
         <div className="space-y-1 text-xs sm:text-sm text-left">
           <div className="text-left">
             <span className="text-gray-500">Reference: </span>
-            <span className="font-medium">
-              {transaction.payment_reference}
-            </span>
+            <span className="font-medium">{transaction.payment_reference}</span>
           </div>
           <div className="text-left">
             <span className="text-gray-500">Currency: </span>
@@ -371,7 +369,11 @@ export default function TransactionManagement() {
                 </SelectTrigger>
                 <SelectContent>
                   {statusFilterOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value} className="text-sm">
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      className="text-sm"
+                    >
                       {option.label}
                     </SelectItem>
                   ))}
@@ -384,7 +386,11 @@ export default function TransactionManagement() {
                 </SelectTrigger>
                 <SelectContent>
                   {sortOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value} className="text-sm">
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      className="text-sm"
+                    >
                       {option.label}
                     </SelectItem>
                   ))}
@@ -408,14 +414,22 @@ export default function TransactionManagement() {
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
               Error Loading Transactions
             </h3>
-            <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">{error}</p>
-            <Button onClick={fetchTransactions} variant="outline" className="border-red-300 text-red-700 hover:bg-red-50">
+            <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
+              {error}
+            </p>
+            <Button
+              onClick={fetchTransactions}
+              variant="outline"
+              className="border-red-300 text-red-700 hover:bg-red-50"
+            >
               Try Again
             </Button>
           </Card>
         ) : filteredTransactions.length === 0 ? (
           <Card className="p-6 bg-white sm:p-8 text-center border-gray-200">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4 flex items-center justify-center font-bold text-2xl sm:text-3xl">₦</div>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4 flex items-center justify-center font-bold text-2xl sm:text-3xl">
+              ₦
+            </div>
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
               No Transactions Found
             </h3>
@@ -433,13 +447,27 @@ export default function TransactionManagement() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="text-left pl-4 sm:pl-6 text-xs sm:text-sm font-medium min-w-[200px]">Customer</TableHead>
-                      <TableHead className="text-left px-2 sm:px-4 text-xs sm:text-sm font-medium min-w-[120px]">Amount</TableHead>
-                      <TableHead className="text-left px-2 sm:px-4 text-xs sm:text-sm font-medium min-w-[100px]">Status</TableHead>
-                      <TableHead className="text-left px-2 sm:px-4 text-xs sm:text-sm font-medium min-w-[160px]">Reference</TableHead>
-                      <TableHead className="text-left px-2 sm:px-4 text-xs sm:text-sm font-medium min-w-[80px]">Currency</TableHead>
-                      <TableHead className="text-left px-2 sm:px-4 text-xs sm:text-sm font-medium min-w-[120px]">Event ID</TableHead>
-                      <TableHead className="text-left px-2 sm:px-4 text-xs sm:text-sm font-medium min-w-[180px]">Description</TableHead>
+                      <TableHead className="text-left pl-4 sm:pl-6 text-xs sm:text-sm font-medium min-w-[200px]">
+                        Customer
+                      </TableHead>
+                      <TableHead className="text-left px-2 sm:px-4 text-xs sm:text-sm font-medium min-w-[120px]">
+                        Amount
+                      </TableHead>
+                      <TableHead className="text-left px-2 sm:px-4 text-xs sm:text-sm font-medium min-w-[100px]">
+                        Status
+                      </TableHead>
+                      <TableHead className="text-left px-2 sm:px-4 text-xs sm:text-sm font-medium min-w-[160px]">
+                        Reference
+                      </TableHead>
+                      <TableHead className="text-left px-2 sm:px-4 text-xs sm:text-sm font-medium min-w-[80px]">
+                        Currency
+                      </TableHead>
+                      <TableHead className="text-left px-2 sm:px-4 text-xs sm:text-sm font-medium min-w-[120px]">
+                        Event ID
+                      </TableHead>
+                      <TableHead className="text-left px-2 sm:px-4 text-xs sm:text-sm font-medium min-w-[180px]">
+                        Description
+                      </TableHead>
                       <TableHead className="w-[100px] sm:w-[120px] text-center text-xs sm:text-sm font-medium">
                         Actions
                       </TableHead>
@@ -456,10 +484,16 @@ export default function TransactionManagement() {
                       >
                         <TableCell className="text-left pl-4 sm:pl-6 py-2 sm:py-4">
                           <div className="min-w-0">
-                            <p className="font-medium text-sm sm:text-base text-gray-900 truncate max-w-[180px]" title={transaction.customer_name}>
+                            <p
+                              className="font-medium text-sm sm:text-base text-gray-900 truncate max-w-[180px]"
+                              title={transaction.customer_name}
+                            >
                               {transaction.customer_name || "Unknown"}
                             </p>
-                            <p className="text-xs sm:text-sm text-gray-500 truncate max-w-[180px]" title={transaction.customer_email}>
+                            <p
+                              className="text-xs sm:text-sm text-gray-500 truncate max-w-[180px]"
+                              title={transaction.customer_email}
+                            >
                               {transaction.customer_email}
                             </p>
                           </div>
@@ -480,7 +514,10 @@ export default function TransactionManagement() {
                           </span>
                         </TableCell>
                         <TableCell className="text-left px-2 sm:px-4 py-2 sm:py-4">
-                          <span className="font-mono text-xs sm:text-sm truncate block max-w-[140px]" title={transaction.payment_reference}>
+                          <span
+                            className="font-mono text-xs sm:text-sm truncate block max-w-[140px]"
+                            title={transaction.payment_reference}
+                          >
                             {transaction.payment_reference}
                           </span>
                         </TableCell>
@@ -490,13 +527,20 @@ export default function TransactionManagement() {
                           </span>
                         </TableCell>
                         <TableCell className="text-left px-2 sm:px-4 py-2 sm:py-4">
-                          <span className="font-mono text-xs sm:text-sm text-gray-600 truncate block max-w-[100px]" title={transaction.event_id}>
+                          <span
+                            className="font-mono text-xs sm:text-sm text-gray-600 truncate block max-w-[100px]"
+                            title={transaction.event_id}
+                          >
                             {transaction.event_id}
                           </span>
                         </TableCell>
                         <TableCell className="text-left px-2 sm:px-4 py-2 sm:py-4">
-                          <span className="text-xs sm:text-sm text-gray-600 truncate block max-w-[160px]" title={transaction.payment_description}>
-                            {transaction.payment_description || "No description"}
+                          <span
+                            className="text-xs sm:text-sm text-gray-600 truncate block max-w-[160px]"
+                            title={transaction.payment_description}
+                          >
+                            {transaction.payment_description ||
+                              "No description"}
                           </span>
                         </TableCell>
                         <TableCell className="text-center px-2 sm:px-4 py-2 sm:py-4">
@@ -537,10 +581,7 @@ export default function TransactionManagement() {
             {/* Mobile Cards */}
             <div className="lg:hidden space-y-3 sm:space-y-4">
               {currentTransactions.map((transaction, index) => (
-                <TransactionMobileCard
-                  key={index}
-                  transaction={transaction}
-                />
+                <TransactionMobileCard key={index} transaction={transaction} />
               ))}
             </div>
           </>
@@ -637,13 +678,17 @@ export default function TransactionManagement() {
             {userInfoDialog.loading ? (
               <div className="flex justify-center items-center py-6 sm:py-8">
                 <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-bluePrimary"></div>
-                <span className="ml-2 sm:ml-3 text-sm text-gray-600">Loading user data...</span>
+                <span className="ml-2 sm:ml-3 text-sm text-gray-600">
+                  Loading user data...
+                </span>
               </div>
             ) : userInfoDialog.error ? (
               <div className="text-center py-6 sm:py-8">
                 <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-500 mx-auto mb-3 sm:mb-4" />
                 <p className="text-red-600 font-medium text-sm">Error</p>
-                <p className="text-gray-600 text-xs sm:text-sm">{userInfoDialog.error}</p>
+                <p className="text-gray-600 text-xs sm:text-sm">
+                  {userInfoDialog.error}
+                </p>
               </div>
             ) : userInfoDialog.user ? (
               <div className="space-y-3">
@@ -661,9 +706,12 @@ export default function TransactionManagement() {
                   <div className="flex items-center gap-3 p-3 bg-gold/5 rounded-lg border border-gold/20">
                     <User className="w-4 h-4 text-gold flex-shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-gray-700">Full Name</p>
+                      <p className="text-xs font-medium text-gray-700">
+                        Full Name
+                      </p>
                       <p className="text-sm text-gray-900 truncate">
-                        {userInfoDialog.user.first_name} {userInfoDialog.user.last_name}
+                        {userInfoDialog.user.first_name}{" "}
+                        {userInfoDialog.user.last_name}
                       </p>
                     </div>
                   </div>
@@ -671,7 +719,9 @@ export default function TransactionManagement() {
                   <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
                     <Phone className="w-4 h-4 text-green-600 flex-shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-gray-700">Phone Number</p>
+                      <p className="text-xs font-medium text-gray-700">
+                        Phone Number
+                      </p>
                       <p className="text-sm text-gray-900 truncate">
                         {userInfoDialog.user.phone_number || "Not provided"}
                       </p>
@@ -681,7 +731,9 @@ export default function TransactionManagement() {
                   <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
                     <UserCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-gray-700">User Type</p>
+                      <p className="text-xs font-medium text-gray-700">
+                        User Type
+                      </p>
                       <p className="text-sm text-gray-900 capitalize">
                         {userInfoDialog.user.type || "Standard"}
                       </p>

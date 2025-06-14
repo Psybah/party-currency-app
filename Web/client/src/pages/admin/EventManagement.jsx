@@ -72,10 +72,26 @@ export default function EventManagement() {
 
   // Delivery status options
   const deliveryStatusOptions = [
-    { value: "pending", label: "Pending", color: "bg-yellow-50 text-yellow-700 border-yellow-200" },
-    { value: "delivered", label: "Delivered", color: "bg-green-50 text-green-700 border-green-200" },
-    { value: "cancelled", label: "Cancelled", color: "bg-red-50 text-red-700 border-red-200" },
-    { value: "pending_payment", label: "Pending Payment", color: "bg-orange-50 text-orange-700 border-orange-200" },
+    {
+      value: "pending",
+      label: "Pending",
+      color: "bg-yellow-50 text-yellow-700 border-yellow-200",
+    },
+    {
+      value: "delivered",
+      label: "Delivered",
+      color: "bg-green-50 text-green-700 border-green-200",
+    },
+    {
+      value: "cancelled",
+      label: "Cancelled",
+      color: "bg-red-50 text-red-700 border-red-200",
+    },
+    {
+      value: "pending_payment",
+      label: "Pending Payment",
+      color: "bg-orange-50 text-orange-700 border-orange-200",
+    },
   ];
 
   // Fetch events
@@ -89,13 +105,13 @@ export default function EventManagement() {
       setError(null);
       // Temporarily disable search parameter due to backend 'title' field error
       const response = await adminApi.getEvents(page, pageSize, "", sort);
-      
+
       // Transform events to ensure postal_code is a string
-      const transformedEvents = (response.events || []).map(event => ({
+      const transformedEvents = (response.events || []).map((event) => ({
         ...event,
-        postal_code: event.postal_code ? String(event.postal_code) : ''
+        postal_code: event.postal_code ? String(event.postal_code) : "",
       }));
-      
+
       setAllEvents(transformedEvents);
       setEvents(transformedEvents);
       setPagination(response.pagination);
@@ -119,15 +135,18 @@ export default function EventManagement() {
       return;
     }
 
-    const filtered = allEvents.filter(event => 
-      event.event_name?.toLowerCase().includes(searchValue.toLowerCase()) ||
-      event.event_description?.toLowerCase().includes(searchValue.toLowerCase()) ||
-      event.event_author?.toLowerCase().includes(searchValue.toLowerCase()) ||
-      event.city?.toLowerCase().includes(searchValue.toLowerCase()) ||
-      event.state?.toLowerCase().includes(searchValue.toLowerCase()) ||
-      event.street_address?.toLowerCase().includes(searchValue.toLowerCase())
+    const filtered = allEvents.filter(
+      (event) =>
+        event.event_name?.toLowerCase().includes(searchValue.toLowerCase()) ||
+        event.event_description
+          ?.toLowerCase()
+          .includes(searchValue.toLowerCase()) ||
+        event.event_author?.toLowerCase().includes(searchValue.toLowerCase()) ||
+        event.city?.toLowerCase().includes(searchValue.toLowerCase()) ||
+        event.state?.toLowerCase().includes(searchValue.toLowerCase()) ||
+        event.street_address?.toLowerCase().includes(searchValue.toLowerCase())
     );
-    
+
     setEvents(filtered);
   };
 
@@ -153,9 +172,9 @@ export default function EventManagement() {
 
   // Handle admin section toggle
   const toggleAdminSection = (eventId) => {
-    setExpandedAdminSections(prev => ({
+    setExpandedAdminSections((prev) => ({
       ...prev,
-      [eventId]: !prev[eventId]
+      [eventId]: !prev[eventId],
     }));
   };
 
@@ -250,7 +269,10 @@ export default function EventManagement() {
 
   // Get status color helper
   const getStatusColor = (status) => {
-    return deliveryStatusOptions.find(opt => opt.value === status)?.color || "bg-gray-50 text-gray-700 border-gray-200";
+    return (
+      deliveryStatusOptions.find((opt) => opt.value === status)?.color ||
+      "bg-gray-50 text-gray-700 border-gray-200"
+    );
   };
 
   return (
@@ -298,8 +320,6 @@ export default function EventManagement() {
                   <SelectItem value="-event_name">Name Z-A</SelectItem>
                   <SelectItem value="start_date">Start Date (Early)</SelectItem>
                   <SelectItem value="-start_date">Start Date (Late)</SelectItem>
-                  <SelectItem value="delivery_status">Status A-Z</SelectItem>
-                  <SelectItem value="-delivery_status">Status Z-A</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -310,7 +330,9 @@ export default function EventManagement() {
         {loading ? (
           <div className="flex justify-center items-center py-8 sm:py-12">
             <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-bluePrimary"></div>
-            <span className="ml-2 sm:ml-3 text-sm sm:text-base text-gray-600">Loading events...</span>
+            <span className="ml-2 sm:ml-3 text-sm sm:text-base text-gray-600">
+              Loading events...
+            </span>
           </div>
         ) : error ? (
           <Card className="p-6 sm:p-8 text-center border-red-200 bg-red-50">
@@ -318,9 +340,11 @@ export default function EventManagement() {
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
               Error Loading Events
             </h3>
-            <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">{error}</p>
-            <Button 
-              onClick={() => fetchEvents()} 
+            <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
+              {error}
+            </p>
+            <Button
+              onClick={() => fetchEvents()}
               variant="outline"
               className="border-red-300 text-red-700 hover:bg-red-50"
             >
@@ -342,12 +366,17 @@ export default function EventManagement() {
         ) : (
           <div className="space-y-3 sm:space-y-4">
             {events.map((event) => (
-              <div key={event.event_id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <EventCard 
-                  event={event} 
+              <div
+                key={event.event_id}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+              >
+                <EventCard
+                  event={event}
                   type="admin"
                   onAdminToggle={toggleAdminSection}
-                  isAdminExpanded={expandedAdminSections[event.event_id] || false}
+                  isAdminExpanded={
+                    expandedAdminSections[event.event_id] || false
+                  }
                 />
 
                 {/* Collapsible Admin Controls */}
@@ -361,7 +390,9 @@ export default function EventManagement() {
                             <UserCircle className="w-3.5 h-3.5 text-bluePrimary" />
                           </div>
                           <div className="min-w-0">
-                            <span className="text-xs text-gray-500 block text-left">Author</span>
+                            <span className="text-xs text-gray-500 block text-left">
+                              Author
+                            </span>
                             <span className="text-sm font-medium text-gray-900 truncate block text-left">
                               {event.event_author}
                             </span>
@@ -369,7 +400,9 @@ export default function EventManagement() {
                         </div>
                         <div className="flex justify-end sm:ml-auto">
                           <Button
-                            onClick={() => handleViewUserInfo(event.event_author)}
+                            onClick={() =>
+                              handleViewUserInfo(event.event_author)
+                            }
                             variant="outline"
                             size="sm"
                             className="text-xs h-7 px-2 border-bluePrimary/30 text-bluePrimary hover:bg-bluePrimary/10 flex-shrink-0"
@@ -384,7 +417,9 @@ export default function EventManagement() {
                       <div className="space-y-3">
                         {/* Current Status */}
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-500 font-medium">Current Status:</span>
+                          <span className="text-xs text-gray-500 font-medium">
+                            Current Status:
+                          </span>
                           <span
                             className={cn(
                               "px-2 py-1 rounded-full text-xs font-medium border",
@@ -470,8 +505,11 @@ export default function EventManagement() {
           <Card className="p-3 sm:p-4 border-bluePrimary/20 bg-gradient-to-r from-bluePrimary/5 to-gold/5">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
               <div className="text-xs sm:text-sm text-gray-600 order-2 sm:order-1">
-                Page {pagination.current_page} of {pagination.total_pages} 
-                <span className="hidden sm:inline"> • {pagination.total_count} total events</span>
+                Page {pagination.current_page} of {pagination.total_pages}
+                <span className="hidden sm:inline">
+                  {" "}
+                  • {pagination.total_count} total events
+                </span>
               </div>
 
               <div className="flex items-center gap-1 sm:gap-2 order-1 sm:order-2">
@@ -563,13 +601,17 @@ export default function EventManagement() {
             {userInfoDialog.loading ? (
               <div className="flex justify-center items-center py-6 sm:py-8">
                 <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-bluePrimary"></div>
-                <span className="ml-2 sm:ml-3 text-sm text-gray-600">Loading user data...</span>
+                <span className="ml-2 sm:ml-3 text-sm text-gray-600">
+                  Loading user data...
+                </span>
               </div>
             ) : userInfoDialog.error ? (
               <div className="text-center py-6 sm:py-8">
                 <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-500 mx-auto mb-3 sm:mb-4" />
                 <p className="text-red-600 font-medium text-sm">Error</p>
-                <p className="text-gray-600 text-xs sm:text-sm">{userInfoDialog.error}</p>
+                <p className="text-gray-600 text-xs sm:text-sm">
+                  {userInfoDialog.error}
+                </p>
               </div>
             ) : userInfoDialog.user ? (
               <div className="space-y-3">
@@ -587,9 +629,12 @@ export default function EventManagement() {
                   <div className="flex items-center gap-3 p-3 bg-gold/5 rounded-lg border border-gold/20">
                     <User className="w-4 h-4 text-gold flex-shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-gray-700">Full Name</p>
+                      <p className="text-xs font-medium text-gray-700">
+                        Full Name
+                      </p>
                       <p className="text-sm text-gray-900 truncate">
-                        {userInfoDialog.user.first_name} {userInfoDialog.user.last_name}
+                        {userInfoDialog.user.first_name}{" "}
+                        {userInfoDialog.user.last_name}
                       </p>
                     </div>
                   </div>
@@ -597,7 +642,9 @@ export default function EventManagement() {
                   <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
                     <Phone className="w-4 h-4 text-green-600 flex-shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-gray-700">Phone Number</p>
+                      <p className="text-xs font-medium text-gray-700">
+                        Phone Number
+                      </p>
                       <p className="text-sm text-gray-900 truncate">
                         {userInfoDialog.user.phone_number || "Not provided"}
                       </p>
@@ -607,7 +654,9 @@ export default function EventManagement() {
                   <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
                     <UserCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-gray-700">User Type</p>
+                      <p className="text-xs font-medium text-gray-700">
+                        User Type
+                      </p>
                       <p className="text-sm text-gray-900 capitalize">
                         {userInfoDialog.user.type || "Standard"}
                       </p>
@@ -664,7 +713,9 @@ export default function EventManagement() {
       >
         <DialogContent className="sm:max-w-md mx-3 sm:mx-0">
           <DialogHeader>
-            <DialogTitle className="text-base sm:text-lg">Confirm Status Update</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg">
+              Confirm Status Update
+            </DialogTitle>
             <DialogDescription className="text-sm">
               Are you sure you want to change the delivery status to{" "}
               <span className="font-semibold text-bluePrimary">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { EventSuccessModal } from "@/components/events/EventSuccessModal";
@@ -82,8 +82,8 @@ export default function CreateEvent() {
 
   return (
     <div className="bg-white min-h-screen">
-      <main className="flex-1 mx-auto p-4 md:p-8 w-full max-w-4xl">
-        <h1 className="mb-8 font-playfair font-semibold text-2xl text-left">
+      <main className="flex-1 mx-auto p-3 sm:p-4 md:p-6 lg:p-8 w-full max-w-4xl">
+        <h1 className="mb-4 sm:mb-6 lg:mb-8 font-playfair font-semibold text-xl sm:text-2xl text-left">
           Create Event
         </h1>
         <EventForm

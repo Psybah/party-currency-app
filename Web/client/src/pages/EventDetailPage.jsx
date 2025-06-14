@@ -192,10 +192,14 @@ export default function EventDetailPage() {
   const handleDownloadCurrency = async (currency, side) => {
     // Check if payment is successful before allowing download
     const { payment_status } = eventDetails || {};
-    if (payment_status?.toLowerCase() !== 'successful' && 
-        payment_status?.toLowerCase() !== 'paid' && 
-        payment_status?.toLowerCase() !== 'completed') {
-      toast.error('Payment required: Please complete payment for this event before downloading currencies.');
+    if (
+      payment_status?.toLowerCase() !== "successful" &&
+      payment_status?.toLowerCase() !== "paid" &&
+      payment_status?.toLowerCase() !== "completed"
+    ) {
+      toast.error(
+        "Payment required: Please complete payment for this event before downloading currencies."
+      );
       return;
     }
 
@@ -236,10 +240,14 @@ export default function EventDetailPage() {
   const handleDownloadBothSides = async (currency) => {
     // Check if payment is successful before allowing download
     const { payment_status } = eventDetails || {};
-    if (payment_status?.toLowerCase() !== 'successful' && 
-        payment_status?.toLowerCase() !== 'paid' && 
-        payment_status?.toLowerCase() !== 'completed') {
-      toast.error('Payment required: Please complete payment for this event before downloading currencies.');
+    if (
+      payment_status?.toLowerCase() !== "successful" &&
+      payment_status?.toLowerCase() !== "paid" &&
+      payment_status?.toLowerCase() !== "completed"
+    ) {
+      toast.error(
+        "Payment required: Please complete payment for this event before downloading currencies."
+      );
       return;
     }
 
@@ -288,9 +296,10 @@ export default function EventDetailPage() {
 
   // Check if payment is successful for downloads
   const { payment_status } = eventDetails || {};
-  const isPaymentSuccessful = payment_status?.toLowerCase() === 'successful' || 
-                             payment_status?.toLowerCase() === 'paid' || 
-                             payment_status?.toLowerCase() === 'completed';
+  const isPaymentSuccessful =
+    payment_status?.toLowerCase() === "successful" ||
+    payment_status?.toLowerCase() === "paid" ||
+    payment_status?.toLowerCase() === "completed";
 
   if (!authenticated) {
     return <LoadingDisplay message="Authenticating..." />;
@@ -308,7 +317,11 @@ export default function EventDetailPage() {
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
             {error} Try refreshing the page or{" "}
-            <Button variant="link" onClick={() => navigate("/dashboard")} className="p-0 h-auto">
+            <Button
+              variant="link"
+              onClick={() => navigate("/dashboard")}
+              className="p-0 h-auto"
+            >
               go back to dashboard
             </Button>
             .
@@ -326,7 +339,11 @@ export default function EventDetailPage() {
           <AlertTitle>Event Not Found</AlertTitle>
           <AlertDescription>
             The event you are looking for could not be found.
-            <Button variant="link" onClick={() => navigate("/dashboard")} className="p-0 h-auto">
+            <Button
+              variant="link"
+              onClick={() => navigate("/dashboard")}
+              className="p-0 h-auto"
+            >
               Go back to dashboard
             </Button>
             .
@@ -382,7 +399,9 @@ export default function EventDetailPage() {
               <h1 className="text-lg sm:text-2xl font-semibold font-playfair text-gray-900 text-left">
                 Event Details
               </h1>
-              <p className="text-xs sm:text-sm text-gray-500 text-left">Event ID: {eventId}</p>
+              <p className="text-xs sm:text-sm text-gray-500 text-left">
+                Event ID: {eventId}
+              </p>
             </div>
           </div>
 
@@ -393,7 +412,9 @@ export default function EventDetailPage() {
                 <h2 className="text-xl sm:text-3xl font-bold text-gray-800 font-playfair mb-1 text-left">
                   {event_name}
                 </h2>
-                <p className="text-gray-600 text-sm sm:text-base text-left">{event_description}</p>
+                <p className="text-gray-600 text-sm sm:text-base text-left">
+                  {event_description}
+                </p>
                 {!isEventOwner && (
                   <p className="text-xs sm:text-sm text-gray-500 mt-2 text-left">
                     Hosted by: {event_author}
@@ -432,7 +453,10 @@ export default function EventDetailPage() {
               <DetailItem
                 icon={Calendar}
                 label="Created On"
-                value={format(new Date(created_at), "MMM dd, yyyy 'at' hh:mm a")}
+                value={format(
+                  new Date(created_at),
+                  "MMM dd, yyyy 'at' hh:mm a"
+                )}
               />
               <div className="flex items-start text-xs sm:text-sm text-gray-700">
                 <Info className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 mt-0.5 flex-shrink-0 text-bluePrimary" />
@@ -449,13 +473,15 @@ export default function EventDetailPage() {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-6">
                 <div className="flex flex-col items-start">
                   <span className="font-semibold text-gray-700 mb-1 flex items-center text-xs sm:text-sm">
-                    <Info className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-bluePrimary" /> Payment Status
+                    <Info className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-bluePrimary" />{" "}
+                    Payment Status
                   </span>
                   <StatusPill status={payment_status} />
                 </div>
                 <div className="flex flex-col items-start">
                   <span className="font-semibold text-gray-700 mb-1 flex items-center text-xs sm:text-sm">
-                    <Info className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-bluePrimary" /> Delivery Status
+                    <Info className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-bluePrimary" />{" "}
+                    Delivery Status
                   </span>
                   <StatusPill status={delivery_status} />
                 </div>
@@ -503,29 +529,36 @@ export default function EventDetailPage() {
                         </p>
                         {associatedImages[currency.currency_id]?.front ||
                         currency.front_image ? (
-                          <CurrencyCanvas
-                            ref={(ref) => {
-                              if (ref) {
-                                canvasRefs.current[
-                                  `${currency.currency_id}-front`
-                                ] = ref;
+                          <div className="relative overflow-hidden">
+                            <CurrencyCanvas
+                              ref={(ref) => {
+                                if (ref) {
+                                  canvasRefs.current[
+                                    `${currency.currency_id}-front`
+                                  ] = ref;
+                                }
+                              }}
+                              templateImage={getTemplateImage(
+                                currency.denomination
+                              )}
+                              texts={{
+                                currencyName: currency.currency_name,
+                                celebration: currency.front_celebration_text,
+                                dominationText: String(currency.denomination),
+                                eventId: currency.event_id,
+                              }}
+                              side="front"
+                              denomination={String(currency.denomination)}
+                              portraitImage={
+                                associatedImages[currency.currency_id]?.front
                               }
-                            }}
-                            templateImage={getTemplateImage(
-                              currency.denomination
-                            )}
-                            texts={{
-                              currencyName: currency.currency_name,
-                              celebration: currency.front_celebration_text,
-                              dominationText: String(currency.denomination),
-                              eventId: currency.event_id,
-                            }}
-                            side="front"
-                            denomination={String(currency.denomination)}
-                            portraitImage={
-                              associatedImages[currency.currency_id]?.front
-                            }
-                          />
+                            />
+                            {/* Mobile scroll overlay */}
+                            <div 
+                              className="absolute inset-0 bg-transparent md:hidden"
+                              style={{ touchAction: 'pan-y pinch-zoom' }}
+                            />
+                          </div>
                         ) : (
                           <div className="text-center py-3 sm:py-4 text-xs text-gray-400 italic border rounded-md bg-gray-50">
                             No front image
@@ -549,18 +582,27 @@ export default function EventDetailPage() {
                               }
                               disabled={
                                 downloadingCurrency ===
-                                `${currency.currency_id}-front` || !isPaymentSuccessful
+                                  `${currency.currency_id}-front` ||
+                                !isPaymentSuccessful
                               }
                               className={`w-full border-bluePrimary/30 text-bluePrimary hover:bg-bluePrimary/10 text-xs h-7 sm:h-8 ${
-                                !isPaymentSuccessful ? 'opacity-50 cursor-not-allowed' : ''
+                                !isPaymentSuccessful
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : ""
                               }`}
-                              title={!isPaymentSuccessful ? 'Payment required to download' : 'Download front side'}
+                              title={
+                                !isPaymentSuccessful
+                                  ? "Payment required to download"
+                                  : "Download front side"
+                              }
                             >
                               <Download className="w-3 h-3 mr-1" />
                               {downloadingCurrency ===
                               `${currency.currency_id}-front`
                                 ? "Downloading..."
-                                : !isPaymentSuccessful ? "Payment Required" : "Download Front"}
+                                : !isPaymentSuccessful
+                                ? "Payment Required"
+                                : "Download Front"}
                             </Button>
                           </div>
                         )}
@@ -571,28 +613,35 @@ export default function EventDetailPage() {
                         </p>
                         {associatedImages[currency.currency_id]?.back ||
                         currency.back_image ? (
-                          <CurrencyCanvas
-                            ref={(ref) => {
-                              if (ref) {
-                                canvasRefs.current[
-                                  `${currency.currency_id}-back`
-                                ] = ref;
+                          <div className="relative overflow-hidden">
+                            <CurrencyCanvas
+                              ref={(ref) => {
+                                if (ref) {
+                                  canvasRefs.current[
+                                    `${currency.currency_id}-back`
+                                  ] = ref;
+                                }
+                              }}
+                              templateImage={getTemplateImage(
+                                currency.denomination
+                              )} // Assuming back also uses a base template
+                              texts={{
+                                celebration: currency.back_celebration_text,
+                                eventId: currency.event_id,
+                                // Potentially other texts for back if applicable
+                              }}
+                              side="back"
+                              denomination={String(currency.denomination)}
+                              portraitImage={
+                                associatedImages[currency.currency_id]?.back
                               }
-                            }}
-                            templateImage={getTemplateImage(
-                              currency.denomination
-                            )} // Assuming back also uses a base template
-                            texts={{
-                              celebration: currency.back_celebration_text,
-                              eventId: currency.event_id,
-                              // Potentially other texts for back if applicable
-                            }}
-                            side="back"
-                            denomination={String(currency.denomination)}
-                            portraitImage={
-                              associatedImages[currency.currency_id]?.back
-                            }
-                          />
+                            />
+                            {/* Mobile scroll overlay */}
+                            <div 
+                              className="absolute inset-0 bg-transparent md:hidden"
+                              style={{ touchAction: 'pan-y pinch-zoom' }}
+                            />
+                          </div>
                         ) : (
                           <div className="text-center py-3 sm:py-4 text-xs text-gray-400 italic border rounded-md bg-gray-50">
                             No back image
@@ -616,18 +665,27 @@ export default function EventDetailPage() {
                               }
                               disabled={
                                 downloadingCurrency ===
-                                `${currency.currency_id}-back` || !isPaymentSuccessful
+                                  `${currency.currency_id}-back` ||
+                                !isPaymentSuccessful
                               }
                               className={`w-full border-bluePrimary/30 text-bluePrimary hover:bg-bluePrimary/10 text-xs h-7 sm:h-8 ${
-                                !isPaymentSuccessful ? 'opacity-50 cursor-not-allowed' : ''
+                                !isPaymentSuccessful
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : ""
                               }`}
-                              title={!isPaymentSuccessful ? 'Payment required to download' : 'Download back side'}
+                              title={
+                                !isPaymentSuccessful
+                                  ? "Payment required to download"
+                                  : "Download back side"
+                              }
                             >
                               <Download className="w-3 h-3 mr-1" />
                               {downloadingCurrency ===
                               `${currency.currency_id}-back`
                                 ? "Downloading..."
-                                : !isPaymentSuccessful ? "Payment Required" : "Download Back"}
+                                : !isPaymentSuccessful
+                                ? "Payment Required"
+                                : "Download Back"}
                             </Button>
                           </div>
                         )}
@@ -643,20 +701,29 @@ export default function EventDetailPage() {
                           <Button
                             variant="default"
                             className={`w-full bg-bluePrimary hover:bg-bluePrimary/90 text-white text-xs sm:text-sm h-7 sm:h-9 ${
-                              !isPaymentSuccessful ? 'opacity-50 cursor-not-allowed' : ''
+                              !isPaymentSuccessful
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
                             }`}
                             onClick={() => handleDownloadBothSides(currency)}
                             disabled={
                               downloadingCurrency ===
-                              `${currency.currency_id}-both` || !isPaymentSuccessful
+                                `${currency.currency_id}-both` ||
+                              !isPaymentSuccessful
                             }
-                            title={!isPaymentSuccessful ? 'Payment required to download' : 'Download both sides'}
+                            title={
+                              !isPaymentSuccessful
+                                ? "Payment required to download"
+                                : "Download both sides"
+                            }
                           >
                             <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                             {downloadingCurrency ===
                             `${currency.currency_id}-both`
                               ? "Downloading Both Sides..."
-                              : !isPaymentSuccessful ? "Payment Required" : "Download Both Sides"}
+                              : !isPaymentSuccessful
+                              ? "Payment Required"
+                              : "Download Both Sides"}
                           </Button>
                         </div>
                       )}
@@ -670,12 +737,12 @@ export default function EventDetailPage() {
                           className="text-bluePrimary hover:text-bluePrimary hover:bg-blue-50 text-xs h-7 sm:h-8"
                           onClick={() =>
                             navigate(
-                              `/templates?currencyId=${currency.currency_id}&eventId=${eventId}&denomination=${currency.denomination}`
+                              `/dashboard/customize?denomination=${currency.denomination}&currencyId=${currency.currency_id}`
                             )
-                          } // Or to a specific customize page
+                          }
                         >
-                          <Palette className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1.5" /> Customize
-                          this Currency
+                          <Palette className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1.5" />{" "}
+                          Customize this Currency
                         </Button>
                       </div>
                     )}
@@ -690,11 +757,12 @@ export default function EventDetailPage() {
                 </p>
                 {/* Show design button only for event owners */}
                 {isEventOwner && (
-                  <Button 
-                    className="mt-4 bg-bluePrimary text-white hover:bg-bluePrimary/90 text-xs sm:text-sm h-8 sm:h-9" 
+                  <Button
+                    className="mt-4 bg-bluePrimary text-white hover:bg-bluePrimary/90 text-xs sm:text-sm h-8 sm:h-9"
                     onClick={() => navigate("/templates")}
                   >
-                    <Palette className="w-3 h-3 sm:w-4 sm:h-4 mr-2" /> Design a Currency
+                    <Palette className="w-3 h-3 sm:w-4 sm:h-4 mr-2" /> Design a
+                    Currency
                   </Button>
                 )}
               </Card>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import StatsCard from "../components/StatsCard";
@@ -6,9 +6,25 @@ import TransactionHistory from "../components/TransactionHistory";
 import { LoadingDisplay } from "../components/LoadingDisplay";
 import EmptyState from "../components/events/EmptyState";
 import { getEvents } from "../api/eventApi";
+import { USER_PROFILE_CONTEXT } from "@/context";
+import { useNavigate } from "react-router-dom";
+import { getAuth } from "@/lib/util";
 
 export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+  const { userProfile } = useContext(USER_PROFILE_CONTEXT);
+  const { accessToken } = getAuth();
+
+  // Redirect if no auth token or user profile
+  if (!accessToken) {
+    navigate("/login");
+    return null;
+  }
+
+  if (!userProfile) {
+    return <LoadingDisplay message="Loading user profile..." />;
+  }
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["events"],
