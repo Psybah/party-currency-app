@@ -136,7 +136,7 @@ def callback(request):
         verification_data = verification_response.json()
         
         if verification_data.get('requestSuccessful') and verification_data['responseBody'].get('paymentStatus') == "PAID":
-            # Update transaction
+           
             transaction.status = "successful"
             transaction.save()
             
@@ -154,7 +154,7 @@ def callback(request):
             # Update user total
             try:
                 user = CUser.objects.get(email=transaction.user_id)
-                user.total_amount_spent += transaction.amount
+                user.total_amount_spent = user.total_amount_spent + transaction.amount
                 user.save()
             except (CUser.DoesNotExist, Exception) as e:
                 print(f"Error updating user total: {str(e)}")

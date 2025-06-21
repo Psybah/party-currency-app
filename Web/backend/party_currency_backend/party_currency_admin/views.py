@@ -250,7 +250,9 @@ def get_events(request):
                 Q(street_address__icontains=search) |
                 Q(city__icontains=search) |
                 Q(state__icontains=search) |
-                Q(event_author__icontains=search)
+                Q(event_author__icontains=search)|
+                Q(delivery_status__icontains=search)
+
             )
         
         # Apply sorting
