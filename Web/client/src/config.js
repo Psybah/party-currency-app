@@ -1,6 +1,7 @@
-export const BASE_URL =
-  "https://party-currency-app-production-5074.up.railway.app";
+// export const BASE_URL =
+//   "https://party-currency-app-production-5074.up.railway.app";
 
+export const BASE_URL = "http://4.223.210.185:8000";
 export const ACCESS_TOKEN_DURATION = 14;
 
 export const googleAuthUrl = `${BASE_URL}/auth/google/login`;
